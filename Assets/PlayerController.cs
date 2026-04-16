@@ -31,6 +31,13 @@ public class PlayerController : MonoBehaviour
     public float consumeRange = 2f;
     public LayerMask monsterMask;
 
+    [Header("벽타기")]
+    public float wallCheckDistance = 0.3f;
+    public float wallSlideSpeed = 1.5f;
+    public float wallJumpX = 6f;
+    public float wallJumpY = 10f;
+    public LayerMask wallMask;
+
     [Header("제어")]
     public bool isControlled = false;
 
@@ -52,10 +59,26 @@ public class PlayerController : MonoBehaviour
     private bool isDashing;
     private float dashTimer;
 
-    void Start()
+    private bool isOnWall;
+    private int wallDir; // 1=오른쪽벽, -1=왼쪽벽
+    private float wallJumpTimer; // > 0이면 벽점프 직후, x입력 무시
+    private int lastWallJumpDir; // 마지막으로 벽점프한 벽 방향 (같은 벽 연속 점프 방지)
+
+    private Collider2D col;
+    private PhysicsMaterial2D noFrictionMat;
+    private PhysicsMaterial2D originalMat;
+
+    void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
         rb.collisionDetectionMode = CollisionDetectionMode2D.Continuous;
+        col = GetComponent<Collider2D>();
+        originalMat = col != null ? col.sharedMaterial : null;
+        noFrictionMat = new PhysicsMaterial2D("NoFriction") { friction = 0f, bounciness = 0f };
+    }
+
+    void Start()
+    {
         spr = GetComponent<SpriteRenderer>();
         animator = GetComponent<Animator>();
         jumpsLeft = maxJumps;
@@ -80,8 +103,22 @@ public class PlayerController : MonoBehaviour
         Vector3 checkPos = groundCheck != null ? groundCheck.position : transform.position;
         isGrounded = Physics2D.OverlapCircle(checkPos, groundCheckRadius, groundMask);
         if (!wasGrounded && isGrounded)
+        {
             jumpsLeft = maxJumps;
+            isSlamming = false;
+            lastWallJumpDir = 0; // 착지하면 같은 벽 점프 제한 초기화
+        }
         wasGrounded = isGrounded;
+
+        // 벽 감지: 콜라이더 끝에서 레이캐스트 (중심에서 쏘면 콜라이더 반너비보다 짧아서 벽에 못 닿음)
+        float halfW = col != null ? col.bounds.extents.x : 0f;
+        Vector2 rightOrigin = (Vector2)transform.position + Vector2.right * halfW;
+        Vector2 leftOrigin  = (Vector2)transform.position + Vector2.left  * halfW;
+        bool hitRight = Physics2D.Raycast(rightOrigin, Vector2.right, wallCheckDistance, wallMask);
+        bool hitLeft  = Physics2D.Raycast(leftOrigin,  Vector2.left,  wallCheckDistance, wallMask);
+        if (hitRight)       { isOnWall = true; wallDir =  1; }
+        else if (hitLeft)   { isOnWall = true; wallDir = -1; }
+        else                { isOnWall = false; wallDir = 0; lastWallJumpDir = 0; }
 
         // 대시 타이머
         if (isDashing)
@@ -98,13 +135,20 @@ public class PlayerController : MonoBehaviour
 
         moveX = Input.GetAxisRaw("Horizontal");
 
+        // 벽 방향으로 누르고 있을 때만 벽 슬라이딩/벽점프 상태
+        bool isWallSliding = isOnWall && !isGrounded && wallJumpTimer <= 0f &&
+            ((wallDir == 1 && moveX > 0) || (wallDir == -1 && moveX < 0));
+
         // 점프 버퍼
         if (Input.GetButtonDown("Jump"))
             jumpBufferTimer = jumpBuffer;
 
         // 내려찍기: S + Space, 공중에서만
         if (Input.GetKey(KeyCode.S) && Input.GetButtonDown("Jump") && !isGrounded && !isSlamming)
+        {
+            jumpBufferTimer = 0f; // slam 시 점프버퍼 즉시 클리어 (점프로 덮어쓰기 방지)
             Slam();
+        }
 
         // 분열
         if (Input.GetKeyDown(KeyCode.F))
@@ -134,13 +178,25 @@ public class PlayerController : MonoBehaviour
         if (jumpBufferTimer > 0f)
             jumpBufferTimer -= Time.deltaTime;
 
-        // 점프 실행
-        if (jumpBufferTimer > 0f && jumpsLeft > 0 && !isDashReady)
+        // 점프 실행 (벽점프 우선 - 벽 방향 키 누를 때만, 같은 벽 연속 점프 불가)
+        if (jumpBufferTimer > 0f && !isDashReady)
         {
-            rb.linearVelocity = new Vector2(rb.linearVelocity.x, jumpPower);
-            jumpsLeft--;
-            if (animator != null) animator.Play("jumpstart", 0, 0f);
-            jumpBufferTimer = 0f;
+            if (isWallSliding && wallDir != lastWallJumpDir)
+            {
+                rb.linearVelocity = new Vector2(-wallDir * wallJumpX, wallJumpY);
+                jumpsLeft = maxJumps - 1;
+                lastWallJumpDir = wallDir;
+                wallJumpTimer = 0.25f; // 0.25초간 x입력 무시
+                if (animator != null) animator.Play("jumpstart", 0, 0f);
+                jumpBufferTimer = 0f;
+            }
+            else if (jumpsLeft > 0 && !isSlamming)
+            {
+                rb.linearVelocity = new Vector2(rb.linearVelocity.x, jumpPower);
+                jumpsLeft--;
+                if (animator != null) animator.Play("jumpstart", 0, 0f);
+                jumpBufferTimer = 0f;
+            }
         }
 
         // 스프라이트 반전
@@ -158,6 +214,12 @@ public class PlayerController : MonoBehaviour
 
     void FixedUpdate()
     {
+        // 벽 슬라이딩 여부에 따라 마찰 제거/복원 (마찰이 있으면 슬라이딩이 막힘)
+        bool isWallSlidingNow = isOnWall && !isGrounded && !isSlamming && wallJumpTimer <= 0f && isControlled &&
+            ((wallDir == 1 && moveX > 0) || (wallDir == -1 && moveX < 0));
+        if (col != null)
+            col.sharedMaterial = isWallSlidingNow ? noFrictionMat : originalMat;
+
         // 준비 중: 완전 고정
         if (isDashReady)
         {
@@ -188,7 +250,26 @@ public class PlayerController : MonoBehaviour
 
         // 조종 중인 캐릭터
         rb.gravityScale = 1f;
-        rb.linearVelocity = new Vector2(moveX * moveSpeed, rb.linearVelocity.y);
+
+        // 벽점프 직후엔 x입력 무시 (튕겨나가는 효과 유지)
+        if (wallJumpTimer > 0f)
+        {
+            wallJumpTimer -= Time.fixedDeltaTime;
+        }
+        else
+        {
+            rb.linearVelocity = new Vector2(moveX * moveSpeed, rb.linearVelocity.y);
+        }
+
+        // 벽 슬라이딩: 공중에서 벽 방향으로 누르고 있을 때만 (내려찍기 중엔 제외)
+        bool isWallSliding = isOnWall && !isGrounded && !isSlamming && wallJumpTimer <= 0f &&
+            ((wallDir == 1 && moveX > 0) || (wallDir == -1 && moveX < 0));
+        if (isWallSliding)
+        {
+            rb.gravityScale = 0f;
+            rb.linearVelocity = new Vector2(0f, -wallSlideSpeed);
+            return;
+        }
 
         // 낙하 중력 배수
         if (rb.linearVelocity.y < 0)
@@ -201,6 +282,7 @@ public class PlayerController : MonoBehaviour
     {
         if (playerPrefab == null) return;
         GameObject clone = Instantiate(playerPrefab, transform.position, Quaternion.identity);
+        clone.transform.localScale *= 0.5f;
         clone.GetComponent<SpriteRenderer>().color = Color.green;
         UnityEngine.Debug.Log("분열체 생성됨! (조작하려면 숫자키를 누르세요)");
     }
@@ -213,21 +295,19 @@ public class PlayerController : MonoBehaviour
         mouseWorld.z = 0f;
         Vector2 dashDir = ((Vector2)(mouseWorld - transform.position)).normalized;
 
-        // 본체 대시 (직선 이동을 위해 중력 차단)
+        // 분열체를 원래 위치에 남기고
+        if (playerPrefab != null)
+        {
+            GameObject clone = Instantiate(playerPrefab, transform.position, Quaternion.identity);
+            clone.transform.localScale *= 0.5f;
+            clone.GetComponent<SpriteRenderer>().color = Color.green;
+        }
+
+        // 본체가 마우스 방향으로 대시
         rb.gravityScale = 0f;
         rb.linearVelocity = dashDir * fissionDashSpeed;
         isDashing = true;
         dashTimer = dashDuration;
-
-        // 분열체 반대 방향으로 생성 및 발사
-        if (playerPrefab != null)
-        {
-            GameObject clone = Instantiate(playerPrefab, transform.position, Quaternion.identity);
-            clone.GetComponent<SpriteRenderer>().color = Color.green;
-            PlayerController cloneCtrl = clone.GetComponent<PlayerController>();
-            cloneCtrl.thrownTimer = dashDuration; // 이 시간 동안 물리에 맡김
-            clone.GetComponent<Rigidbody2D>().linearVelocity = -dashDir * fissionDashSpeed;
-        }
 
         UnityEngine.Debug.Log("분열 대시!");
     }

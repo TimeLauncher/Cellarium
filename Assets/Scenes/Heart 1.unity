@@ -355,7 +355,6 @@ BoxCollider2D:
   m_EdgeRadius: 0
 --- !u!212 &586871113
 SpriteRenderer:
-  serializedVersion: 2
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -399,9 +398,8 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_GlobalIlluminationMeshLod: 0
   m_SortingLayerID: -529663917
-  m_SortingLayer: 1
+  m_SortingLayer: 0
   m_SortingOrder: 0
-  m_MaskInteraction: 0
   m_Sprite: {fileID: 7482667652216324306, guid: 311925a002f4447b3a28927169b83ea6, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
@@ -411,6 +409,7 @@ SpriteRenderer:
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
+  m_MaskInteraction: 0
   m_SpriteSortPoint: 0
 --- !u!4 &586871114
 Transform:
@@ -576,7 +575,6 @@ BoxCollider2D:
   m_EdgeRadius: 0
 --- !u!212 &831281164
 SpriteRenderer:
-  serializedVersion: 2
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -620,9 +618,8 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_GlobalIlluminationMeshLod: 0
   m_SortingLayerID: -529663917
-  m_SortingLayer: 1
+  m_SortingLayer: 0
   m_SortingOrder: 0
-  m_MaskInteraction: 0
   m_Sprite: {fileID: 7482667652216324306, guid: 311925a002f4447b3a28927169b83ea6, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
@@ -632,6 +629,7 @@ SpriteRenderer:
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
+  m_MaskInteraction: 0
   m_SpriteSortPoint: 0
 --- !u!4 &831281165
 Transform:
@@ -674,7 +672,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 1050265154}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: be5da8c82bf23804dbdb31a78d5abc02, type: 3}
+  m_Script: {fileID: 11500000, guid: 72818919dfb92574082e483203b4c987, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerControlManager
   allPlayers: []
@@ -762,7 +760,6 @@ BoxCollider2D:
   m_EdgeRadius: 0
 --- !u!212 &1200234194
 SpriteRenderer:
-  serializedVersion: 2
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -808,7 +805,6 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
-  m_MaskInteraction: 0
   m_Sprite: {fileID: 7482667652216324306, guid: 311925a002f4447b3a28927169b83ea6, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
@@ -818,6 +814,7 @@ SpriteRenderer:
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
+  m_MaskInteraction: 0
   m_SpriteSortPoint: 0
 --- !u!4 &1200234195
 Transform:
@@ -999,7 +996,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 1557976630}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 48632648790a24542b31e9ce39f4f9d8, type: 3}
+  m_Script: {fileID: 11500000, guid: 5f496678fe96e6643a449cdd2914a3c9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerCameraTracker
   cinemachineCamera: {fileID: 1557976633}
@@ -1120,7 +1117,6 @@ BoxCollider2D:
   m_EdgeRadius: 0
 --- !u!212 &1980561939
 SpriteRenderer:
-  serializedVersion: 2
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -1166,7 +1162,6 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
-  m_MaskInteraction: 0
   m_Sprite: {fileID: 7482667652216324306, guid: 311925a002f4447b3a28927169b83ea6, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
@@ -1176,6 +1171,7 @@ SpriteRenderer:
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
+  m_MaskInteraction: 0
   m_SpriteSortPoint: 0
 --- !u!50 &1980561940
 Rigidbody2D:
@@ -1213,11 +1209,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 1980561936}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5ab2b9cd3ee2bf940ad90cb0a7b470f2, type: 3}
+  m_Script: {fileID: 11500000, guid: 312f09a687525484fb51ee1520aa4aeb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerFission
   playerPrefab: {fileID: 1980561936}
-  fissionDashSpeed: 10
+  fissionDashSpeed: 20
   dashDuration: 0.2
   cloneIgnoreCollisionTime: 0.2
   canUseFission: 1
@@ -1230,22 +1226,22 @@ MonoBehaviour:
   m_GameObject: {fileID: 1980561936}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 05221b6fe94171b439813c7ad79420c5, type: 3}
+  m_Script: {fileID: 11500000, guid: 01349f103676adb4fb2e230c95e07995, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerDashEat
   dashSpeed: 20
   dashDuration: 0.15
   dashCooldown: 0.5
-  dashExitPreserve: 0.5
+  dashExitPreserve: 0.35
   allowAirDash: 1
   maxAirDash: 1
-  eatRange: 4
+  eatRange: 3
   eatDashSpeed: 25
-  eatHitDistance: 1
+  eatHitDistance: 0.5
   eatMaxDuration: 0.35
   monsterLayer:
     serializedVersion: 2
-    m_Bits: 64
+    m_Bits: 0
   canEat: 1
 --- !u!114 &1980561943
 MonoBehaviour:
@@ -1256,7 +1252,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 1980561936}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: dc8ad322858d4b341836c4a3e888294e, type: 3}
+  m_Script: {fileID: 11500000, guid: 5749d3256fa434a47968a00277a17832, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerControll
   moveSpeed: 8
@@ -1266,12 +1262,12 @@ MonoBehaviour:
   fallMultiplier: 3
   lowJumpMultiplier: 2
   slamForce: 40
-  groundCheck: {fileID: 1687491524}
+  groundCheck: {fileID: 0}
   groundCheckRadius: 0.18
   groundMask:
     serializedVersion: 2
     m_Bits: 8
-  isControlled: 1
+  isControlled: 0
   thrownTimer: 0
 --- !u!1660057539 &9223372036854775807
 SceneRoots:

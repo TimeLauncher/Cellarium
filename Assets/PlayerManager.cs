@@ -16,6 +16,11 @@ public class PlayerManager : MonoBehaviour
     {
         if (Instance == null) Instance = this;
         else Destroy(gameObject);
+
+        int playerLayer = LayerMask.NameToLayer("Player");
+        int monsterLayer = LayerMask.NameToLayer("Monster");
+        if (playerLayer >= 0 && monsterLayer >= 0)
+            Physics2D.IgnoreLayerCollision(playerLayer, monsterLayer, true);
     }
 
     void Update()

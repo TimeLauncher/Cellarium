@@ -336,8 +336,7 @@ public class PlayerController : MonoBehaviour
         Vector2 dashDir = ((Vector2)(GetMouseWorld() - transform.position)).normalized;
         if (dashDir.sqrMagnitude < 0.001f) return;
 
-        // 공중이거나 위쪽 방향 대시면 공중 대시 카운트 소모
-        if (!isGrounded || dashDir.y > 0.1f)
+        if (!isGrounded)
         {
             if (!allowAirDash || airDashLeft <= 0) return;
             airDashLeft--;
@@ -468,6 +467,7 @@ public class PlayerController : MonoBehaviour
             isGrounded = true;
             jumpsLeft = maxJumps;
             isSlamming = false;
+            airDashLeft = maxAirDash;
         }
     }
 

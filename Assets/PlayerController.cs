@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class PlayerController : MonoBehaviour
@@ -12,17 +13,23 @@ public class PlayerController : MonoBehaviour
     public int maxJumps = 2;
     public float fallMultiplier = 3f;
     public float lowJumpMultiplier = 2f;
+    public float ascendMultiplier = 1f;
 
     [Header("내려찍기")]
     public float slamForce = 40f;
+    public float slamPreDelay = 0.2f;
+    public float slamPostDelay = 0.2f;
 
     [Header("일반 대시 (좌클릭)")]
     public float dashSpeed = 20f;
     public float dashDuration = 0.15f;
+    public float dashDistance = 3f;
     public float dashCooldown = 0.5f;
     public float dashExitPreserve = 0.35f;
     public bool allowAirDash = true;
     public int maxAirDash = 1;
+    public float dashAttackDamage = 34f;
+    public float dashKnockbackSpeed = 7f;
 
     [Header("분열 대시 (우클릭 홀드→뗌)")]
     public float fissionDashSpeed = 20f;
@@ -46,6 +53,9 @@ public class PlayerController : MonoBehaviour
     public float wallJumpX = 6f;
     public float wallJumpY = 10f;
     public LayerMask wallMask;
+
+    [Header("체력")]
+    public float maxHp = 100f;
 
     [Header("제어")]
     public bool isControlled = false;
@@ -76,6 +86,9 @@ public class PlayerController : MonoBehaviour
     // 섭취
     private bool isConsuming;
 
+    // 체력
+    private float currentHp;
+
     // 벽타기
     private bool isOnWall;
     private int wallDir;
@@ -101,6 +114,7 @@ public class PlayerController : MonoBehaviour
         animator = GetComponent<Animator>();
         jumpsLeft = maxJumps;
         airDashLeft = maxAirDash;
+        currentHp = maxHp;
 
         if (PlayerManager.Instance != null)
             PlayerManager.Instance.RegisterPlayer(this);
@@ -123,7 +137,6 @@ public class PlayerController : MonoBehaviour
         if (!wasGrounded && isGrounded)
         {
             jumpsLeft = maxJumps;
-            isSlamming = false;
             lastWallJumpDir = 0;
             airDashLeft = maxAirDash;
         }
@@ -269,7 +282,7 @@ public class PlayerController : MonoBehaviour
 
         if (wallJumpTimer > 0f)
             wallJumpTimer -= Time.fixedDeltaTime;
-        else
+        else if (!isSlamming)
             rb.linearVelocity = new Vector2(moveX * moveSpeed, rb.linearVelocity.y);
 
         // 벽 슬라이딩
@@ -286,6 +299,8 @@ public class PlayerController : MonoBehaviour
             rb.linearVelocity += Vector2.up * Physics2D.gravity.y * (fallMultiplier - 1) * Time.fixedDeltaTime;
         else if (rb.linearVelocity.y > 0 && !Input.GetButton("Jump"))
             rb.linearVelocity += Vector2.up * Physics2D.gravity.y * (lowJumpMultiplier - 1) * Time.fixedDeltaTime;
+        else if (rb.linearVelocity.y > 0 && ascendMultiplier > 1f)
+            rb.linearVelocity += Vector2.up * Physics2D.gravity.y * (ascendMultiplier - 1) * Time.fixedDeltaTime;
     }
 
     // 대시/섭취/분열 대시 중엔 점프·내려찍기·대시 추가 입력 차단
@@ -322,13 +337,25 @@ public class PlayerController : MonoBehaviour
         return world;
     }
 
-    // 마우스 커서 위치의 monsterMask 콜라이더 반환 (범위 밖이면 null)
+    // 마우스 커서 위치의 monsterMask 콜라이더 반환 (범위 밖이거나 섭취 불가면 null)
     Transform GetMouseTarget()
     {
         Collider2D hit = Physics2D.OverlapPoint(GetMouseWorld(), monsterMask);
         if (hit == null) return null;
         if (Vector2.Distance(transform.position, hit.transform.position) > consumeRange) return null;
+
+        MonsterBase monster = hit.GetComponent<MonsterBase>();
+        if (monster == null || !monster.IsConsumable) return null;
+
         return hit.transform;
+    }
+
+    public void TakeDamage(float amount)
+    {
+        currentHp = Mathf.Max(0f, currentHp - amount);
+        Debug.Log($"피격! HP: {currentHp}/{maxHp}");
+        if (currentHp <= 0f)
+            Debug.Log("플레이어 사망!");  // TODO: 사망 처리
     }
 
     void TryNormalDash()
@@ -354,19 +381,44 @@ public class PlayerController : MonoBehaviour
         rb.gravityScale = 0f;
 
         Vector2 vel = dashDir * dashSpeed;
-        if (dashDir.y > 0.1f) vel *= 0.8f; // 위 방향 대시 속도 너프
+        float calcDuration = dashDistance / dashSpeed;
 
+        HashSet<MonsterBase> hitMonsters = new HashSet<MonsterBase>();
         float timer = 0f;
-        while (timer < dashDuration)
+        bool knockedBack = false;
+
+        while (timer < calcDuration && !knockedBack)
         {
             rb.linearVelocity = vel;
+
+            float castRadius = col != null ? col.bounds.extents.x : 0.3f;
+            float castDist = vel.magnitude * Time.deltaTime;
+            RaycastHit2D[] hits = Physics2D.CircleCastAll(transform.position, castRadius, vel.normalized, castDist, monsterMask);
+            Debug.Log($"[대시] castRadius={castRadius:F2} castDist={castDist:F2} monsterMask={monsterMask.value} hits={hits.Length}");
+            foreach (var hit in hits)
+            {
+                MonsterBase monster = hit.collider.GetComponent<MonsterBase>();
+                if (monster != null && !hitMonsters.Contains(monster))
+                {
+                    hitMonsters.Add(monster);
+                    monster.TakeDamage(dashAttackDamage);
+                    Debug.Log($"[대시 히트] {monster.name} 데미지={dashAttackDamage}");
+                    rb.gravityScale = originalGravity;
+                    rb.linearVelocity = -dashDir * dashKnockbackSpeed;
+                    knockedBack = true;
+                    break;
+                }
+            }
+
             timer += Time.deltaTime;
             yield return null;
         }
 
-        rb.gravityScale = originalGravity;
-        // 대시 종료 후 수평 속도 일부만 유지
-        rb.linearVelocity = new Vector2(rb.linearVelocity.x * dashExitPreserve, rb.linearVelocity.y);
+        if (!knockedBack)
+        {
+            rb.gravityScale = originalGravity;
+            rb.linearVelocity = new Vector2(rb.linearVelocity.x * dashExitPreserve, rb.linearVelocity.y);
+        }
 
         isNormalDashing = false;
     }
@@ -453,9 +505,31 @@ public class PlayerController : MonoBehaviour
 
     void Slam()
     {
+        StartCoroutine(SlamRoutine());
+    }
+
+    IEnumerator SlamRoutine()
+    {
         isSlamming = true;
+
+        // 공중 정지 (애니메이션 준비 구간)
+        rb.gravityScale = 0f;
+        rb.linearVelocity = Vector2.zero;
+        yield return new WaitForSeconds(slamPreDelay);
+
+        // 내려찍기
+        rb.gravityScale = 1f;
         rb.linearVelocity = new Vector2(0f, -slamForce);
-        Debug.Log("내려찍기!");
+
+        // 착지 대기
+        yield return new WaitUntil(() => isGrounded);
+
+        // 착지 후 경직
+        rb.linearVelocity = Vector2.zero;
+        yield return new WaitForSeconds(slamPostDelay);
+
+        isSlamming = false;
+        Debug.Log("내려찍기 완료!");
     }
 
     // ── 충돌 ──────────────────────────────────────────────────────
@@ -466,7 +540,6 @@ public class PlayerController : MonoBehaviour
         {
             isGrounded = true;
             jumpsLeft = maxJumps;
-            isSlamming = false;
             airDashLeft = maxAirDash;
         }
     }

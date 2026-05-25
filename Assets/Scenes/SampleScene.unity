@@ -1112,8 +1112,14 @@ MonoBehaviour:
   fallMultiplier: 3
   lowJumpMultiplier: 2
   slamForce: 40
-  fissionDashSpeed: 20
+  dashSpeed: 20
   dashDuration: 0.2
+  dashCooldown: 0.5
+  dashExitPreserve: 0.35
+  allowAirDash: 1
+  maxAirDash: 1
+  fissionDashSpeed: 20
+  fissionDashDuration: 0.2
   groundCheck: {fileID: 0}
   groundCheckRadius: 0.18
   groundMask:
@@ -1124,7 +1130,7 @@ MonoBehaviour:
   monsterMask:
     serializedVersion: 2
     m_Bits: 8
-  wallCheckDistance: 0.5
+  wallCheckDistance: 0.1
   wallSlideSpeed: 1.5
   wallJumpX: 6
   wallJumpY: 10

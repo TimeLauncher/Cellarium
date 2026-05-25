@@ -47,12 +47,13 @@ public class PlayerManager : MonoBehaviour
     {
         if (!allPlayers.Contains(player))
         {
-            // 기존 모든 플레이어와 물리 충돌 무시 (동시 점프, 분열 대시 방해 방지)
+            // 분열체끼리만 충돌 무시, 분열체↔본체는 충돌 허용
             Collider2D newCol = player.GetComponent<Collider2D>();
-            if (newCol != null)
+            if (newCol != null && player.isClone)
             {
                 foreach (var other in allPlayers)
                 {
+                    if (!other.isClone) continue;
                     Collider2D otherCol = other.GetComponent<Collider2D>();
                     if (otherCol != null)
                         Physics2D.IgnoreCollision(newCol, otherCol, true);

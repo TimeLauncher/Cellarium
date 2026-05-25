@@ -42,6 +42,7 @@ public class PlayerController : MonoBehaviour
 
     [Header("분열 시스템")]
     public GameObject playerPrefab;
+    public float fissionHoldDuration = 0.5f;
 
     [Header("섭취")]
     public float consumeRange = 2f;
@@ -59,6 +60,7 @@ public class PlayerController : MonoBehaviour
 
     [Header("제어")]
     public bool isControlled = false;
+    public bool isClone = false;
 
     [HideInInspector] public float thrownTimer = 0f;
 
@@ -82,6 +84,7 @@ public class PlayerController : MonoBehaviour
     private bool isDashReady;
     private bool isFissionDashing;
     private float fissionDashTimer;
+    private float fissionHoldTimer;
 
     // 섭취
     private bool isConsuming;
@@ -91,6 +94,7 @@ public class PlayerController : MonoBehaviour
 
     // 벽타기
     private bool isOnWall;
+    private bool wasOnWall;
     private int wallDir;
     private float wallJumpTimer;
     private int lastWallJumpDir;
@@ -152,6 +156,10 @@ public class PlayerController : MonoBehaviour
         else if (hitLeft)   { isOnWall = true; wallDir = -1; }
         else                { isOnWall = false; wallDir = 0; lastWallJumpDir = 0; }
 
+        if (!wasOnWall && isOnWall && !isGrounded)
+            airDashLeft = maxAirDash;
+        wasOnWall = isOnWall;
+
         // 분열 대시 타이머
         if (isFissionDashing)
         {
@@ -184,16 +192,28 @@ public class PlayerController : MonoBehaviour
             Slam();
         }
 
-        // 분열
-        if (Input.GetKeyDown(KeyCode.F))
-            Fission();
+        // 분열 (홀드 0.5초, 분열체/분열대시 중 불가)
+        if (!isClone && !isFissionDashing)
+        {
+            if (Input.GetKey(KeyCode.F))
+            {
+                fissionHoldTimer += Time.deltaTime;
+                if (fissionHoldTimer >= fissionHoldDuration)
+                {
+                    fissionHoldTimer = 0f;
+                    Fission();
+                }
+            }
+            if (Input.GetKeyUp(KeyCode.F))
+                fissionHoldTimer = 0f;
+        }
 
         // 좌클릭: 마우스 커서 위치 몬스터 있으면 섭취, 없으면 일반 대시
         if (Input.GetMouseButtonDown(0) && !IsActionLocked())
             TryDashOrEat();
 
         // 분열 대시 준비: 우클릭 누르면 (일반 대시 중엔 불가)
-        if (Input.GetMouseButtonDown(1) && !isNormalDashing)
+        if (Input.GetMouseButtonDown(1) && !isNormalDashing && !isClone)
         {
             isFissionDashing = false;
             isDashReady = true;
@@ -202,7 +222,7 @@ public class PlayerController : MonoBehaviour
         }
 
         // 분열 대시 시전: 우클릭 떼면
-        if (Input.GetMouseButtonUp(1) && isDashReady)
+        if (Input.GetMouseButtonUp(1) && isDashReady && !isClone)
         {
             isDashReady = false;
             FissionDash();
@@ -212,7 +232,7 @@ public class PlayerController : MonoBehaviour
             jumpBufferTimer -= Time.deltaTime;
 
         // 점프 (벽점프 우선)
-        if (jumpBufferTimer > 0f && !isDashReady && !IsActionLocked())
+        if (jumpBufferTimer > 0f && !isDashReady && !IsActionLocked() && !isClone)
         {
             if (isWallSliding && wallDir != lastWallJumpDir)
             {
@@ -245,7 +265,7 @@ public class PlayerController : MonoBehaviour
 
     void FixedUpdate()
     {
-        bool isWallSlidingNow = isOnWall && !isGrounded && !isSlamming && wallJumpTimer <= 0f && isControlled &&
+        bool isWallSlidingNow = isOnWall && !isGrounded && !isSlamming && wallJumpTimer <= 0f && isControlled && !isClone &&
             ((wallDir == 1 && moveX > 0) || (wallDir == -1 && moveX < 0));
         if (col != null)
             col.sharedMaterial = isWallSlidingNow ? noFrictionMat : originalMat;
@@ -286,7 +306,7 @@ public class PlayerController : MonoBehaviour
             rb.linearVelocity = new Vector2(moveX * moveSpeed, rb.linearVelocity.y);
 
         // 벽 슬라이딩
-        bool isWallSliding = isOnWall && !isGrounded && !isSlamming && wallJumpTimer <= 0f &&
+        bool isWallSliding = isOnWall && !isGrounded && !isSlamming && wallJumpTimer <= 0f && !isClone &&
             ((wallDir == 1 && moveX > 0) || (wallDir == -1 && moveX < 0));
         if (isWallSliding)
         {
@@ -474,8 +494,12 @@ public class PlayerController : MonoBehaviour
     void Fission()
     {
         if (playerPrefab == null) return;
-        GameObject clone = Instantiate(playerPrefab, transform.position, Quaternion.identity);
-        clone.transform.localScale *= 0.5f;
+        float facing = (spr != null && spr.flipX) ? -1f : 1f;
+        Vector2 spawnPos = (Vector2)transform.position + Vector2.right * (-facing) * 0.5f;
+        GameObject clone = Instantiate(playerPrefab, spawnPos, Quaternion.identity);
+        clone.transform.localScale *= 0.75f;
+        PlayerController cloneCtrl = clone.GetComponent<PlayerController>();
+        if (cloneCtrl != null) cloneCtrl.isClone = true;
         clone.GetComponent<SpriteRenderer>().color = Color.green;
         Debug.Log("분열체 생성됨! (조작하려면 숫자키를 누르세요)");
     }
@@ -489,7 +513,9 @@ public class PlayerController : MonoBehaviour
         if (playerPrefab != null)
         {
             GameObject clone = Instantiate(playerPrefab, transform.position, Quaternion.identity);
-            clone.transform.localScale *= 0.5f;
+            clone.transform.localScale *= 0.75f;
+            PlayerController cloneCtrl = clone.GetComponent<PlayerController>();
+            if (cloneCtrl != null) cloneCtrl.isClone = true;
             clone.GetComponent<SpriteRenderer>().color = Color.green;
         }
 

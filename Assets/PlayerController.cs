@@ -22,7 +22,6 @@ public class PlayerController : MonoBehaviour
 
     [Header("일반 대시 (좌클릭)")]
     public float dashSpeed = 20f;
-    public float dashDuration = 0.15f;
     public float dashDistance = 3f;
     public float dashCooldown = 0.5f;
     public float dashExitPreserve = 0.35f;
@@ -195,7 +194,7 @@ public class PlayerController : MonoBehaviour
         // 분열 (홀드 0.5초, 분열체/분열대시 중 불가)
         if (!isClone && !isFissionDashing)
         {
-            if (Input.GetKey(KeyCode.F))
+            if (Input.GetKey(KeyCode.Q))
             {
                 fissionHoldTimer += Time.deltaTime;
                 if (fissionHoldTimer >= fissionHoldDuration)
@@ -204,7 +203,7 @@ public class PlayerController : MonoBehaviour
                     Fission();
                 }
             }
-            if (Input.GetKeyUp(KeyCode.F))
+            if (Input.GetKeyUp(KeyCode.Q))
                 fissionHoldTimer = 0f;
         }
 
@@ -232,9 +231,9 @@ public class PlayerController : MonoBehaviour
             jumpBufferTimer -= Time.deltaTime;
 
         // 점프 (벽점프 우선)
-        if (jumpBufferTimer > 0f && !isDashReady && !IsActionLocked() && !isClone)
+        if (jumpBufferTimer > 0f && !isDashReady && !IsActionLocked())
         {
-            if (isWallSliding && wallDir != lastWallJumpDir)
+            if (isWallSliding && wallDir != lastWallJumpDir && !isClone)
             {
                 rb.linearVelocity = new Vector2(-wallDir * wallJumpX, wallJumpY);
                 jumpsLeft = maxJumps - 1;
@@ -280,6 +279,9 @@ public class PlayerController : MonoBehaviour
 
         // 대시 중: 물리 개입 안 함 (각 대시 루틴이 속도 직접 제어)
         if (isFissionDashing || isNormalDashing) return;
+
+        // 내려찍기 중: SlamRoutine이 gravityScale·velocity 직접 제어
+        if (isSlamming) return;
 
         // 던져진 분열체
         if (thrownTimer > 0f)
@@ -437,7 +439,7 @@ public class PlayerController : MonoBehaviour
         if (!knockedBack)
         {
             rb.gravityScale = originalGravity;
-            rb.linearVelocity = new Vector2(rb.linearVelocity.x * dashExitPreserve, rb.linearVelocity.y);
+            rb.linearVelocity = new Vector2(rb.linearVelocity.x * dashExitPreserve, 0f);
         }
 
         isNormalDashing = false;
@@ -509,10 +511,11 @@ public class PlayerController : MonoBehaviour
         Vector2 dashDir = ((Vector2)(GetMouseWorld() - transform.position)).normalized;
         if (dashDir.sqrMagnitude < 0.001f) return;
 
-        // 분열체를 원래 위치에 남기고 본체가 마우스 방향으로 대시
+        // 분열체를 원래 위치(대시 반대방향 약간 오프셋)에 남기고 본체가 마우스 방향으로 대시
         if (playerPrefab != null)
         {
-            GameObject clone = Instantiate(playerPrefab, transform.position, Quaternion.identity);
+            Vector2 spawnPos = (Vector2)transform.position - dashDir * 0.6f;
+            GameObject clone = Instantiate(playerPrefab, spawnPos, Quaternion.identity);
             clone.transform.localScale *= 0.75f;
             PlayerController cloneCtrl = clone.GetComponent<PlayerController>();
             if (cloneCtrl != null) cloneCtrl.isClone = true;
@@ -537,25 +540,32 @@ public class PlayerController : MonoBehaviour
     IEnumerator SlamRoutine()
     {
         isSlamming = true;
+        Debug.Log("[내려찍기] 시작 - 공중 정지");
 
-        // 공중 정지 (애니메이션 준비 구간)
         rb.gravityScale = 0f;
         rb.linearVelocity = Vector2.zero;
         yield return new WaitForSeconds(slamPreDelay);
 
-        // 내려찍기
+        Debug.Log("[내려찍기] 하강 시작");
         rb.gravityScale = 1f;
         rb.linearVelocity = new Vector2(0f, -slamForce);
 
-        // 착지 대기
-        yield return new WaitUntil(() => isGrounded);
+        // 착지 대기: isGrounded 또는 하강 속도가 거의 0이 되면 착지로 판정 (최대 3초 타임아웃)
+        float timeout = 3f;
+        while (!isGrounded && rb.linearVelocity.y < -0.5f && timeout > 0f)
+        {
+            timeout -= Time.deltaTime;
+            yield return null;
+        }
+        Debug.Log($"[내려찍기] 착지 감지 - 경직 시작 (isGrounded={isGrounded}, vy={rb.linearVelocity.y:F2}, 타임아웃 잔여={timeout:F2}s)");
 
-        // 착지 후 경직
+        rb.gravityScale = 0f;
         rb.linearVelocity = Vector2.zero;
         yield return new WaitForSeconds(slamPostDelay);
 
+        rb.gravityScale = 1f;
         isSlamming = false;
-        Debug.Log("내려찍기 완료!");
+        Debug.Log("[내려찍기] 완료 - 조작 해제");
     }
 
     // ── 충돌 ──────────────────────────────────────────────────────

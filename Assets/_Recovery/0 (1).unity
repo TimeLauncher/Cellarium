@@ -790,9 +790,6 @@ MonoBehaviour:
   playerMask:
     serializedVersion: 2
     m_Bits: 128
-  attackRange: 1.5
-  attackDamage: 10
-  attackCooldown: 1.5
 --- !u!61 &1051709538
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -1109,23 +1106,18 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerController
   moveSpeed: 5
-  jumpPower: 8
+  jumpPower: 10
   jumpBuffer: 0.12
   maxJumps: 2
-  fallMultiplier: 8
+  fallMultiplier: 3
   lowJumpMultiplier: 2
-  ascendMultiplier: 2
   slamForce: 40
-  slamPreDelay: 0.2
-  slamPostDelay: 0.2
-  dashSpeed: 15
-  dashDistance: 3
+  dashSpeed: 20
+  dashDuration: 0.2
   dashCooldown: 0.5
   dashExitPreserve: 0.35
   allowAirDash: 1
   maxAirDash: 1
-  dashAttackDamage: 34
-  dashKnockbackSpeed: 7
   fissionDashSpeed: 20
   fissionDashDuration: 0.2
   groundCheck: {fileID: 0}
@@ -1134,21 +1126,18 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 256
   playerPrefab: {fileID: 1656173078}
-  fissionHoldDuration: 0.5
   consumeRange: 2
   monsterMask:
     serializedVersion: 2
     m_Bits: 8
-  wallCheckDistance: 0.15
+  wallCheckDistance: 0.1
   wallSlideSpeed: 1.5
   wallJumpX: 6
   wallJumpY: 10
   wallMask:
     serializedVersion: 2
     m_Bits: 64
-  maxHp: 100
   isControlled: 1
-  isClone: 0
   thrownTimer: 0
 --- !u!61 &1656173080
 BoxCollider2D:

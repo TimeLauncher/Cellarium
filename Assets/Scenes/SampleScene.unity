@@ -1109,11 +1109,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerController
   moveSpeed: 5
-  jumpPower: 8
+  jumpPower: 10
   jumpBuffer: 0.12
   maxJumps: 2
   fallMultiplier: 8
-  lowJumpMultiplier: 2
+  lowJumpMultiplier: 3
   ascendMultiplier: 2
   slamForce: 40
   slamPreDelay: 0.2

@@ -5,17 +5,22 @@ public class PlayerManager : MonoBehaviour
 {
     public static PlayerManager Instance;
 
-    [Header("°ü¸® ¼³Á¤")]
+    [Header("ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½")]
     public List<PlayerController> allPlayers = new List<PlayerController>();
     public PlayerController currentPlayer;
 
-    // ÃÖÃÊ ºĞ¿­ °¡´É È½¼ö´Â 1 (³ªÁß¿¡ ¾÷±×·¹ÀÌµå ½Ã ÃÖ´ë 3À¸·Î º¯°æ)
+    // ï¿½ï¿½ï¿½ï¿½ ï¿½Ğ¿ï¿½ ï¿½ï¿½ï¿½ï¿½ È½ï¿½ï¿½ï¿½ï¿½ 1 (ï¿½ï¿½ï¿½ß¿ï¿½ ï¿½ï¿½ï¿½×·ï¿½ï¿½Ìµï¿½ ï¿½ï¿½ ï¿½Ö´ï¿½ 3ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½)
     public int maxFissionCount = 3;
 
     void Awake()
     {
         if (Instance == null) Instance = this;
         else Destroy(gameObject);
+
+        int playerLayer = LayerMask.NameToLayer("Player");
+        int monsterLayer = LayerMask.NameToLayer("Monster");
+        if (playerLayer >= 0 && monsterLayer >= 0)
+            Physics2D.IgnoreLayerCollision(playerLayer, monsterLayer, true);
     }
 
     void Update()
@@ -24,30 +29,55 @@ public class PlayerManager : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.Alpha2)) SwitchControl(1);
         if (Input.GetKeyDown(KeyCode.Alpha3)) SwitchControl(2);
         if (Input.GetKeyDown(KeyCode.Alpha4)) SwitchControl(3);
+        if (Input.GetKeyDown(KeyCode.R)) RecallAllClones();
+    }
+
+    public void RecallAllClones()
+    {
+        // ë³¸ì²´(ì¸ë±ìŠ¤ 0)ë§Œ ë‚¨ê¸°ê³  ë¶„ì—´ì²´ ì „ë¶€ ì œê±°
+        for (int i = allPlayers.Count - 1; i >= 1; i--)
+        {
+            Destroy(allPlayers[i].gameObject);
+        }
+        SwitchControl(0);
+        UnityEngine.Debug.Log("ë¶„ì—´ì²´ ì „ì²´ íšŒìˆ˜!");
     }
 
     public void RegisterPlayer(PlayerController player)
     {
         if (!allPlayers.Contains(player))
         {
+            // ë¶„ì—´ì²´ë¼ë¦¬ë§Œ ì¶©ëŒ ë¬´ì‹œ, ë¶„ì—´ì²´â†”ë³¸ì²´ëŠ” ì¶©ëŒ í—ˆìš©
+            Collider2D newCol = player.GetComponent<Collider2D>();
+            if (newCol != null && player.isClone)
+            {
+                foreach (var other in allPlayers)
+                {
+                    if (!other.isClone) continue;
+                    Collider2D otherCol = other.GetComponent<Collider2D>();
+                    if (otherCol != null)
+                        Physics2D.IgnoreCollision(newCol, otherCol, true);
+                }
+            }
+
             allPlayers.Add(player);
 
-            if (allPlayers.Count == 1) // º»Ã¼ µî·Ï ½Ã
+            if (allPlayers.Count == 1) // ï¿½ï¿½Ã¼ ï¿½ï¿½ï¿½ ï¿½ï¿½
             {
                 currentPlayer = player;
                 player.isControlled = true;
             }
-            else // ºĞ¿­Ã¼ µî·Ï ½Ã
+            else // ï¿½Ğ¿ï¿½Ã¼ ï¿½ï¿½ï¿½ ï¿½ï¿½
             {
-                // »ı¼ºµÇÀÚ¸¶ÀÚ´Â Á¶Á¾ ±ÇÇÑÀÌ ¾ø¾î¾ß ÇÔ (°°ÀÌ ¿òÁ÷ÀÓ ¹æÁö)
+                // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ú¸ï¿½ï¿½Ú´ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ (ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½)
                 player.isControlled = false;
 
-                // ±âÈ¹¼­ ¹İ¿µ: ºĞ¿­ È½¼ö ÃÊ°ú ½Ã °¡Àå ¿À·¡µÈ ºĞ¿­Ã¼(ÀÎµ¦½º 1) È¸¼ö(ÆÄ±«)
+                // ï¿½ï¿½È¹ï¿½ï¿½ ï¿½İ¿ï¿½: ï¿½Ğ¿ï¿½ È½ï¿½ï¿½ ï¿½Ê°ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ğ¿ï¿½Ã¼(ï¿½Îµï¿½ï¿½ï¿½ 1) È¸ï¿½ï¿½(ï¿½Ä±ï¿½)
                 if (allPlayers.Count > maxFissionCount + 1)
                 {
                     PlayerController oldestClone = allPlayers[1];
-                    Destroy(oldestClone.gameObject); // OnDestroy¿¡¼­ Unregister ÀÚµ¿ È£ÃâµÊ
-                    UnityEngine.Debug.Log("ÃÖ´ë ºĞ¿­ È½¼ö ÃÊ°ú! °¡Àå ¿À·¡µÈ ºĞ¿­Ã¼°¡ È¸¼öµÇ¾ú½À´Ï´Ù.");
+                    Destroy(oldestClone.gameObject); // OnDestroyï¿½ï¿½ï¿½ï¿½ Unregister ï¿½Úµï¿½ È£ï¿½ï¿½ï¿½
+                    UnityEngine.Debug.Log("ï¿½Ö´ï¿½ ï¿½Ğ¿ï¿½ È½ï¿½ï¿½ ï¿½Ê°ï¿½! ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ğ¿ï¿½Ã¼ï¿½ï¿½ È¸ï¿½ï¿½ï¿½Ç¾ï¿½ï¿½ï¿½ï¿½Ï´ï¿½.");
                 }
             }
         }
@@ -59,7 +89,7 @@ public class PlayerManager : MonoBehaviour
         {
             if (currentPlayer == player && allPlayers.Count > 1)
             {
-                SwitchControl(0); // Á¶Á¾ÇÏ´ø ¾Ö°¡ Á×À¸¸é º»Ã¼·Î Á¦¾î±Ç º¹±Í
+                SwitchControl(0); // ï¿½ï¿½ï¿½ï¿½ï¿½Ï´ï¿½ ï¿½Ö°ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ã¼ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
             }
             allPlayers.Remove(player);
         }
@@ -81,6 +111,6 @@ public class PlayerManager : MonoBehaviour
         if (index == 0) currentPlayer.GetComponent<SpriteRenderer>().color = Color.white;
         else currentPlayer.GetComponent<SpriteRenderer>().color = Color.green;
 
-        UnityEngine.Debug.Log($"{index + 1}¹ø Ä³¸¯ÅÍ·Î Á¦¾î±Ç º¯°æ!");
+        UnityEngine.Debug.Log($"{index + 1}ï¿½ï¿½ Ä³ï¿½ï¿½ï¿½Í·ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½!");
     }
 }

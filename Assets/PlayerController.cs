@@ -91,6 +91,10 @@ public class PlayerController : MonoBehaviour
     // 체력
     private float currentHp;
 
+    public float CurrentHp => currentHp;
+    public float FissionHoldProgress => fissionHoldTimer > 0f ? fissionHoldTimer / fissionHoldDuration : 0f;
+    public float DashCooldownProgress => normalDashCooldownTimer > 0f ? normalDashCooldownTimer / dashCooldown : 0f;
+
     // 벽타기
     private bool isOnWall;
     private bool wasOnWall;

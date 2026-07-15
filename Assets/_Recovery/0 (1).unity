@@ -139,6 +139,7 @@ GameObject:
   m_IsActive: 1
 --- !u!212 &513303869
 SpriteRenderer:
+  serializedVersion: 2
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -184,6 +185,7 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
+  m_MaskInteraction: 0
   m_Sprite: {fileID: 7482667652216324306, guid: 311925a002f4447b3a28927169b83ea6, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
@@ -193,7 +195,6 @@ SpriteRenderer:
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
-  m_MaskInteraction: 0
   m_SpriteSortPoint: 0
 --- !u!4 &513303870
 Transform:
@@ -497,6 +498,7 @@ GameObject:
   m_IsActive: 1
 --- !u!212 &787409625
 SpriteRenderer:
+  serializedVersion: 2
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -542,6 +544,7 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
+  m_MaskInteraction: 0
   m_Sprite: {fileID: 7482667652216324306, guid: 311925a002f4447b3a28927169b83ea6, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
@@ -551,7 +554,6 @@ SpriteRenderer:
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
-  m_MaskInteraction: 0
   m_SpriteSortPoint: 0
 --- !u!4 &787409626
 Transform:
@@ -634,6 +636,7 @@ GameObject:
   m_IsActive: 1
 --- !u!212 &823230088
 SpriteRenderer:
+  serializedVersion: 2
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -679,6 +682,7 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
+  m_MaskInteraction: 0
   m_Sprite: {fileID: 7482667652216324306, guid: 311925a002f4447b3a28927169b83ea6, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
@@ -688,7 +692,6 @@ SpriteRenderer:
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
-  m_MaskInteraction: 0
   m_SpriteSortPoint: 0
 --- !u!4 &823230089
 Transform:
@@ -783,13 +786,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8a1492807fbfbf744bea59892d876d7c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MonsterBase
-  maxHp: 100
-  moveSpeed: 3
-  consumeThreshold: 0.25
-  detectionRange: 6
-  playerMask:
-    serializedVersion: 2
-    m_Bits: 128
 --- !u!61 &1051709538
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -865,6 +861,7 @@ Rigidbody2D:
   m_Constraints: 4
 --- !u!212 &1051709540
 SpriteRenderer:
+  serializedVersion: 2
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -910,6 +907,7 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
+  m_MaskInteraction: 0
   m_Sprite: {fileID: 7482667652216324306, guid: 311925a002f4447b3a28927169b83ea6, type: 3}
   m_Color: {r: 0.08823558, g: 0.07058823, b: 1, a: 1}
   m_FlipX: 0
@@ -919,7 +917,6 @@ SpriteRenderer:
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
-  m_MaskInteraction: 0
   m_SpriteSortPoint: 0
 --- !u!4 &1051709541
 Transform:
@@ -1002,6 +999,7 @@ BoxCollider2D:
   m_EdgeRadius: 0
 --- !u!212 &1105983991
 SpriteRenderer:
+  serializedVersion: 2
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -1047,6 +1045,7 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
+  m_MaskInteraction: 0
   m_Sprite: {fileID: 7482667652216324306, guid: 311925a002f4447b3a28927169b83ea6, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
@@ -1056,7 +1055,6 @@ SpriteRenderer:
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
-  m_MaskInteraction: 0
   m_SpriteSortPoint: 0
 --- !u!4 &1105983992
 Transform:
@@ -1102,41 +1100,21 @@ MonoBehaviour:
   m_GameObject: {fileID: 1656173078}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ed2473b1ceedec74ba1f4500a1412b46, type: 3}
+  m_Script: {fileID: 11500000, guid: 5749d3256fa434a47968a00277a17832, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerController
-  moveSpeed: 5
+  moveSpeed: 8
   jumpPower: 10
   jumpBuffer: 0.12
   maxJumps: 2
   fallMultiplier: 3
   lowJumpMultiplier: 2
   slamForce: 40
-  dashSpeed: 20
-  dashDuration: 0.2
-  dashCooldown: 0.5
-  dashExitPreserve: 0.35
-  allowAirDash: 1
-  maxAirDash: 1
-  fissionDashSpeed: 20
-  fissionDashDuration: 0.2
-  groundCheck: {fileID: 0}
+  groundCheck: {fileID: 1105983992}
   groundCheckRadius: 0.18
   groundMask:
     serializedVersion: 2
     m_Bits: 256
-  playerPrefab: {fileID: 1656173078}
-  consumeRange: 2
-  monsterMask:
-    serializedVersion: 2
-    m_Bits: 8
-  wallCheckDistance: 0.1
-  wallSlideSpeed: 1.5
-  wallJumpX: 6
-  wallJumpY: 10
-  wallMask:
-    serializedVersion: 2
-    m_Bits: 64
   isControlled: 1
   thrownTimer: 0
 --- !u!61 &1656173080
@@ -1214,6 +1192,7 @@ Rigidbody2D:
   m_Constraints: 4
 --- !u!212 &1656173082
 SpriteRenderer:
+  serializedVersion: 2
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -1259,6 +1238,7 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
+  m_MaskInteraction: 0
   m_Sprite: {fileID: 7482667652216324306, guid: 311925a002f4447b3a28927169b83ea6, type: 3}
   m_Color: {r: 1, g: 0.11468316, b: 0.033018887, a: 1}
   m_FlipX: 0
@@ -1268,7 +1248,6 @@ SpriteRenderer:
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
-  m_MaskInteraction: 0
   m_SpriteSortPoint: 0
 --- !u!4 &1656173083
 Transform:
@@ -1351,6 +1330,7 @@ BoxCollider2D:
   m_EdgeRadius: 0
 --- !u!212 &1725188546
 SpriteRenderer:
+  serializedVersion: 2
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -1396,6 +1376,7 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
+  m_MaskInteraction: 0
   m_Sprite: {fileID: 7482667652216324306, guid: 311925a002f4447b3a28927169b83ea6, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
@@ -1405,7 +1386,6 @@ SpriteRenderer:
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
-  m_MaskInteraction: 0
   m_SpriteSortPoint: 0
 --- !u!4 &1725188547
 Transform:
@@ -1448,11 +1428,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 1850083894}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e92d78fc676a67e48ae7600ad8c5ce8a, type: 3}
+  m_Script: {fileID: 11500000, guid: 72818919dfb92574082e483203b4c987, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerManager
   allPlayers: []
-  currentPlayer: {fileID: 0}
+  currentPlayer: {fileID: 1656173079}
   maxFissionCount: 3
 --- !u!4 &1850083896
 Transform:

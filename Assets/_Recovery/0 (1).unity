@@ -489,9 +489,9 @@ GameObject:
   - component: {fileID: 787409626}
   - component: {fileID: 787409625}
   - component: {fileID: 787409627}
-  m_Layer: 6
+  m_Layer: 8
   m_Name: Square
-  m_TagString: Ground
+  m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -564,7 +564,7 @@ Transform:
   m_GameObject: {fileID: 787409624}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 6.76, y: -1.78, z: 0}
+  m_LocalPosition: {x: 3.86, y: -0.41, z: 0}
   m_LocalScale: {x: 5.5575, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -1270,7 +1270,7 @@ MonoBehaviour:
   dashKnockbackSpeed: 7
   fissionDashSpeed: 20
   fissionDashDuration: 0.2
-  groundCheck: {fileID: 1850083896}
+  groundCheck: {fileID: 1656173083}
   groundCheckRadius: 0.18
   groundMask:
     serializedVersion: 2
@@ -1281,13 +1281,13 @@ MonoBehaviour:
   monsterMask:
     serializedVersion: 2
     m_Bits: 8
-  wallCheckDistance: 0.3
+  wallCheckDistance: 0.1
   wallSlideSpeed: 1.5
   wallJumpX: 6
   wallJumpY: 10
   wallMask:
     serializedVersion: 2
-    m_Bits: 64
+    m_Bits: 256
   maxHp: 100
   isControlled: 1
   isClone: 0
@@ -1303,7 +1303,7 @@ GameObject:
   - component: {fileID: 1725188547}
   - component: {fileID: 1725188546}
   - component: {fileID: 1725188545}
-  m_Layer: 6
+  m_Layer: 8
   m_Name: Square (3)
   m_TagString: Untagged
   m_Icon: {fileID: 0}

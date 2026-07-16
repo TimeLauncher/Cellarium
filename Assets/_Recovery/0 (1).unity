@@ -1083,7 +1083,7 @@ GameObject:
   - component: {fileID: 1656173082}
   - component: {fileID: 1656173081}
   - component: {fileID: 1656173080}
-  - component: {fileID: 1656173079}
+  - component: {fileID: 1656173084}
   m_Layer: 7
   m_Name: Player
   m_TagString: Player
@@ -1091,32 +1091,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &1656173079
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1656173078}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5749d3256fa434a47968a00277a17832, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::PlayerController
-  moveSpeed: 8
-  jumpPower: 10
-  jumpBuffer: 0.12
-  maxJumps: 2
-  fallMultiplier: 3
-  lowJumpMultiplier: 2
-  slamForce: 40
-  groundCheck: {fileID: 1105983992}
-  groundCheckRadius: 0.18
-  groundMask:
-    serializedVersion: 2
-    m_Bits: 256
-  isControlled: 1
-  thrownTimer: 0
 --- !u!61 &1656173080
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -1264,6 +1238,60 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1656173084
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1656173078}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 78c4e6d1405929042a6ef82062fecad8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerController
+  moveSpeed: 8
+  jumpPower: 10
+  jumpBuffer: 0.12
+  maxJumps: 2
+  fallMultiplier: 3
+  lowJumpMultiplier: 2
+  ascendMultiplier: 1
+  slamForce: 40
+  slamPreDelay: 0.2
+  slamPostDelay: 0.2
+  dashSpeed: 20
+  dashDistance: 3
+  dashCooldown: 0.5
+  dashExitPreserve: 0.35
+  allowAirDash: 1
+  maxAirDash: 1
+  dashAttackDamage: 34
+  dashKnockbackSpeed: 7
+  fissionDashSpeed: 20
+  fissionDashDuration: 0.2
+  groundCheck: {fileID: 1850083896}
+  groundCheckRadius: 0.18
+  groundMask:
+    serializedVersion: 2
+    m_Bits: 256
+  playerPrefab: {fileID: 1656173078}
+  fissionHoldDuration: 0.5
+  consumeRange: 2
+  monsterMask:
+    serializedVersion: 2
+    m_Bits: 8
+  wallCheckDistance: 0.3
+  wallSlideSpeed: 1.5
+  wallJumpX: 6
+  wallJumpY: 10
+  wallMask:
+    serializedVersion: 2
+    m_Bits: 64
+  maxHp: 100
+  isControlled: 1
+  isClone: 0
+  thrownTimer: 0
 --- !u!1 &1725188544
 GameObject:
   m_ObjectHideFlags: 0
@@ -1411,7 +1439,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1850083896}
-  - component: {fileID: 1850083895}
+  - component: {fileID: 1850083897}
   m_Layer: 0
   m_Name: GameManager
   m_TagString: Untagged
@@ -1419,21 +1447,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &1850083895
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1850083894}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 72818919dfb92574082e483203b4c987, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::PlayerManager
-  allPlayers: []
-  currentPlayer: {fileID: 1656173079}
-  maxFissionCount: 3
 --- !u!4 &1850083896
 Transform:
   m_ObjectHideFlags: 0
@@ -1449,6 +1462,21 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1850083897
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1850083894}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e0c3de923ddde0c43bca2894593ffef2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerManager
+  allPlayers: []
+  currentPlayer: {fileID: 1656173084}
+  maxFissionCount: 3
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

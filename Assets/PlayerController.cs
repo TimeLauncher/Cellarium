@@ -57,6 +57,10 @@ public class PlayerController : MonoBehaviour
     [Header("체력")]
     public float maxHp = 100f;
 
+    [Header("분열 게이지")]
+    public float maxFissionGauge = 100f;
+    public float fissionGaugeRecoverRate = 10f;
+
     [Header("제어")]
     public bool isControlled = false;
     public bool isClone = false;
@@ -90,8 +94,13 @@ public class PlayerController : MonoBehaviour
 
     // 체력
     private float currentHp;
+    private float currentFissionGauge;
+    private bool isStunned;
+    private bool isInvincible;
 
     public float CurrentHp => currentHp;
+    public float CurrentFissionGauge => currentFissionGauge;
+    public float MaxFissionGauge => maxFissionGauge;
     public float FissionHoldProgress => fissionHoldTimer > 0f ? fissionHoldTimer / fissionHoldDuration : 0f;
     public float DashCooldownProgress => normalDashCooldownTimer > 0f ? normalDashCooldownTimer / dashCooldown : 0f;
 
@@ -122,6 +131,7 @@ public class PlayerController : MonoBehaviour
         jumpsLeft = maxJumps;
         airDashLeft = maxAirDash;
         currentHp = maxHp;
+        currentFissionGauge = maxFissionGauge;
 
         if (PlayerManager.Instance != null)
             PlayerManager.Instance.RegisterPlayer(this);
@@ -174,7 +184,21 @@ public class PlayerController : MonoBehaviour
             }
         }
 
+        // 분열 게이지 자동 회복 (본체만, 분열체가 맵에 있으면 회복 안 됨)
+        if (!isClone)
+        {
+            bool hasClones = PlayerManager.Instance != null && PlayerManager.Instance.allPlayers.Count > 1;
+            if (!hasClones)
+                currentFissionGauge = Mathf.Min(maxFissionGauge, currentFissionGauge + fissionGaugeRecoverRate * Time.deltaTime);
+        }
+
         if (!isControlled) return;
+
+        if (isStunned)
+        {
+            moveX = 0f;
+            return;
+        }
 
         moveX = Input.GetAxisRaw("Horizontal");
 
@@ -329,10 +353,10 @@ public class PlayerController : MonoBehaviour
             rb.linearVelocity += Vector2.up * Physics2D.gravity.y * (ascendMultiplier - 1) * Time.fixedDeltaTime;
     }
 
-    // 대시/섭취/분열 대시 중엔 점프·내려찍기·대시 추가 입력 차단
+    // 대시/섭취/분열 대시/경직 중엔 점프·내려찍기·대시 추가 입력 차단
     bool IsActionLocked()
     {
-        return isDashReady || isFissionDashing || isNormalDashing || isConsuming;
+        return isDashReady || isFissionDashing || isNormalDashing || isConsuming || isStunned;
     }
 
     // ── 일반 대시 / 섭취 ───────────────────────────────────────────
@@ -376,12 +400,27 @@ public class PlayerController : MonoBehaviour
         return hit.transform;
     }
 
-    public void TakeDamage(float amount)
+    public void TakeDamage(float amount, Vector2 knockback = default, float stunTime = 0f)
     {
+        if (isInvincible) return;
         currentHp = Mathf.Max(0f, currentHp - amount);
         Debug.Log($"피격! HP: {currentHp}/{maxHp}");
+        if (knockback.sqrMagnitude > 0.01f)
+            rb.linearVelocity = knockback;
+        if (stunTime > 0f)
+            StartCoroutine(StunRoutine(stunTime));
         if (currentHp <= 0f)
             Debug.Log("플레이어 사망!");  // TODO: 사망 처리
+    }
+
+    IEnumerator StunRoutine(float duration)
+    {
+        isStunned = true;
+        isInvincible = true;
+        yield return new WaitForSeconds(duration);
+        isStunned = false;
+        yield return new WaitForSeconds(0.5f); // 무적 프레임
+        isInvincible = false;
     }
 
     void TryNormalDash()
@@ -482,6 +521,9 @@ public class PlayerController : MonoBehaviour
 
         if (target != null) Destroy(target);
 
+        currentHp = Mathf.Min(maxHp, currentHp + 100f);
+        currentFissionGauge = Mathf.Min(maxFissionGauge, currentFissionGauge + 100f);
+
         t = 0f;
         while (t < 0.1f)
         {
@@ -500,6 +542,9 @@ public class PlayerController : MonoBehaviour
     void Fission()
     {
         if (playerPrefab == null) return;
+        if (currentFissionGauge < 30f) return;
+
+        currentFissionGauge -= 30f;
         float facing = (spr != null && spr.flipX) ? -1f : 1f;
         Vector2 spawnPos = (Vector2)transform.position + Vector2.right * (-facing) * 0.5f;
         GameObject clone = Instantiate(playerPrefab, spawnPos, Quaternion.identity);
@@ -512,8 +557,12 @@ public class PlayerController : MonoBehaviour
 
     void FissionDash()
     {
+        if (currentFissionGauge < 100f) return;
+
         Vector2 dashDir = ((Vector2)(GetMouseWorld() - transform.position)).normalized;
         if (dashDir.sqrMagnitude < 0.001f) return;
+
+        currentFissionGauge -= 100f;
 
         // 분열체를 원래 위치(대시 반대방향 약간 오프셋)에 남기고 본체가 마우스 방향으로 대시
         if (playerPrefab != null)

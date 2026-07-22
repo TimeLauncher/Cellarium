@@ -18,6 +18,7 @@ public class FlyingGerm : MonsterBase
     protected override void Awake()
     {
         base.Awake();
+        avoidLedges = false; // 공중/벽면을 이동하므로 낭떠러지 감지 불필요
         if (rb != null) rb.gravityScale = 0f;
     }
 
@@ -79,6 +80,7 @@ public class FlyingGerm : MonsterBase
         CancelInvoke(nameof(StopAttack));
         isAttacking = false;
         isDiving = false;
+        ShowTelegraph(false);
         DisableHitbox();
         attackCooldownTimer = attackCooldown; // 공격이 끝난 시점부터 쿨다운 시작
     }

@@ -27,6 +27,7 @@ public class FloaterGerm : MonsterBase
     protected override void Awake()
     {
         base.Awake();
+        avoidLedges = false; // 공중/벽면을 이동하므로 낭떠러지 감지 불필요
         if (rb != null) rb.gravityScale = 0f;
     }
 

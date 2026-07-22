@@ -23,8 +23,15 @@ public class PlayerManager : MonoBehaviour
 
         int playerLayer = LayerMask.NameToLayer("player");
         int monsterLayer = LayerMask.NameToLayer("monster");
+
+        // 플레이어는 몬스터를 밀거나 타고 올라갈 수 없다 (접촉 데미지는 MonsterBase가 겹침 검사로 따로 처리)
         if (playerLayer >= 0 && monsterLayer >= 0)
             Physics2D.IgnoreLayerCollision(playerLayer, monsterLayer, true);
+
+        // 몬스터끼리도 밀지 않는다 — 벽에 붙는 거미균은 위치를 직접 지정하는데,
+        // 서로 밀치면 표면에서 떨어져 맵 끝까지 밀려나는 문제가 생김
+        if (monsterLayer >= 0)
+            Physics2D.IgnoreLayerCollision(monsterLayer, monsterLayer, true);
     }
 
     public void AddCell(int amount)
@@ -124,18 +131,13 @@ public class PlayerManager : MonoBehaviour
     {
         if (index >= allPlayers.Count) return;
 
+        // 색은 각 PlayerController가 LateUpdate에서 스스로 처리한다 (원래 스프라이트 색 보존)
         foreach (var p in allPlayers)
-        {
             p.isControlled = false;
-            p.GetComponent<SpriteRenderer>().color = new Color(1, 1, 1, 0.5f);
-        }
 
         currentPlayer = allPlayers[index];
         currentPlayer.isControlled = true;
 
-        if (index == 0) currentPlayer.GetComponent<SpriteRenderer>().color = Color.white;
-        else currentPlayer.GetComponent<SpriteRenderer>().color = Color.green;
-
-        UnityEngine.Debug.Log($"{index + 1}�� ĳ���ͷ� ����� ����!");
+        UnityEngine.Debug.Log($"{index + 1}번 캐릭터로 조종 전환!");
     }
 }

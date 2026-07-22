@@ -5,9 +5,11 @@ using UnityEngine;
 public class SpiderGerm : MonsterBase
 {
     [Header("벽 타기")]
-    public Vector2 surfaceNormal = Vector2.up;
+    public Vector2 surfaceNormal = Vector2.up; // 시작 방향. 실제로는 닿은 면에 맞춰 자동 갱신됨
     public float stickRayDistance = 1f;
-    public LayerMask surfaceMask;
+    public float surfaceSearchDistance = 3f;   // 붙을 면을 잃었을 때 주변을 훑는 거리
+    public float surfaceOffset = 0.2f;         // 표면에서 띄울 간격 (몸이 박히면 늘릴 것)
+    public LayerMask surfaceMask;              // 미사용 — 맵이 레이어로 안 나뉘어 있어 CastSurface로 판정
 
     [Header("베기 (근접)")]
     public float slashRange = 2.5f;
@@ -31,6 +33,8 @@ public class SpiderGerm : MonsterBase
     private float slashCooldownTimer;
     private float pounceCooldownTimer;
     private bool isPouncing;
+    private bool isAttachedToSurface;
+    private bool hasSurfaceNearby = true;
     private Vector2 pounceStart;
     private Vector2 pounceLandTarget;
     private float pounceTimer;
@@ -38,6 +42,7 @@ public class SpiderGerm : MonsterBase
     protected override void Awake()
     {
         base.Awake();
+        avoidLedges = false; // 공중/벽면을 이동하므로 낭떠러지 감지 불필요
         if (rb != null)
         {
             rb.gravityScale = 0f;
@@ -82,6 +87,7 @@ public class SpiderGerm : MonsterBase
         isAttacking = true;
         slashCooldownTimer = slashCooldown;
         FaceDirection(target.position.x - transform.position.x);
+        ShowTelegraph(true); // 베는 범위를 준비 동작 동안 미리 표시
         if (animator != null) animator.SetTrigger("Slash");
 
         if (!HasAnimatorController)
@@ -119,7 +125,17 @@ public class SpiderGerm : MonsterBase
 
         StickToSurface();
 
-        if (isAttacking)
+        // 붙을 면을 아예 못 찾으면(허공에 착지한 경우 등) 중력으로 떨어뜨린다.
+        // 안 그러면 gravityScale이 0이라 공중에 그대로 멈춰버림
+        if (!hasSurfaceNearby)
+        {
+            rb.gravityScale = 1f;
+            return;
+        }
+        rb.gravityScale = 0f;
+
+        // 아직 면에 다 붙지 않았으면 접선 이동을 멈추고 붙는 것만 우선 (벽에서 떨어진 채 떠다니는 것 방지)
+        if (!isAttachedToSurface || isAttacking)
         {
             rb.linearVelocity = Vector2.zero;
             return;
@@ -191,14 +207,47 @@ public class SpiderGerm : MonsterBase
         rb.linearVelocity = Tangent * patrolDir * moveSpeed;
     }
 
+    // 현재 붙어 있는 면에 몸을 붙인다. 면을 잃으면 주변을 훑어 새 면을 찾아 그쪽으로 이동한다.
     void StickToSurface()
     {
-        RaycastHit2D hit = Physics2D.Raycast(transform.position, -surfaceNormal, stickRayDistance, surfaceMask);
-        if (hit.collider != null)
+        // 바로 아래(현재 법선 반대)에 면이 없으면 주변 탐색 결과를 그대로 사용한다.
+        // 탐색 결과를 stickRayDistance로 다시 검사하면 멀리 있는 벽에는 영원히 못 붙는다.
+        if (!CastSurface(transform.position, -surfaceNormal, stickRayDistance, out RaycastHit2D hit)
+            && !TryFindSurface(out hit))
         {
-            Vector2 targetPos = hit.point + surfaceNormal * 0.05f;
-            transform.position = Vector2.MoveTowards(transform.position, targetPos, moveSpeed * Time.fixedDeltaTime * 2f);
+            isAttachedToSurface = false;
+            hasSurfaceNearby = false;
+            return;
         }
+        hasSurfaceNearby = true;
+
+        surfaceNormal = hit.normal; // 실제 면 법선으로 갱신 → 모서리를 돌아도 자연스럽게 따라감
+        AlignToSurface();
+
+        Vector2 targetPos = hit.point + surfaceNormal * surfaceOffset;
+        transform.position = Vector2.MoveTowards(transform.position, targetPos, moveSpeed * Time.fixedDeltaTime * 2f);
+
+        isAttachedToSurface = Vector2.Distance(transform.position, targetPos) <= surfaceOffset;
+    }
+
+    // 아래/좌/우/위 중 가장 가까운 지형을 찾아 그 면을 반환
+    bool TryFindSurface(out RaycastHit2D best)
+    {
+        best = default;
+        float bestDist = float.MaxValue;
+        bool found = false;
+
+        Vector2[] dirs = { Vector2.down, Vector2.left, Vector2.right, Vector2.up };
+        foreach (var d in dirs)
+        {
+            if (CastSurface(transform.position, d, surfaceSearchDistance, out RaycastHit2D h) && h.distance < bestDist)
+            {
+                bestDist = h.distance;
+                best = h;
+                found = true;
+            }
+        }
+        return found;
     }
 
     public override void StopAttack()
@@ -208,18 +257,10 @@ public class SpiderGerm : MonsterBase
         CancelInvoke(nameof(StopAttack));
         isAttacking = false;
         isPouncing = false;
+        ShowTelegraph(false);
         DisableHitbox();
     }
 
-    protected override void OnTriggerEnter2D(Collider2D other)
-    {
-        if (!isAttacking || isPouncing) return; // 베기만 일반 히트박스 트리거 사용 (덮치기는 착지 시 별도 판정)
-        PlayerController pc = other.GetComponent<PlayerController>();
-        if (pc != null)
-        {
-            Vector2 knockDir = ((Vector2)(other.transform.position - transform.position)).normalized;
-            pc.TakeDamage(slashDamage, knockDir * knockbackForce, stunDuration);
-            DisableHitbox();
-        }
-    }
+    // 히트박스로 들어가는 공격은 베기뿐 (덮치기는 착지 시 OverlapCircle로 별도 판정)
+    protected override float HitboxDamage => slashDamage;
 }

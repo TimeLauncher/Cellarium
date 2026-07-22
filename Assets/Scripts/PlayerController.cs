@@ -30,15 +30,17 @@ public class PlayerController : MonoBehaviour
     public float dashAttackDamage = 34f;
     public float dashKnockbackSpeed = 7f;
     public float dashKnockbackUpRatio = 0.6f; // 넉백에 섞는 위쪽 성분 비율 — 클수록 포물선이 높아짐
+    public float dashInvincibleTime = 0.4f;   // 대시로 박은 뒤 튕겨나오는 동안 접촉 데미지 면역
 
     [Header("분열 대시 (우클릭 홀드→뗌)")]
     public float fissionDashSpeed = 20f;
     public float fissionDashDuration = 0.2f;
+    public float fissionDashHoldDuration = 0.3f; // 이 시간 이상 누르고 떼야 발동 (톡 누르면 취소)
 
     [Header("지면 감지")]
     public Transform groundCheck;
     public float groundCheckRadius = 0.18f;
-    public LayerMask groundMask;
+    public LayerMask groundMask; // 미사용 — 지면도 레이어가 아니라 접촉 방향으로 판정(CheckGrounded)
 
     [Header("분열 시스템")]
     public GameObject playerPrefab;
@@ -54,10 +56,12 @@ public class PlayerController : MonoBehaviour
     public float wallSlideSpeed = 1.5f;
     public float wallJumpX = 6f;
     public float wallJumpY = 10f;
-    public LayerMask wallMask;
+    public LayerMask wallMask; // 현재 미사용 — 맵이 wall/ground로 나뉘어 있지 않아 기하학적 판정(CheckWallSide)을 씀
 
     [Header("체력")]
     public float maxHp = 100f;
+    public float knockbackDuration = 0.25f; // 이 시간 동안은 이동 입력이 넉백 속도를 덮어쓰지 않음
+    public float invincibleDuration = 0.5f; // 피격 후 무적 시간 (경직 시간에 더해짐)
 
     [Header("분열 게이지")]
     public float maxFissionGauge = 100f;
@@ -66,6 +70,11 @@ public class PlayerController : MonoBehaviour
     [Header("제어")]
     public bool isControlled = false;
     public bool isClone = false;
+
+    [Header("표시")]
+    [Range(0f, 1f)] public float uncontrolledAlpha = 0.5f; // 조종 중이 아닌 개체의 투명도
+    public Color invincibleBlinkColor = Color.white;       // 무적 중 깜빡일 색
+    public float invincibleBlinkInterval = 0.08f;
 
     [HideInInspector] public float thrownTimer = 0f;
 
@@ -89,6 +98,7 @@ public class PlayerController : MonoBehaviour
     private bool isDashReady;
     private bool isFissionDashing;
     private float fissionDashTimer;
+    private float fissionDashHoldTimer;
     private float fissionHoldTimer;
 
     // 섭취
@@ -99,11 +109,15 @@ public class PlayerController : MonoBehaviour
     private float currentFissionGauge;
     private bool isStunned;
     private bool isInvincible;
+    private float knockbackTimer;
+    private float dashInvincibleTimer;
+    private Color baseColor = Color.white;
 
     public float CurrentHp => currentHp;
     public float CurrentFissionGauge => currentFissionGauge;
     public float MaxFissionGauge => maxFissionGauge;
     public float FissionHoldProgress => fissionHoldTimer > 0f ? fissionHoldTimer / fissionHoldDuration : 0f;
+    public float FissionDashHoldProgress => isDashReady ? Mathf.Clamp01(fissionDashHoldTimer / fissionDashHoldDuration) : 0f;
     public float DashCooldownProgress => normalDashCooldownTimer > 0f ? normalDashCooldownTimer / dashCooldown : 0f;
 
     // 벽타기
@@ -131,6 +145,7 @@ public class PlayerController : MonoBehaviour
     {
         spr = GetComponent<SpriteRenderer>();
         animator = GetComponent<Animator>();
+        if (spr != null) baseColor = spr.color; // 스프라이트 원래 색 보존 (강제로 흰색/초록으로 덮어쓰지 않기 위함)
         jumpsLeft = maxJumps;
         airDashLeft = maxAirDash;
         currentHp = maxHp;
@@ -151,9 +166,13 @@ public class PlayerController : MonoBehaviour
         if (thrownTimer > 0f)
             thrownTimer -= Time.deltaTime;
 
-        // 지면 감지
-        Vector3 checkPos = groundCheck != null ? groundCheck.position : transform.position;
-        isGrounded = Physics2D.OverlapCircle(checkPos, groundCheckRadius, groundMask);
+        if (dashInvincibleTimer > 0f)
+            dashInvincibleTimer -= Time.deltaTime;
+
+        // 지면 감지 — groundCheck가 비어있으면 콜라이더 발밑을 기준점으로 사용 (중앙에서 재면 거의 항상 false가 됨)
+        Vector3 checkPos = groundCheck != null ? groundCheck.position
+            : (col != null ? new Vector3(col.bounds.center.x, col.bounds.min.y, transform.position.z) : transform.position);
+        isGrounded = CheckGrounded(checkPos);
         if (!wasGrounded && isGrounded)
         {
             jumpsLeft = maxJumps;
@@ -162,15 +181,10 @@ public class PlayerController : MonoBehaviour
         }
         wasGrounded = isGrounded;
 
-        // 벽 감지
-        float halfW = col != null ? col.bounds.extents.x : 0f;
-        Vector2 rightOrigin = (Vector2)transform.position + Vector2.right * halfW;
-        Vector2 leftOrigin  = (Vector2)transform.position + Vector2.left  * halfW;
-        bool hitRight = Physics2D.Raycast(rightOrigin, Vector2.right, wallCheckDistance, wallMask);
-        bool hitLeft  = Physics2D.Raycast(leftOrigin,  Vector2.left,  wallCheckDistance, wallMask);
-        if (hitRight)       { isOnWall = true; wallDir =  1; }
-        else if (hitLeft)   { isOnWall = true; wallDir = -1; }
-        else                { isOnWall = false; wallDir = 0; lastWallJumpDir = 0; }
+        // 벽 감지 (레이어 무관 — 맵이 wall/ground로 나뉘어 있지 않아 기하학적으로 판정)
+        if (CheckWallSide(1))       { isOnWall = true; wallDir =  1; }
+        else if (CheckWallSide(-1)) { isOnWall = true; wallDir = -1; }
+        else                        { isOnWall = false; wallDir = 0; lastWallJumpDir = 0; }
 
         if (!wasOnWall && isOnWall && !isGrounded)
             airDashLeft = maxAirDash;
@@ -215,18 +229,19 @@ public class PlayerController : MonoBehaviour
         if (Input.GetButtonDown("Jump"))
             jumpBufferTimer = jumpBuffer;
 
-        // 내려찍기
-        if (Input.GetKey(KeyCode.S) && Input.GetButtonDown("Jump") && !isGrounded && !isSlamming && !IsActionLocked())
+        // S+Space: 관통 타일 위면 아래로 통과, 그 외 공중이면 내려찍기 (통과가 우선)
+        if (Input.GetKey(KeyCode.S) && Input.GetButtonDown("Jump") && !IsActionLocked())
         {
-            jumpBufferTimer = 0f;
-            Slam();
-        }
-
-        // 관통 타일 아래로 통과 (지상에서 관통 타일 위에 있을 때만)
-        if (Input.GetKey(KeyCode.S) && Input.GetButtonDown("Jump") && isGrounded && currentOneWayPlatform != null && !IsActionLocked())
-        {
-            jumpBufferTimer = 0f;
-            currentOneWayPlatform.DropThrough(col);
+            if (currentOneWayPlatform != null)
+            {
+                jumpBufferTimer = 0f;
+                currentOneWayPlatform.DropThrough(col);
+            }
+            else if (!isGrounded && !isSlamming)
+            {
+                jumpBufferTimer = 0f;
+                Slam();
+            }
         }
 
         // 분열 (홀드 0.5초, 분열체/분열대시 중 불가)
@@ -254,15 +269,25 @@ public class PlayerController : MonoBehaviour
         {
             isFissionDashing = false;
             isDashReady = true;
+            fissionDashHoldTimer = 0f;
             rb.linearVelocity = Vector2.zero;
             rb.gravityScale = 0f;
         }
 
-        // 분열 대시 시전: 우클릭 떼면
+        if (isDashReady && Input.GetMouseButton(1))
+            fissionDashHoldTimer += Time.deltaTime;
+
+        // 분열 대시 시전: 충분히 누르고 있다가 떼야 발동. 짧게 누르면 취소
         if (Input.GetMouseButtonUp(1) && isDashReady && !isClone)
         {
             isDashReady = false;
-            FissionDash();
+
+            if (fissionDashHoldTimer >= fissionDashHoldDuration)
+                FissionDash();
+            else
+                Debug.Log("분열 대시 취소 (더 길게 누르고 떼야 함)");
+
+            fissionDashHoldTimer = 0f;
         }
 
         if (jumpBufferTimer > 0f)
@@ -298,6 +323,23 @@ public class PlayerController : MonoBehaviour
             animator.SetFloat("yVelocity", rb.linearVelocity.y);
             animator.SetBool("move", Mathf.Abs(moveX) > 0.01f);
         }
+    }
+
+    // 색 처리는 한 곳에서만 — 조종 여부는 투명도로, 무적은 깜빡임으로 표현한다.
+    // (예전엔 PlayerManager가 흰색/초록으로 직접 칠해서 스프라이트 원래 색이 날아갔음)
+    void LateUpdate()
+    {
+        if (spr == null) return;
+
+        Color c = baseColor;
+
+        if (isInvincible && Mathf.FloorToInt(Time.time / Mathf.Max(0.01f, invincibleBlinkInterval)) % 2 == 0)
+            c = invincibleBlinkColor;
+
+        if (!isControlled)
+            c.a = baseColor.a * uncontrolledAlpha;
+
+        spr.color = c;
     }
 
     void FixedUpdate()
@@ -340,7 +382,9 @@ public class PlayerController : MonoBehaviour
 
         rb.gravityScale = 1f;
 
-        if (wallJumpTimer > 0f)
+        if (knockbackTimer > 0f)
+            knockbackTimer -= Time.fixedDeltaTime; // 넉백 중엔 속도를 건드리지 않고 그대로 날아가게 둠
+        else if (wallJumpTimer > 0f)
             wallJumpTimer -= Time.fixedDeltaTime;
         else if (!isSlamming)
             rb.linearVelocity = new Vector2(moveX * moveSpeed, rb.linearVelocity.y);
@@ -419,13 +463,21 @@ public class PlayerController : MonoBehaviour
 
     public void TakeDamage(float amount, Vector2 knockback = default, float stunTime = 0f)
     {
-        if (isInvincible) return;
+        // 대시로 몬스터에 박는 동안은 공격 행동이므로 접촉 데미지를 받지 않는다
+        if (isInvincible || dashInvincibleTimer > 0f) return;
         currentHp = Mathf.Max(0f, currentHp - amount);
         Debug.Log($"피격! HP: {currentHp}/{maxHp}");
         if (knockback.sqrMagnitude > 0.01f)
+        {
             rb.linearVelocity = knockback;
+            knockbackTimer = knockbackDuration; // 이동 입력이 곧바로 덮어쓰지 않도록 잠금
+        }
         if (stunTime > 0f)
             StartCoroutine(StunRoutine(stunTime));
+
+        // 경직이 없는 피해(가시 등)에도 무적 프레임은 항상 적용
+        StartCoroutine(InvincibilityRoutine(stunTime + invincibleDuration));
+
         if (currentHp <= 0f)
             Debug.Log("플레이어 사망!");  // TODO: 사망 처리
     }
@@ -433,10 +485,14 @@ public class PlayerController : MonoBehaviour
     IEnumerator StunRoutine(float duration)
     {
         isStunned = true;
-        isInvincible = true;
         yield return new WaitForSeconds(duration);
         isStunned = false;
-        yield return new WaitForSeconds(0.5f); // 무적 프레임
+    }
+
+    IEnumerator InvincibilityRoutine(float duration)
+    {
+        isInvincible = true;
+        yield return new WaitForSeconds(duration);
         isInvincible = false;
     }
 
@@ -472,6 +528,7 @@ public class PlayerController : MonoBehaviour
         while (timer < calcDuration && !knockedBack)
         {
             rb.linearVelocity = vel;
+            dashInvincibleTimer = Mathf.Max(dashInvincibleTimer, 0.05f); // 대시하는 동안은 접촉 데미지 면역
 
             float castRadius = col != null ? col.bounds.extents.x : 0.3f;
             float castDist = vel.magnitude * Time.deltaTime;
@@ -488,6 +545,8 @@ public class PlayerController : MonoBehaviour
                     rb.gravityScale = originalGravity;
                     Vector2 knockDir = (-dashDir + Vector2.up * dashKnockbackUpRatio).normalized;
                     rb.linearVelocity = knockDir * dashKnockbackSpeed;
+                    knockbackTimer = knockbackDuration; // 이동 입력이 포물선을 곧바로 지우지 않도록 잠금
+                    dashInvincibleTimer = dashInvincibleTime; // 튕겨나오는 동안 겹쳐 있어도 피해 없음
                     knockedBack = true;
                     break;
                 }
@@ -572,7 +631,6 @@ public class PlayerController : MonoBehaviour
         clone.transform.localScale *= 0.75f;
         PlayerController cloneCtrl = clone.GetComponent<PlayerController>();
         if (cloneCtrl != null) cloneCtrl.isClone = true;
-        clone.GetComponent<SpriteRenderer>().color = Color.green;
         Debug.Log("분열체 생성됨! (조작하려면 숫자키를 누르세요)");
     }
 
@@ -593,7 +651,6 @@ public class PlayerController : MonoBehaviour
             clone.transform.localScale *= 0.75f;
             PlayerController cloneCtrl = clone.GetComponent<PlayerController>();
             if (cloneCtrl != null) cloneCtrl.isClone = true;
-            clone.GetComponent<SpriteRenderer>().color = Color.green;
         }
 
         rb.gravityScale = 0f;
@@ -644,24 +701,110 @@ public class PlayerController : MonoBehaviour
 
     // ── 충돌 ──────────────────────────────────────────────────────
 
+    // ── 벽 감지 ───────────────────────────────────────────────────
+    // 맵이 wall/ground 레이어로 나뉘어 있지 않아 wallMask로는 판정할 수 없다.
+    // 대신 "닿은 면이 수직면인가"로 벽을 정의한다 — 법선이 거의 수평이면 벽, 천장/바닥이면 아님.
+    // 높이로 거르지 않으므로 플레이어보다 낮은 1칸 공중 블록의 옆면도 정상적으로 벽점프가 된다.
+    // (머리로 벽을 기어다니던 현상은 천장·돌출부 아랫면이 법선 검사에서 걸러지므로 생기지 않는다)
+    bool CheckWallSide(int dir)
+    {
+        if (col == null) return false;
+
+        Bounds b = col.bounds;
+        float x = dir > 0 ? b.max.x : b.min.x;
+
+        // 몸 전체 높이에 걸쳐 검사 (어느 높이의 블록이든 잡히도록)
+        float[] ys =
+        {
+            b.max.y - b.size.y * 0.15f,
+            b.center.y,
+            b.min.y + b.size.y * 0.2f,
+        };
+
+        foreach (float y in ys)
+            if (WallRay(new Vector2(x, y), dir)) return true;
+
+        return false;
+    }
+
+    bool WallRay(Vector2 origin, int dir)
+    {
+        RaycastHit2D[] hits = Physics2D.RaycastAll(origin, Vector2.right * dir, wallCheckDistance);
+        foreach (var h in hits)
+        {
+            Collider2D c = h.collider;
+            if (c == null || c.isTrigger) continue;
+            if (c.transform == transform || c.transform.IsChildOf(transform)) continue;
+            if (c.GetComponent<MonsterBase>() != null) continue;      // 몬스터는 벽이 아님
+            if (c.GetComponent<PlayerController>() != null) continue; // 다른 분열체도 벽이 아님
+
+            // 수직면만 벽으로 인정 (천장·경사면·모서리에 매달리는 것 방지)
+            if (Mathf.Abs(h.normal.x) < 0.7f) continue;
+
+            return true;
+        }
+        return false;
+    }
+
+    // 레이어/태그로 지면을 구분하지 않는다 — 씬마다 바닥이 Default/ground/wall 어디에 있을지 제각각이라 계속 어긋났음.
+    // 대신 "발밑에서 나를 받치고 있는가"라는 형태로 판정하므로, 벽 블록 위에 올라서도 지면으로 인정된다.
+    bool IsGroundCandidate(GameObject obj)
+    {
+        return obj.GetComponent<MonsterBase>() == null; // 몬스터 위는 지면으로 치지 않음
+    }
+
+    bool CheckGrounded(Vector3 checkPos)
+    {
+        float feetY = col != null ? col.bounds.min.y : transform.position.y;
+
+        Collider2D[] hits = Physics2D.OverlapCircleAll(checkPos, groundCheckRadius);
+        foreach (var h in hits)
+        {
+            if (h == null || h.isTrigger) continue;
+            if (h.transform == transform || h.transform.IsChildOf(transform)) continue;
+            if (!IsGroundCandidate(h.gameObject)) continue;
+
+            // 옆에 서 있는 벽을 지면으로 오인하지 않도록, 발밑보다 위로 솟아있는 면은 제외
+            if (h.bounds.max.y > feetY + groundCheckRadius) continue;
+
+            return true;
+        }
+        return false;
+    }
+
+    // 발밑에서 받치는 접촉(법선이 위를 향함)이 하나라도 있는지
+    bool HasUpwardContact(Collision2D collision)
+    {
+        foreach (var c in collision.contacts)
+            if (c.normal.y > 0.5f) return true;
+        return false;
+    }
+
     void OnCollisionEnter2D(Collision2D collision)
     {
-        if (collision.gameObject.CompareTag("Ground"))
+        OneWayPlatformTile owp = collision.gameObject.GetComponent<OneWayPlatformTile>();
+        if (owp != null) currentOneWayPlatform = owp;
+
+        if (IsGroundCandidate(collision.gameObject) && HasUpwardContact(collision))
         {
             isGrounded = true;
             jumpsLeft = maxJumps;
             airDashLeft = maxAirDash;
         }
+    }
 
-        OneWayPlatformTile owp = collision.gameObject.GetComponent<OneWayPlatformTile>();
-        if (owp != null) currentOneWayPlatform = owp;
+    void OnCollisionStay2D(Collision2D collision)
+    {
+        // 착지 순간 접촉점이 아직 안 잡히는 경우가 있어 유지 중에도 갱신 (벽 위에 올라선 경우 포함)
+        if (IsGroundCandidate(collision.gameObject) && HasUpwardContact(collision))
+        {
+            jumpsLeft = maxJumps;
+            airDashLeft = maxAirDash;
+        }
     }
 
     void OnCollisionExit2D(Collision2D collision)
     {
-        if (collision.gameObject.CompareTag("Ground"))
-            isGrounded = false;
-
         if (currentOneWayPlatform != null && collision.gameObject.GetComponent<OneWayPlatformTile>() == currentOneWayPlatform)
             currentOneWayPlatform = null;
     }

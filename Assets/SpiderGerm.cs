@@ -177,15 +177,15 @@ public class SpiderGerm : MonsterBase
         }
 
         float offset = Vector2.Dot((Vector2)transform.position - patrolOrigin, Tangent);
-        if (patrolDir > 0 && offset >= patrolDistance)
+        if (patrolDir > 0 && offset >= currentPatrolLegDistance)
         {
             patrolDir = -1;
-            patrolPauseTimer = patrolPauseDuration;
+            RerollPatrolLeg();
         }
-        else if (patrolDir < 0 && offset <= -patrolDistance)
+        else if (patrolDir < 0 && offset <= -currentPatrolLegDistance)
         {
             patrolDir = 1;
-            patrolPauseTimer = patrolPauseDuration;
+            RerollPatrolLeg();
         }
 
         rb.linearVelocity = Tangent * patrolDir * moveSpeed;

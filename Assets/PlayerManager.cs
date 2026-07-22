@@ -12,10 +12,37 @@ public class PlayerManager : MonoBehaviour
     // ���� �п� ���� Ƚ���� 1 (���߿� ���׷��̵� �� �ִ� 3���� ����)
     public int maxFissionCount = 3;
 
+    // 보유 재화
+    public int cellCurrency;
+    public int darkCellCurrency;
+
     void Awake()
     {
         if (Instance == null) Instance = this;
         else Destroy(gameObject);
+
+        int playerLayer = LayerMask.NameToLayer("player");
+        int monsterLayer = LayerMask.NameToLayer("monster");
+        if (playerLayer >= 0 && monsterLayer >= 0)
+            Physics2D.IgnoreLayerCollision(playerLayer, monsterLayer, true);
+    }
+
+    public void AddCell(int amount)
+    {
+        cellCurrency += amount;
+        NotifyCurrencyChanged();
+    }
+
+    public void AddDarkCell(int amount)
+    {
+        darkCellCurrency += amount;
+        NotifyCurrencyChanged();
+    }
+
+    void NotifyCurrencyChanged()
+    {
+        PlayerHUD hud = FindFirstObjectByType<PlayerHUD>();
+        if (hud != null) hud.SetCurrency(cellCurrency, darkCellCurrency);
     }
 
     void Update()
@@ -53,6 +80,9 @@ public class PlayerManager : MonoBehaviour
                     if (otherCol != null)
                         Physics2D.IgnoreCollision(newCol, otherCol, true);
                 }
+
+                // 조직 그물망은 분열체만 통과 가능 (본체는 항상 막힘)
+                TissueMesh.RegisterClone(player);
             }
 
             allPlayers.Add(player);

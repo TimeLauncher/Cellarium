@@ -73,7 +73,7 @@ public class SmallSpiderGerm : MonsterBase
     // 애니메이션 이벤트 (지금은 위 Invoke 타이머가 대신 호출)
     public void FireProjectile()
     {
-        if (IsConsumable || target == null || projectilePrefab == null) return;
+        if (IsDead || target == null || projectilePrefab == null) return;
         Vector2 dir = ((Vector2)(target.position - transform.position)).normalized;
         Vector3 pos = firePoint != null ? firePoint.position : transform.position;
         GameObject proj = Instantiate(projectilePrefab, pos, Quaternion.identity);
@@ -112,15 +112,15 @@ public class SmallSpiderGerm : MonsterBase
         }
 
         float offset = Vector2.Dot((Vector2)transform.position - patrolOrigin, Tangent);
-        if (patrolDir > 0 && offset >= patrolDistance)
+        if (patrolDir > 0 && offset >= currentPatrolLegDistance)
         {
             patrolDir = -1;
-            patrolPauseTimer = patrolPauseDuration;
+            RerollPatrolLeg();
         }
-        else if (patrolDir < 0 && offset <= -patrolDistance)
+        else if (patrolDir < 0 && offset <= -currentPatrolLegDistance)
         {
             patrolDir = 1;
-            patrolPauseTimer = patrolPauseDuration;
+            RerollPatrolLeg();
         }
 
         rb.linearVelocity = Tangent * patrolDir * moveSpeed;

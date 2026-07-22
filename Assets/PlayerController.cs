@@ -29,6 +29,7 @@ public class PlayerController : MonoBehaviour
     public int maxAirDash = 1;
     public float dashAttackDamage = 34f;
     public float dashKnockbackSpeed = 7f;
+    public float dashKnockbackUpRatio = 0.6f; // 넉백에 섞는 위쪽 성분 비율 — 클수록 포물선이 높아짐
 
     [Header("분열 대시 (우클릭 홀드→뗌)")]
     public float fissionDashSpeed = 20f;
@@ -46,6 +47,7 @@ public class PlayerController : MonoBehaviour
     [Header("섭취")]
     public float consumeRange = 2f;
     public LayerMask monsterMask;
+    public float consumeMoveSpeed = 15f; // 섭취 대상 위치로 러지하는 속도
 
     [Header("벽타기")]
     public float wallCheckDistance = 0.3f;
@@ -114,6 +116,7 @@ public class PlayerController : MonoBehaviour
     private Collider2D col;
     private PhysicsMaterial2D noFrictionMat;
     private PhysicsMaterial2D originalMat;
+    private OneWayPlatformTile currentOneWayPlatform;
 
     void Awake()
     {
@@ -217,6 +220,13 @@ public class PlayerController : MonoBehaviour
         {
             jumpBufferTimer = 0f;
             Slam();
+        }
+
+        // 관통 타일 아래로 통과 (지상에서 관통 타일 위에 있을 때만)
+        if (Input.GetKey(KeyCode.S) && Input.GetButtonDown("Jump") && isGrounded && currentOneWayPlatform != null && !IsActionLocked())
+        {
+            jumpBufferTimer = 0f;
+            currentOneWayPlatform.DropThrough(col);
         }
 
         // 분열 (홀드 0.5초, 분열체/분열대시 중 불가)
@@ -394,10 +404,17 @@ public class PlayerController : MonoBehaviour
         if (hit == null) return null;
         if (Vector2.Distance(transform.position, hit.transform.position) > consumeRange) return null;
 
-        MonsterBase monster = hit.GetComponent<MonsterBase>();
-        if (monster == null || !monster.IsConsumable) return null;
+        IConsumable consumable = hit.GetComponent<IConsumable>();
+        if (consumable == null || !consumable.IsConsumable) return null;
 
         return hit.transform;
+    }
+
+    // 섭취로 얻는 회복량 적용 (몬스터/회복셀 등 IConsumable.OnConsumed에서 호출)
+    public void RestoreFromConsume(float hpAmount, float gaugeAmount)
+    {
+        currentHp = Mathf.Min(maxHp, currentHp + hpAmount);
+        currentFissionGauge = Mathf.Min(maxFissionGauge, currentFissionGauge + gaugeAmount);
     }
 
     public void TakeDamage(float amount, Vector2 knockback = default, float stunTime = 0f)
@@ -469,7 +486,8 @@ public class PlayerController : MonoBehaviour
                     monster.TakeDamage(dashAttackDamage);
                     Debug.Log($"[대시 히트] {monster.name} 데미지={dashAttackDamage}");
                     rb.gravityScale = originalGravity;
-                    rb.linearVelocity = -dashDir * dashKnockbackSpeed;
+                    Vector2 knockDir = (-dashDir + Vector2.up * dashKnockbackUpRatio).normalized;
+                    rb.linearVelocity = knockDir * dashKnockbackSpeed;
                     knockedBack = true;
                     break;
                 }
@@ -493,15 +511,17 @@ public class PlayerController : MonoBehaviour
         if (isConsuming) yield break;
         isConsuming = true;
 
-        // 몬스터 방향으로 살짝 이동
-        Vector2 dir = ((Vector2)(target.transform.position - transform.position)).normalized;
+        IConsumable consumable = target.GetComponent<IConsumable>();
+
+        // 대상 위치까지 러지 (거리에 비례한 짧은 이동)
         Vector2 startPos = transform.position;
-        Vector2 targetPos = startPos + dir * 0.4f;
+        Vector2 targetPos = target.transform.position;
+        float moveDuration = Mathf.Clamp(Vector2.Distance(startPos, targetPos) / consumeMoveSpeed, 0.05f, 0.3f);
 
         float t = 0f;
-        while (t < 0.1f)
+        while (t < moveDuration)
         {
-            transform.position = Vector2.Lerp(startPos, targetPos, t / 0.1f);
+            transform.position = Vector2.Lerp(startPos, targetPos, t / moveDuration);
             t += Time.deltaTime;
             yield return null;
         }
@@ -519,10 +539,11 @@ public class PlayerController : MonoBehaviour
             yield return null;
         }
 
-        if (target != null) Destroy(target);
-
-        currentHp = Mathf.Min(maxHp, currentHp + 100f);
-        currentFissionGauge = Mathf.Min(maxFissionGauge, currentFissionGauge + 100f);
+        if (target != null)
+        {
+            consumable?.OnConsumed(this);
+            Destroy(target);
+        }
 
         t = 0f;
         while (t < 0.1f)
@@ -631,12 +652,18 @@ public class PlayerController : MonoBehaviour
             jumpsLeft = maxJumps;
             airDashLeft = maxAirDash;
         }
+
+        OneWayPlatformTile owp = collision.gameObject.GetComponent<OneWayPlatformTile>();
+        if (owp != null) currentOneWayPlatform = owp;
     }
 
     void OnCollisionExit2D(Collision2D collision)
     {
         if (collision.gameObject.CompareTag("Ground"))
             isGrounded = false;
+
+        if (currentOneWayPlatform != null && collision.gameObject.GetComponent<OneWayPlatformTile>() == currentOneWayPlatform)
+            currentOneWayPlatform = null;
     }
 
     void OnDrawGizmosSelected()

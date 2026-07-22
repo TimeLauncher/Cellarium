@@ -45,7 +45,7 @@ public class CrusherGerm : MonsterBase
     // 애니메이션 이벤트 (지금은 위 Invoke 타이머가 대신 호출)
     public void StartDash()
     {
-        if (!isAttacking || IsConsumable) return;
+        if (!isAttacking || IsDead) return;
         isDashing = true;
         dashTimer = 0f;
         EnableHitbox();
@@ -96,10 +96,8 @@ public class CrusherGerm : MonsterBase
         EndDash();
     }
 
-    protected override void OnCollisionEnter2D(Collision2D collision)
+    void OnCollisionEnter2D(Collision2D collision)
     {
-        base.OnCollisionEnter2D(collision);
-
         if (!isDashing) return;
         if (((1 << collision.gameObject.layer) & wallMask) == 0) return;
 

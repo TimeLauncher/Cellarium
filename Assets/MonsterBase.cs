@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class MonsterBase : MonoBehaviour
+public class MonsterBase : MonoBehaviour, IConsumable
 {
     [Header("스탯")]
     public float maxHp = 100f;
@@ -12,10 +12,13 @@ public class MonsterBase : MonoBehaviour
     public float detectionRange = 6f;
     public float detectionExpandMultiplier = 3f; // 탐지 이후 탐지범위 배율
     public LayerMask playerMask;
+    public LayerMask obstructionMask; // 이 레이어(벽 등)에 가로막히면 감지 취소 — 인스펙터에서 wall 레이어로 설정 필요
 
     [Header("순찰")]
     public float patrolDistance = 3f;
     public float patrolPauseDuration = 1f;
+    public float patrolDistanceVariance = 0f; // 0이면 기존과 동일(고정 거리), >0이면 구간마다 랜덤화
+    public float patrolPauseVariance = 0f;
 
     [Header("공격")]
     public float attackRange = 1.5f;
@@ -31,21 +34,32 @@ public class MonsterBase : MonoBehaviour
     public float attackWindup = 0.2f;     // 판정 켜지는 시점
     public float attackActiveTime = 0.3f; // 판정 유지 시간
 
+    [Header("섭취 대기 시간")]
+    public float consumableLifetime = 5f; // 섭취 가능 상태로 이 시간 동안 방치되면 자동 소멸
+
     protected float currentHp;
     protected float attackCooldownTimer;
     protected bool isAttacking;
     protected Rigidbody2D rb;
     protected SpriteRenderer spr;
     protected Animator animator;
+    protected Collider2D bodyCollider;
     protected Transform target;
     protected bool hasDetectedPlayer;
 
     protected Vector2 patrolOrigin;
     protected int patrolDir = 1;
     protected float patrolPauseTimer;
+    protected float currentPatrolLegDistance;
     private Color baseColor;
+    private float consumableTimer;
+    private bool wasContactingPlayer;
 
-    public bool IsConsumable => currentHp <= 0f;
+    // 내부 "죽었는가" 판정 (AI 정지, 공격 중단 등에 사용)
+    protected bool IsDead => currentHp <= 0f;
+
+    // 플레이어가 섭취 가능한지 묻는 공개 게이트 — 자폭형 등은 override로 항상 false 가능
+    public virtual bool IsConsumable => IsDead;
 
     // Animator에 실제 컨트롤러가 연결돼 있는지 — false면 애니메이션 이벤트 대신 타이머로 임시 대체
     protected bool HasAnimatorController => animator != null && animator.runtimeAnimatorController != null;
@@ -58,8 +72,10 @@ public class MonsterBase : MonoBehaviour
         rb = GetComponent<Rigidbody2D>();
         spr = GetComponent<SpriteRenderer>();
         animator = GetComponent<Animator>();
+        bodyCollider = GetComponent<Collider2D>();
         currentHp = maxHp;
         patrolOrigin = transform.position;
+        currentPatrolLegDistance = patrolDistance;
         if (attackHitbox != null) attackHitbox.enabled = false;
         if (spr != null) baseColor = spr.color; // 인스펙터에서 구분용으로 지정한 색 보존
     }
@@ -67,10 +83,21 @@ public class MonsterBase : MonoBehaviour
     protected virtual void Update()
     {
         if (spr != null)
-            spr.color = IsConsumable ? Color.yellow : baseColor;
+            spr.color = IsDead ? Color.yellow : baseColor;
 
-        if (IsConsumable) return;
+        if (IsDead)
+        {
+            // 섭취 불가능한 타입(자폭형 등)은 자체 사망 처리(타이머/이펙트)를 쓰므로 여기선 건드리지 않음
+            if (IsConsumable)
+            {
+                consumableTimer += Time.deltaTime;
+                if (consumableTimer >= consumableLifetime)
+                    OnConsumableTimeout();
+            }
+            return;
+        }
 
+        CheckContactDamage();
         UpdateDetection();
 
         if (attackCooldownTimer > 0f)
@@ -81,13 +108,58 @@ public class MonsterBase : MonoBehaviour
 
     protected virtual void FixedUpdate()
     {
-        if (IsConsumable) return;
+        if (IsDead) return;
         UpdateMovement();
+    }
+
+    // 몸통 접촉 데미지 — 물리 충돌은 꺼져있으므로(PlayerManager에서 레이어 무시) 수동 겹침 체크로 대체.
+    // 진입 시점에만 1회 발동, TakeDamage의 무적프레임이 이후 연속 데미지를 자연히 막아줌.
+    protected virtual void CheckContactDamage()
+    {
+        if (bodyCollider == null) return;
+        Collider2D hit = Physics2D.OverlapBox(bodyCollider.bounds.center, bodyCollider.bounds.size, 0f, playerMask);
+        if (hit != null)
+        {
+            if (!wasContactingPlayer)
+            {
+                PlayerController pc = hit.GetComponent<PlayerController>();
+                if (pc != null)
+                {
+                    Vector2 knockDir = ((Vector2)(pc.transform.position - transform.position)).normalized;
+                    if (knockDir.sqrMagnitude < 0.001f) knockDir = Vector2.up;
+                    pc.TakeDamage(attackDamage, knockDir * knockbackForce, stunDuration);
+                }
+            }
+            wasContactingPlayer = true;
+        }
+        else
+        {
+            wasContactingPlayer = false;
+        }
+    }
+
+    // 섭취 가능 상태로 방치되어 시간 초과된 경우 — 기본은 그냥 소멸
+    protected virtual void OnConsumableTimeout()
+    {
+        Destroy(gameObject);
+    }
+
+    // IConsumable — 몬스터를 섭취했을 때(기존 섭취 회복 수치 그대로 재현)
+    public virtual void OnConsumed(PlayerController consumer)
+    {
+        consumer.RestoreFromConsume(100f, 100f);
     }
 
     protected virtual void UpdateDetection()
     {
         Collider2D hit = Physics2D.OverlapCircle(transform.position, EffectiveDetectionRange, playerMask);
+        if (hit != null && obstructionMask.value != 0)
+        {
+            Vector2 dir = (Vector2)hit.transform.position - (Vector2)transform.position;
+            RaycastHit2D block = Physics2D.Raycast(transform.position, dir.normalized, dir.magnitude, obstructionMask);
+            if (block.collider != null) hit = null; // 벽 등에 가로막히면 감지 취소
+        }
+
         if (hit != null)
         {
             target = hit.transform;
@@ -138,6 +210,7 @@ public class MonsterBase : MonoBehaviour
     }
 
     // 정해진 구간을 반복 이동 + 주기적으로 정지 (기획서 "기본 행동" 공통 패턴)
+    // patrolDistanceVariance/patrolPauseVariance가 0보다 크면 구간마다 랜덤한 거리/정지시간을 다시 뽑음
     protected virtual void Patrol()
     {
         if (patrolPauseTimer > 0f)
@@ -148,19 +221,25 @@ public class MonsterBase : MonoBehaviour
         }
 
         float offset = transform.position.x - patrolOrigin.x;
-        if (patrolDir > 0 && offset >= patrolDistance)
+        if (patrolDir > 0 && offset >= currentPatrolLegDistance)
         {
             patrolDir = -1;
-            patrolPauseTimer = patrolPauseDuration;
+            RerollPatrolLeg();
         }
-        else if (patrolDir < 0 && offset <= -patrolDistance)
+        else if (patrolDir < 0 && offset <= -currentPatrolLegDistance)
         {
             patrolDir = 1;
-            patrolPauseTimer = patrolPauseDuration;
+            RerollPatrolLeg();
         }
 
         rb.linearVelocity = new Vector2(patrolDir * moveSpeed, rb.linearVelocity.y);
         FaceDirection(patrolDir);
+    }
+
+    protected void RerollPatrolLeg()
+    {
+        currentPatrolLegDistance = Mathf.Max(0.1f, patrolDistance + Random.Range(-patrolDistanceVariance, patrolDistanceVariance));
+        patrolPauseTimer = Mathf.Max(0f, patrolPauseDuration + Random.Range(-patrolPauseVariance, patrolPauseVariance));
     }
 
     protected virtual void FaceDirection(float dirX)
@@ -186,7 +265,7 @@ public class MonsterBase : MonoBehaviour
     // 애니메이션 이벤트로 호출 — 판정 시작 프레임
     public void EnableHitbox()
     {
-        if (IsConsumable) return; // 타이머 대기 중 사망한 경우 뒤늦게 켜지는 것 방지
+        if (IsDead) return; // 타이머 대기 중 사망한 경우 뒤늦게 켜지는 것 방지
         if (attackHitbox != null) attackHitbox.enabled = true;
     }
 
@@ -217,23 +296,11 @@ public class MonsterBase : MonoBehaviour
         }
     }
 
-    // 몸통끼리 부딪혔을 때의 접촉 데미지 (공격 판정과 별개, 언제든 발생)
-    protected virtual void OnCollisionEnter2D(Collision2D collision)
-    {
-        if (IsConsumable) return;
-        PlayerController pc = collision.collider.GetComponent<PlayerController>();
-        if (pc != null)
-        {
-            Vector2 knockDir = ((Vector2)(pc.transform.position - transform.position)).normalized;
-            pc.TakeDamage(attackDamage, knockDir * knockbackForce, stunDuration);
-        }
-    }
-
     public virtual void TakeDamage(float amount)
     {
-        if (IsConsumable) return;
+        if (IsDead) return;
         currentHp = Mathf.Max(0f, currentHp - amount);
-        if (IsConsumable)
+        if (IsDead)
         {
             if (rb != null) rb.linearVelocity = Vector2.zero;
             OnDeath();

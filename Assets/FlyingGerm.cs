@@ -48,7 +48,7 @@ public class FlyingGerm : MonsterBase
 
     void StartDive()
     {
-        if (!isAttacking || IsConsumable) return;
+        if (!isAttacking || IsDead) return;
         isDiving = true;
         EnableHitbox();
     }

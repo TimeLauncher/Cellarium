@@ -172,4 +172,4 @@ MonoBehaviour:
   lifeTime: 5
   obstacleMask:
     serializedVersion: 2
-    m_Bits: 256
+    m_Bits: 320

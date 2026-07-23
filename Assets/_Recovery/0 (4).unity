@@ -970,6 +970,10 @@ MonoBehaviour:
   patrolPauseDuration: 1
   patrolDistanceVariance: 0
   patrolPauseVariance: 0
+  maxLeashDistance: 8
+  postAttackPause: 0.5
+  knockbackResistance: 1
+  knockbackRecoverTime: 0.2
   attackRange: 1.5
   attackDamage: 10
   attackCooldown: 3.5
@@ -2796,6 +2800,10 @@ MonoBehaviour:
   patrolPauseDuration: 1
   patrolDistanceVariance: 0
   patrolPauseVariance: 0
+  maxLeashDistance: 8
+  postAttackPause: 0.5
+  knockbackResistance: 1
+  knockbackRecoverTime: 0.2
   attackRange: 1.5
   attackDamage: 10
   attackCooldown: 1.5
@@ -3590,6 +3598,10 @@ MonoBehaviour:
   patrolPauseDuration: 1
   patrolDistanceVariance: 0
   patrolPauseVariance: 0
+  maxLeashDistance: 8
+  postAttackPause: 0.5
+  knockbackResistance: 1
+  knockbackRecoverTime: 0.2
   attackRange: 1.5
   attackDamage: 10
   attackCooldown: 1.5
@@ -3601,7 +3613,7 @@ MonoBehaviour:
   attackActiveTime: 0.3
   consumableLifetime: 5
   engageRange: 8
-  projectilePrefab: {fileID: 5033626437013150929, guid: cfd7fa86e43a43e4ca5ce80703b101f2, type: 3}
+  projectilePrefab: {fileID: 4789779386128304187, guid: 54d88cc04de8449498db2f6aff1d7dee, type: 3}
   firePoint: {fileID: 858033775}
   projectileSpeed: 6
   projectileDamage: 50
@@ -5310,6 +5322,10 @@ MonoBehaviour:
   patrolPauseDuration: 1
   patrolDistanceVariance: 0
   patrolPauseVariance: 0
+  maxLeashDistance: 8
+  postAttackPause: 0.5
+  knockbackResistance: 1
+  knockbackRecoverTime: 0.2
   attackRange: 2
   attackDamage: 10
   attackCooldown: 1.5
@@ -6342,8 +6358,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7fb59e1a7e990fb4fa9aa11e2246d6ba, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerHUD
+  hpNotches: []
+  hpFilledSprite: {fileID: 0}
+  hpEmptySprite: {fileID: 0}
+  hpPerNotch: 50
   hpSlider: {fileID: 697368582}
   fissionGauge: {fileID: 1069534770}
+  fissionNotches: []
+  fissionNotchOnSprite: {fileID: 0}
+  fissionNotchOffSprite: {fileID: 0}
+  fissionPerNotch: 100
   dashCooldownFill: {fileID: 225141756}
   mainBodyIcon: {fileID: 0}
   mainBodyDefaultSprite: {fileID: 0}
@@ -6620,6 +6644,10 @@ MonoBehaviour:
   patrolPauseDuration: 1
   patrolDistanceVariance: 0
   patrolPauseVariance: 0
+  maxLeashDistance: 8
+  postAttackPause: 0.5
+  knockbackResistance: 1
+  knockbackRecoverTime: 0.2
   attackRange: 1.5
   attackDamage: 10
   attackCooldown: 1.5
@@ -7113,6 +7141,10 @@ MonoBehaviour:
   patrolPauseDuration: 1
   patrolDistanceVariance: 0
   patrolPauseVariance: 0
+  maxLeashDistance: 8
+  postAttackPause: 0.5
+  knockbackResistance: 1
+  knockbackRecoverTime: 0.2
   attackRange: 1.5
   attackDamage: 10
   attackCooldown: 3
@@ -7328,8 +7360,10 @@ MonoBehaviour:
   dashKnockbackSpeed: 7
   dashKnockbackUpRatio: 0.6
   dashInvincibleTime: 0.4
+  dashMonsterKnockback: 8
   fissionDashSpeed: 20
   fissionDashDuration: 0.2
+  fissionDashHoldDuration: 0.3
   groundCheck: {fileID: 0}
   groundCheckRadius: 0.18
   groundMask:
@@ -8315,6 +8349,10 @@ MonoBehaviour:
   patrolPauseDuration: 1
   patrolDistanceVariance: 0
   patrolPauseVariance: 0
+  maxLeashDistance: 8
+  postAttackPause: 0.5
+  knockbackResistance: 1
+  knockbackRecoverTime: 0.2
   attackRange: 1.5
   attackDamage: 10
   attackCooldown: 1.5
@@ -9208,63 +9246,6 @@ Transform:
   - {fileID: 9080521}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1001 &8785893527556465628
-PrefabInstance:
-  m_ObjectHideFlags: 0
-  serializedVersion: 2
-  m_Modification:
-    serializedVersion: 3
-    m_TransformParent: {fileID: 0}
-    m_Modifications:
-    - target: {fileID: 4789779386128304187, guid: 54d88cc04de8449498db2f6aff1d7dee, type: 3}
-      propertyPath: m_Name
-      value: Acid
-      objectReference: {fileID: 0}
-    - target: {fileID: 8740465808924468590, guid: 54d88cc04de8449498db2f6aff1d7dee, type: 3}
-      propertyPath: m_LocalPosition.x
-      value: 18.51
-      objectReference: {fileID: 0}
-    - target: {fileID: 8740465808924468590, guid: 54d88cc04de8449498db2f6aff1d7dee, type: 3}
-      propertyPath: m_LocalPosition.y
-      value: -2.51
-      objectReference: {fileID: 0}
-    - target: {fileID: 8740465808924468590, guid: 54d88cc04de8449498db2f6aff1d7dee, type: 3}
-      propertyPath: m_LocalPosition.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 8740465808924468590, guid: 54d88cc04de8449498db2f6aff1d7dee, type: 3}
-      propertyPath: m_LocalRotation.w
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 8740465808924468590, guid: 54d88cc04de8449498db2f6aff1d7dee, type: 3}
-      propertyPath: m_LocalRotation.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 8740465808924468590, guid: 54d88cc04de8449498db2f6aff1d7dee, type: 3}
-      propertyPath: m_LocalRotation.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 8740465808924468590, guid: 54d88cc04de8449498db2f6aff1d7dee, type: 3}
-      propertyPath: m_LocalRotation.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 8740465808924468590, guid: 54d88cc04de8449498db2f6aff1d7dee, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 8740465808924468590, guid: 54d88cc04de8449498db2f6aff1d7dee, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 8740465808924468590, guid: 54d88cc04de8449498db2f6aff1d7dee, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.z
-      value: 0
-      objectReference: {fileID: 0}
-    m_RemovedComponents: []
-    m_RemovedGameObjects: []
-    m_AddedGameObjects: []
-    m_AddedComponents: []
-  m_SourcePrefab: {fileID: 100100000, guid: 54d88cc04de8449498db2f6aff1d7dee, type: 3}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
@@ -9275,7 +9256,6 @@ SceneRoots:
   - {fileID: 1850083896}
   - {fileID: 1366694169}
   - {fileID: 710601161}
-  - {fileID: 8785893527556465628}
   - {fileID: 1839594907}
   - {fileID: 1979121344}
   - {fileID: 436134512}

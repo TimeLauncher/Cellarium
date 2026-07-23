@@ -8,7 +8,7 @@ public class CrusherGerm : MonsterBase
     public float dashWindup = 0.5f;    // 준비 자세 시간 (애니메이션 이벤트로 대체 예정, 임시 타이머)
     public float dashSpeed = 6f;       // 초당 6타일(대략)
     public float dashMaxDuration = 3.5f; // 이 시간 안에 벽에 부딪히지 않으면 시전 중지
-    public LayerMask wallMask;
+    public LayerMask wallMask; // 미사용 — 맵이 레이어로 안 나뉘어 있어 접촉 방향으로 벽을 판정
     public float wallKnockback = 0.5f; // 벽 충돌 시 넉백 거리
     public float wallStunDuration = 2.5f;
 
@@ -23,10 +23,14 @@ public class CrusherGerm : MonsterBase
         if (isAttacking || isStunned) return;
 
         // 분쇄균은 attackRange가 아니라 탐지 범위 내 조우 시 바로 돌진 시전
-        if (target != null && attackCooldownTimer <= 0f)
-        {
-            TryStartAttack();
-        }
+        if (target == null || attackCooldownTimer > 0f) return;
+
+        // 낭떠러지 쪽으로는 돌진을 시작하지 않는다.
+        // (시작만 하고 첫 프레임에 중단되면 준비 자세만 반복해서 잡는 것처럼 보임)
+        float dir = Mathf.Sign(target.position.x - transform.position.x);
+        if (!HasGroundAhead(dir)) return;
+
+        TryStartAttack();
     }
 
     protected override void TryStartAttack()
@@ -45,7 +49,7 @@ public class CrusherGerm : MonsterBase
     // 애니메이션 이벤트 (지금은 위 Invoke 타이머가 대신 호출)
     public void StartDash()
     {
-        if (!isAttacking || IsConsumable) return;
+        if (!isAttacking || IsDead) return;
         isDashing = true;
         dashTimer = 0f;
         EnableHitbox();
@@ -53,6 +57,8 @@ public class CrusherGerm : MonsterBase
 
     protected override void UpdateMovement()
     {
+        if (MovementSuppressed()) return;
+
         if (isStunned)
         {
             stunTimer -= Time.fixedDeltaTime;
@@ -70,8 +76,9 @@ public class CrusherGerm : MonsterBase
             }
 
             dashTimer += Time.fixedDeltaTime;
-            if (dashTimer > dashMaxDuration)
+            if (dashTimer > dashMaxDuration || !HasGroundAhead(dashDir))
             {
+                // 시간 초과했거나 발밑이 끊기면 돌진 중단 (맵 밖으로 뛰어내리지 않도록)
                 EndDash();
                 return;
             }
@@ -83,12 +90,31 @@ public class CrusherGerm : MonsterBase
         base.UpdateMovement();
     }
 
+    // 돌진 방향을 정면으로 막아선 수직면이면 '벽에 박았다'로 본다 (레이어 대신 접촉 방향으로 판정).
+    // 바닥(법선이 위)이나 플레이어/다른 몬스터는 제외.
+    bool IsWallHit(Collision2D collision)
+    {
+        if (collision.collider == null) return false;
+        if (collision.collider.GetComponent<PlayerController>() != null) return false;
+        if (collision.collider.GetComponent<MonsterBase>() != null) return false;
+
+        foreach (var c in collision.contacts)
+        {
+            if (Mathf.Abs(c.normal.x) < 0.7f) continue;              // 수직면이 아님
+            if (Mathf.Sign(c.normal.x) == Mathf.Sign(dashDir)) continue; // 등 뒤에서 닿은 것
+            return true;
+        }
+        return false;
+    }
+
     void EndDash()
     {
         CancelInvoke(nameof(StartDash));
         isAttacking = false;
         isDashing = false;
+        ShowTelegraph(false);
         DisableHitbox();
+        actionPauseTimer = postAttackPause; // 돌진 종료 후 잠깐 멈췄다가 움직이도록
     }
 
     public override void StopAttack()
@@ -96,12 +122,10 @@ public class CrusherGerm : MonsterBase
         EndDash();
     }
 
-    protected override void OnCollisionEnter2D(Collision2D collision)
+    void OnCollisionEnter2D(Collision2D collision)
     {
-        base.OnCollisionEnter2D(collision);
-
         if (!isDashing) return;
-        if (((1 << collision.gameObject.layer) & wallMask) == 0) return;
+        if (!IsWallHit(collision)) return;
 
         EndDash();
         isStunned = true;

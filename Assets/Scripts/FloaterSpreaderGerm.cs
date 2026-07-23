@@ -35,7 +35,7 @@ public class FloaterSpreaderGerm : FloaterGerm
     // 애니메이션 이벤트 (지금은 위 Invoke 타이머가 대신 호출) — FloaterGerm.FireProjectile 대신 이걸 연결
     public void FireSpreadProjectiles()
     {
-        if (IsConsumable || target == null || projectilePrefab == null) return;
+        if (IsDead || target == null || projectilePrefab == null) return;
 
         Vector2 baseDir = ((Vector2)(target.position - transform.position)).normalized;
         float baseAngle = Mathf.Atan2(baseDir.y, baseDir.x) * Mathf.Rad2Deg;

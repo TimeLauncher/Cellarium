@@ -21,9 +21,13 @@ public class FloaterGerm : MonsterBase
 
     private bool isDetonating;
 
+    // 자폭형이라 언제든 섭취 불가 (사망해도 회복셀처럼 먹을 수 없음)
+    public override bool IsConsumable => false;
+
     protected override void Awake()
     {
         base.Awake();
+        avoidLedges = false; // 공중/벽면을 이동하므로 낭떠러지 감지 불필요
         if (rb != null) rb.gravityScale = 0f;
     }
 
@@ -70,7 +74,7 @@ public class FloaterGerm : MonsterBase
     // 애니메이션 이벤트 (지금은 위 Invoke 타이머가 대신 호출)
     public void FireProjectile()
     {
-        if (IsConsumable || target == null || projectilePrefab == null) return;
+        if (IsDead || target == null || projectilePrefab == null) return;
         Vector2 dir = ((Vector2)(target.position - transform.position)).normalized;
         SpawnProjectile(dir);
     }
@@ -85,7 +89,9 @@ public class FloaterGerm : MonsterBase
 
     protected override void UpdateMovement()
     {
-        // isDetonating일 때는 IsConsumable이 true라 MonsterBase.FixedUpdate가 이 메서드를 호출하지 않음
+        if (MovementSuppressed()) return;
+
+        // isDetonating일 때는 IsDead가 true라 MonsterBase.FixedUpdate가 이 메서드를 호출하지 않음
         if (isAttacking)
         {
             rb.linearVelocity = Vector2.zero;

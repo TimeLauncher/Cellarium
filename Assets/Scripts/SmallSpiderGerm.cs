@@ -6,9 +6,11 @@ using UnityEngine;
 public class SmallSpiderGerm : MonsterBase
 {
     [Header("벽 타기")]
-    public Vector2 surfaceNormal = Vector2.right;
+    public Vector2 surfaceNormal = Vector2.right; // 시작 방향. 실제로는 닿은 면에 맞춰 자동 갱신됨
     public float stickRayDistance = 1f;
-    public LayerMask surfaceMask;
+    public float surfaceSearchDistance = 3f;      // 붙을 면을 잃었을 때 주변을 훑는 거리
+    public float surfaceOffset = 0.2f;            // 표면에서 띄울 간격 (몸이 박히면 늘릴 것)
+    public LayerMask surfaceMask;                 // 미사용 — 맵이 레이어로 안 나뉘어 있어 CastSurface로 판정
 
     [Header("교전")]
     public float engageRange = 8f;
@@ -23,9 +25,13 @@ public class SmallSpiderGerm : MonsterBase
 
     protected Vector2 Tangent => new Vector2(-surfaceNormal.y, surfaceNormal.x);
 
+    private bool isAttachedToSurface;
+    private bool hasSurfaceNearby = true;
+
     protected override void Awake()
     {
         base.Awake();
+        avoidLedges = false; // 공중/벽면을 이동하므로 낭떠러지 감지 불필요
         if (rb != null)
         {
             rb.gravityScale = 0f;
@@ -73,7 +79,7 @@ public class SmallSpiderGerm : MonsterBase
     // 애니메이션 이벤트 (지금은 위 Invoke 타이머가 대신 호출)
     public void FireProjectile()
     {
-        if (IsConsumable || target == null || projectilePrefab == null) return;
+        if (IsDead || target == null || projectilePrefab == null) return;
         Vector2 dir = ((Vector2)(target.position - transform.position)).normalized;
         Vector3 pos = firePoint != null ? firePoint.position : transform.position;
         GameObject proj = Instantiate(projectilePrefab, pos, Quaternion.identity);
@@ -85,7 +91,16 @@ public class SmallSpiderGerm : MonsterBase
     {
         StickToSurface();
 
-        if (isAttacking)
+        // 붙을 면을 아예 못 찾으면 중력으로 떨어뜨린다 (gravityScale이 0이라 공중에 멈춰버리는 것 방지)
+        if (!hasSurfaceNearby)
+        {
+            rb.gravityScale = 1f;
+            return;
+        }
+        rb.gravityScale = 0f;
+
+        // 아직 면에 다 붙지 않았으면 접선 이동을 멈추고 붙는 것만 우선 (벽에서 떨어진 채 떠다니는 것 방지)
+        if (!isAttachedToSurface || isAttacking)
         {
             rb.linearVelocity = Vector2.zero;
             return;
@@ -112,27 +127,59 @@ public class SmallSpiderGerm : MonsterBase
         }
 
         float offset = Vector2.Dot((Vector2)transform.position - patrolOrigin, Tangent);
-        if (patrolDir > 0 && offset >= patrolDistance)
+        if (patrolDir > 0 && offset >= currentPatrolLegDistance)
         {
             patrolDir = -1;
-            patrolPauseTimer = patrolPauseDuration;
+            RerollPatrolLeg();
         }
-        else if (patrolDir < 0 && offset <= -patrolDistance)
+        else if (patrolDir < 0 && offset <= -currentPatrolLegDistance)
         {
             patrolDir = 1;
-            patrolPauseTimer = patrolPauseDuration;
+            RerollPatrolLeg();
         }
 
         rb.linearVelocity = Tangent * patrolDir * moveSpeed;
     }
 
+    // 현재 붙어 있는 면에 몸을 붙인다. 면을 잃으면 주변을 훑어 새 면을 찾아 그쪽으로 이동한다.
     protected void StickToSurface()
     {
-        RaycastHit2D hit = Physics2D.Raycast(transform.position, -surfaceNormal, stickRayDistance, surfaceMask);
-        if (hit.collider != null)
+        // 탐색 결과를 stickRayDistance로 다시 검사하면 멀리 있는 벽에는 영원히 못 붙으므로 그대로 사용한다
+        if (!CastSurface(transform.position, -surfaceNormal, stickRayDistance, out RaycastHit2D hit)
+            && !TryFindSurface(out hit))
         {
-            Vector2 targetPos = hit.point + surfaceNormal * 0.05f;
-            transform.position = Vector2.MoveTowards(transform.position, targetPos, moveSpeed * Time.fixedDeltaTime * 2f);
+            isAttachedToSurface = false;
+            hasSurfaceNearby = false;
+            return;
         }
+        hasSurfaceNearby = true;
+
+        surfaceNormal = hit.normal; // 실제 면 법선으로 갱신 → 모서리를 돌아도 자연스럽게 따라감
+        AlignToSurface();
+
+        Vector2 targetPos = hit.point + surfaceNormal * surfaceOffset;
+        transform.position = Vector2.MoveTowards(transform.position, targetPos, moveSpeed * Time.fixedDeltaTime * 2f);
+
+        isAttachedToSurface = Vector2.Distance(transform.position, targetPos) <= surfaceOffset;
+    }
+
+    // 아래/좌/우/위 중 가장 가까운 지형을 찾아 그 면을 반환
+    protected bool TryFindSurface(out RaycastHit2D best)
+    {
+        best = default;
+        float bestDist = float.MaxValue;
+        bool found = false;
+
+        Vector2[] dirs = { Vector2.down, Vector2.left, Vector2.right, Vector2.up };
+        foreach (var d in dirs)
+        {
+            if (CastSurface(transform.position, d, surfaceSearchDistance, out RaycastHit2D h) && h.distance < bestDist)
+            {
+                bestDist = h.distance;
+                best = h;
+                found = true;
+            }
+        }
+        return found;
     }
 }

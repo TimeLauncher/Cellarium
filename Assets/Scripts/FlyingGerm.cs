@@ -56,22 +56,66 @@ public class FlyingGerm : MonsterBase
 
     protected override void UpdateMovement()
     {
+        if (MovementSuppressed()) return;
+
         if (isAttacking)
         {
             rb.linearVelocity = isDiving ? diveDir * diveSpeed : Vector2.zero;
             return;
         }
 
+        // 추격 제한: 원점에서 너무 멀어지면 복귀 (원점까지 다 돌아온 뒤 다시 추격)
+        if (returningHome)
+        {
+            ReturnToOrigin();
+            return;
+        }
+        if (IsBeyondLeash())
+        {
+            returningHome = true;
+            ReturnToOrigin();
+            return;
+        }
+
         if (target != null)
         {
+            // 추적 중 PC가 반대편으로 넘어가 이동 방향이 급전환되면 잠깐 멈췄다가 따라간다 (QA: 0.5초 내외)
+            float dx = target.position.x - transform.position.x;
+            int hdir = dx > 0.02f ? 1 : (dx < -0.02f ? -1 : 0);
+            if (hdir != 0 && lastChaseDir != 0 && hdir != lastChaseDir)
+                turnPauseTimer = turnPauseDuration;
+            if (hdir != 0) lastChaseDir = hdir;
+
+            if (turnPauseTimer > 0f)
+            {
+                rb.linearVelocity = Vector2.zero;
+                FaceDirection(dx);
+                return;
+            }
+
             Vector2 dir = ((Vector2)(target.position - transform.position)).normalized;
             rb.linearVelocity = dir * chaseSpeed;
             FaceDirection(dir.x);
         }
         else
         {
+            lastChaseDir = 0;
             Patrol();
         }
+    }
+
+    // 비행형은 중력이 없으므로 x/y 모두 원점 방향으로 복귀
+    protected override void ReturnToOrigin()
+    {
+        Vector2 toOrigin = patrolOrigin - (Vector2)transform.position;
+        if (toOrigin.magnitude <= 0.2f)
+        {
+            returningHome = false;
+            rb.linearVelocity = Vector2.zero;
+            return;
+        }
+        rb.linearVelocity = toOrigin.normalized * chaseSpeed;
+        FaceDirection(toOrigin.x);
     }
 
     public override void StopAttack()
@@ -83,5 +127,6 @@ public class FlyingGerm : MonsterBase
         ShowTelegraph(false);
         DisableHitbox();
         attackCooldownTimer = attackCooldown; // 공격이 끝난 시점부터 쿨다운 시작
+        actionPauseTimer = postAttackPause;   // 돌진 종료 후 잠깐 멈췄다가 움직이도록
     }
 }

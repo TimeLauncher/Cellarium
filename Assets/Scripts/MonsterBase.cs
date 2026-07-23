@@ -26,6 +26,17 @@ public class MonsterBase : MonoBehaviour, IConsumable
     public float patrolDistanceVariance = 0f; // 0이면 기존과 동일(고정 거리), >0이면 구간마다 랜덤화
     public float patrolPauseVariance = 0f;
 
+    [Header("추격 제한")]
+    public float maxLeashDistance = 8f; // 순찰 원점에서 이 거리(타일) 이상 벗어나면 추격을 포기하고 원점으로 복귀 (0 = 무제한)
+
+    [Header("행동 간 딜레이")]
+    public float postAttackPause = 0.5f;   // 공격이 끝난 뒤 이만큼 정지 후 다시 이동 (공격 직후 홱 도는 느낌 완화)
+    public float turnPauseDuration = 0.5f; // 추적 중 PC가 반대편으로 넘어가 이동 방향이 급전환될 때 정지 시간
+
+    [Header("피격 넉백 (대시 등)")]
+    public float knockbackResistance = 1f;    // 밀려나는 정도 배율 (0이면 아예 안 밀림)
+    public float knockbackRecoverTime = 0.2f; // 이 시간 동안은 AI 이동이 넉백 속도를 덮어쓰지 않음
+
     [Header("공격")]
     public float attackRange = 1.5f;
     public float attackDamage = 10f;
@@ -58,9 +69,13 @@ public class MonsterBase : MonoBehaviour, IConsumable
     protected int patrolDir = 1;
     protected float patrolPauseTimer;
     protected float currentPatrolLegDistance;
+    protected float actionPauseTimer; // 공격 후 잠깐 멈추는 타이머
+    protected float knockbackTimer;   // 넉백으로 밀려나는 동안 AI 이동을 멈추는 타이머
+    protected bool returningHome;      // 추격 제한을 넘어 원점으로 복귀 중
+    protected int lastChaseDir;        // 추적 중 마지막 이동 방향 (급전환 감지용)
+    protected float turnPauseTimer;    // 이동 방향 급전환 시 잠깐 멈추는 타이머
     private Color baseColor;
     private float consumableTimer;
-    private bool wasContactingPlayer;
     private bool hitPlayerThisAttack;
     protected HitboxVisualizer hitboxView;
 
@@ -128,8 +143,16 @@ public class MonsterBase : MonoBehaviour, IConsumable
 
         if (attackCooldownTimer > 0f)
             attackCooldownTimer -= Time.deltaTime;
+        if (actionPauseTimer > 0f)
+            actionPauseTimer -= Time.deltaTime;
+        if (knockbackTimer > 0f)
+            knockbackTimer -= Time.deltaTime;
+        if (turnPauseTimer > 0f)
+            turnPauseTimer -= Time.deltaTime;
 
-        UpdateBehavior();
+        // 넉백/공격후 딜레이 중이거나 원점 복귀 중엔 새 공격을 걸지 않는다
+        if (knockbackTimer <= 0f && actionPauseTimer <= 0f && !returningHome)
+            UpdateBehavior();
     }
 
     protected virtual void FixedUpdate()
@@ -139,29 +162,20 @@ public class MonsterBase : MonoBehaviour, IConsumable
     }
 
     // 몸통 접촉 데미지 — 물리 충돌은 꺼져있으므로(PlayerManager에서 레이어 무시) 수동 겹침 체크로 대체.
-    // 진입 시점에만 1회 발동, TakeDamage의 무적프레임이 이후 연속 데미지를 자연히 막아줌.
+    // QA (5): 겹쳐 있는 동안 매 프레임 판정한다. TakeDamage가 무적 중엔 무시하므로 무적시간이
+    // 재피격 간격을 알아서 rate-limit 해준다 → "겹쳐진 상태에서도 피격 및 넉백 유지(무적시간 제외)".
     protected virtual void CheckContactDamage()
     {
         if (bodyCollider == null) return;
         Collider2D hit = Physics2D.OverlapBox(bodyCollider.bounds.center, bodyCollider.bounds.size, 0f, playerMask);
-        if (hit != null)
-        {
-            if (!wasContactingPlayer)
-            {
-                PlayerController pc = hit.GetComponent<PlayerController>();
-                if (pc != null)
-                {
-                    Vector2 knockDir = ((Vector2)(pc.transform.position - transform.position)).normalized;
-                    if (knockDir.sqrMagnitude < 0.001f) knockDir = Vector2.up;
-                    pc.TakeDamage(attackDamage, knockDir * knockbackForce, stunDuration);
-                }
-            }
-            wasContactingPlayer = true;
-        }
-        else
-        {
-            wasContactingPlayer = false;
-        }
+        if (hit == null) return;
+
+        PlayerController pc = hit.GetComponent<PlayerController>();
+        if (pc == null) return;
+
+        Vector2 knockDir = ((Vector2)(pc.transform.position - transform.position)).normalized;
+        if (knockDir.sqrMagnitude < 0.001f) knockDir = Vector2.up;
+        pc.TakeDamage(attackDamage, knockDir * knockbackForce, stunDuration);
     }
 
     // 지형 표면 감지 — 맵이 wall/ground 레이어로 나뉘어 있지 않아 레이어 대신 필터링으로 판정한다.
@@ -258,15 +272,27 @@ public class MonsterBase : MonoBehaviour, IConsumable
 
     protected virtual void UpdateMovement()
     {
+        if (MovementSuppressed()) return;
+
         if (isAttacking)
         {
             rb.linearVelocity = new Vector2(0f, rb.linearVelocity.y);
             return;
         }
 
-        if (target != null)
+        // 추격 제한: 원점에서 너무 멀어지면 복귀. 원점에 다 돌아올 때까지는 다시 쫓지 않는다(경계선 진동 방지)
+        if (returningHome)
+        {
+            ReturnToOrigin();
+        }
+        else if (target != null && !IsBeyondLeash())
         {
             MoveTowardsTarget();
+        }
+        else if (IsBeyondLeash())
+        {
+            returningHome = true;
+            ReturnToOrigin();
         }
         else
         {
@@ -274,25 +300,90 @@ public class MonsterBase : MonoBehaviour, IConsumable
         }
     }
 
+    // 넉백/공격후 딜레이 중이면 AI 이동을 멈춘다. 넉백 중엔 속도를 건드리지 않아 그대로 밀려남.
+    protected bool MovementSuppressed()
+    {
+        if (knockbackTimer > 0f) return true;
+        if (actionPauseTimer > 0f)
+        {
+            if (rb != null) rb.linearVelocity = new Vector2(0f, rb.linearVelocity.y);
+            return true;
+        }
+        return false;
+    }
+
+    // 대시 등에 맞았을 때 밀려남 (knockbackResistance가 0이면 안 밀림)
+    // 죽어서 섭취 가능 상태가 되면 AI가 멈춰 속도를 못 지워 마찰 없이 미끄러지므로 넉백을 걸지 않는다
+    public virtual void ApplyKnockback(Vector2 force)
+    {
+        if (rb == null || knockbackResistance <= 0f || IsDead) return;
+        rb.linearVelocity = force * knockbackResistance;
+        knockbackTimer = knockbackRecoverTime;
+    }
+
+    protected bool IsBeyondLeash()
+    {
+        if (maxLeashDistance <= 0f) return false;
+        return Mathf.Abs(transform.position.x - patrolOrigin.x) >= maxLeashDistance;
+    }
+
+    // 순찰 원점으로 걸어서 복귀. 다 돌아오면 복귀 상태 해제
+    protected virtual void ReturnToOrigin()
+    {
+        float dx = patrolOrigin.x - transform.position.x;
+        if (Mathf.Abs(dx) <= 0.2f)
+        {
+            returningHome = false;
+            rb.linearVelocity = new Vector2(0f, rb.linearVelocity.y);
+            return;
+        }
+
+        float dir = Mathf.Sign(dx);
+        FaceDirection(dir);
+        if (!HasGroundAhead(dir))
+        {
+            // 발밑이 끊겨 있으면 더 못 감 — 그 자리에서 복귀 종료
+            returningHome = false;
+            rb.linearVelocity = new Vector2(0f, rb.linearVelocity.y);
+            return;
+        }
+        rb.linearVelocity = new Vector2(dir * moveSpeed, rb.linearVelocity.y);
+    }
+
     protected virtual void MoveTowardsTarget()
     {
-        float dir = target.position.x - transform.position.x;
-        FaceDirection(dir);
+        float dx = target.position.x - transform.position.x;
+        int dir = dx > 0.02f ? 1 : (dx < -0.02f ? -1 : 0);
 
-        // 쫓아가더라도 낭떠러지 앞에서는 멈춘다
-        if (!HasGroundAhead(Mathf.Sign(dir)))
+        // 추적 중 PC가 반대편으로 넘어가 이동 방향이 급전환되면 잠깐 멈췄다가 따라간다 (QA: 0.5초 내외)
+        if (dir != 0 && lastChaseDir != 0 && dir != lastChaseDir)
+            turnPauseTimer = turnPauseDuration;
+        if (dir != 0) lastChaseDir = dir;
+
+        FaceDirection(dx);
+
+        if (turnPauseTimer > 0f)
         {
             rb.linearVelocity = new Vector2(0f, rb.linearVelocity.y);
             return;
         }
 
-        rb.linearVelocity = new Vector2(Mathf.Sign(dir) * moveSpeed, rb.linearVelocity.y);
+        // 쫓아가더라도 낭떠러지 앞에서는 멈춘다
+        if (!HasGroundAhead(Mathf.Sign(dx)))
+        {
+            rb.linearVelocity = new Vector2(0f, rb.linearVelocity.y);
+            return;
+        }
+
+        rb.linearVelocity = new Vector2(Mathf.Sign(dx) * moveSpeed, rb.linearVelocity.y);
     }
 
     // 정해진 구간을 반복 이동 + 주기적으로 정지 (기획서 "기본 행동" 공통 패턴)
     // patrolDistanceVariance/patrolPauseVariance가 0보다 크면 구간마다 랜덤한 거리/정지시간을 다시 뽑음
     protected virtual void Patrol()
     {
+        lastChaseDir = 0; // 추적을 멈췄으니 방향 기록 초기화 (재추적 시 잘못된 급전환 판정 방지)
+
         if (patrolPauseTimer > 0f)
         {
             patrolPauseTimer -= Time.fixedDeltaTime;
@@ -373,6 +464,7 @@ public class MonsterBase : MonoBehaviour, IConsumable
         isAttacking = false;
         ShowTelegraph(false);
         DisableHitbox();
+        actionPauseTimer = postAttackPause; // 공격 직후 잠깐 멈췄다가 움직이도록
     }
 
     // 이 공격에서 적용할 피해량 — 패턴별로 다른 타입(거미균 베기 등)은 override

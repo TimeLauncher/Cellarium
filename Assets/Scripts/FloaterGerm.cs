@@ -89,6 +89,8 @@ public class FloaterGerm : MonsterBase
 
     protected override void UpdateMovement()
     {
+        if (MovementSuppressed()) return;
+
         // isDetonating일 때는 IsDead가 true라 MonsterBase.FixedUpdate가 이 메서드를 호출하지 않음
         if (isAttacking)
         {

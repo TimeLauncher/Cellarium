@@ -31,6 +31,7 @@ public class PlayerController : MonoBehaviour
     public float dashKnockbackSpeed = 7f;
     public float dashKnockbackUpRatio = 0.6f; // 넉백에 섞는 위쪽 성분 비율 — 클수록 포물선이 높아짐
     public float dashInvincibleTime = 0.4f;   // 대시로 박은 뒤 튕겨나오는 동안 접촉 데미지 면역
+    public float dashMonsterKnockback = 8f;   // 대시로 맞은 몬스터가 밀려나는 힘 (몬스터별 knockbackResistance로 배율 조절, 0이면 안 밀림)
 
     [Header("분열 대시 (우클릭 홀드→뗌)")]
     public float fissionDashSpeed = 20f;
@@ -465,6 +466,16 @@ public class PlayerController : MonoBehaviour
     {
         // 대시로 몬스터에 박는 동안은 공격 행동이므로 접촉 데미지를 받지 않는다
         if (isInvincible || dashInvincibleTimer > 0f) return;
+
+        // 분열체는 피격 시 즉시 사망 (QA (4). 추후 1회 무효화 등 추가 예정)
+        // Destroy → OnDestroy에서 PlayerManager.UnregisterPlayer가 조종 전환/목록 정리까지 자동 처리
+        if (isClone)
+        {
+            Debug.Log("분열체 피격 — 즉시 사망");
+            Destroy(gameObject);
+            return;
+        }
+
         currentHp = Mathf.Max(0f, currentHp - amount);
         Debug.Log($"피격! HP: {currentHp}/{maxHp}");
         if (knockback.sqrMagnitude > 0.01f)
@@ -541,7 +552,12 @@ public class PlayerController : MonoBehaviour
                 {
                     hitMonsters.Add(monster);
                     monster.TakeDamage(dashAttackDamage);
-                    Debug.Log($"[대시 히트] {monster.name} 데미지={dashAttackDamage}");
+
+                    // 맞은 몬스터도 대시 진행 방향으로 밀어낸다 (몬스터별 knockbackResistance로 조절, 0이면 안 밀림)
+                    Vector2 monsterKnockDir = ((Vector2)(monster.transform.position - transform.position)).normalized;
+                    if (monsterKnockDir.sqrMagnitude < 0.001f) monsterKnockDir = dashDir;
+                    monster.ApplyKnockback(monsterKnockDir * dashMonsterKnockback);
+
                     rb.gravityScale = originalGravity;
                     Vector2 knockDir = (-dashDir + Vector2.up * dashKnockbackUpRatio).normalized;
                     rb.linearVelocity = knockDir * dashKnockbackSpeed;

@@ -57,6 +57,8 @@ public class CrusherGerm : MonsterBase
 
     protected override void UpdateMovement()
     {
+        if (MovementSuppressed()) return;
+
         if (isStunned)
         {
             stunTimer -= Time.fixedDeltaTime;
@@ -112,6 +114,7 @@ public class CrusherGerm : MonsterBase
         isDashing = false;
         ShowTelegraph(false);
         DisableHitbox();
+        actionPauseTimer = postAttackPause; // 돌진 종료 후 잠깐 멈췄다가 움직이도록
     }
 
     public override void StopAttack()

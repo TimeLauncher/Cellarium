@@ -51,6 +51,7 @@ public class PlayerController : MonoBehaviour
     public float consumeRange = 2f;
     public LayerMask monsterMask;
     public float consumeMoveSpeed = 15f; // 섭취 대상 위치로 러지하는 속도
+    private GameObject pendingConsumeTarget;
 
     [Header("벽타기")]
     public float wallCheckDistance = 0.3f;
@@ -209,7 +210,25 @@ public class PlayerController : MonoBehaviour
             if (!hasClones)
                 currentFissionGauge = Mathf.Min(maxFissionGauge, currentFissionGauge + fissionGaugeRecoverRate * Time.deltaTime);
         }
+        if (animator != null)
+        {
+            animator.SetBool("IsGrounded", isGrounded);
+            animator.SetFloat("yVelocity", rb.linearVelocity.y);
 
+            // 조종 중인 캐릭터만 이동 애니메이션 재생
+            animator.SetBool(
+                "move",
+                isControlled && Mathf.Abs(moveX) > 0.01f
+            );
+
+            animator.SetBool("isDashing", isNormalDashing);
+        }
+
+        if (!isControlled)
+        {
+            moveX = 0f;
+            return;
+        }
         if (!isControlled) return;
 
         if (isStunned)
@@ -318,12 +337,7 @@ public class PlayerController : MonoBehaviour
         if (spr != null && Mathf.Abs(moveX) > 0.01f)
             spr.flipX = (moveX < 0f);
 
-        if (animator != null)
-        {
-            animator.SetBool("IsGrounded", isGrounded);
-            animator.SetFloat("yVelocity", rb.linearVelocity.y);
-            animator.SetBool("move", Mathf.Abs(moveX) > 0.01f);
-        }
+       
     }
 
     // 색 처리는 한 곳에서만 — 조종 여부는 투명도로, 무적은 깜빡임으로 표현한다.
@@ -337,8 +351,8 @@ public class PlayerController : MonoBehaviour
         if (isInvincible && Mathf.FloorToInt(Time.time / Mathf.Max(0.01f, invincibleBlinkInterval)) % 2 == 0)
             c = invincibleBlinkColor;
 
-        if (!isControlled)
-            c.a = baseColor.a * uncontrolledAlpha;
+        //if (!isControlled)
+            //c.a = baseColor.a * uncontrolledAlpha;
 
         spr.color = c;
     }
@@ -421,13 +435,44 @@ public class PlayerController : MonoBehaviour
         if (normalDashCooldownTimer > 0f) return;
 
         Transform target = GetMouseTarget();
+
         if (target != null)
         {
-            StartCoroutine(ConsumeRoutine(target.gameObject));
+            StartConsumeAnimation(target.gameObject);
             return;
         }
 
         TryNormalDash();
+    }
+    void StartConsumeAnimation(GameObject target)
+    {
+        if (isConsuming || target == null)
+            return;
+
+        isConsuming = true;
+        pendingConsumeTarget = target;
+
+        rb.linearVelocity = Vector2.zero;
+
+        if (animator != null)
+        {
+            animator.SetTrigger("Consume");
+        }
+    }
+    public void ExecuteConsume()
+    {
+        if (pendingConsumeTarget == null)
+        {
+            EndConsume();
+            return;
+        }
+
+        StartCoroutine(ConsumeRoutine(pendingConsumeTarget));
+    }
+    public void EndConsume()
+    {
+        pendingConsumeTarget = null;
+        isConsuming = false;
     }
 
     // 카메라~월드 좌표 변환 (공용)
@@ -523,6 +568,10 @@ public class PlayerController : MonoBehaviour
 
     IEnumerator DashRoutine(Vector2 dashDir)
     {
+        if (spr != null && Mathf.Abs(dashDir.x) > 0.01f)
+        {
+            spr.flipX = dashDir.x < 0f;
+        }
         isNormalDashing = true;
         normalDashCooldownTimer = dashCooldown;
 
@@ -583,8 +632,11 @@ public class PlayerController : MonoBehaviour
 
     IEnumerator ConsumeRoutine(GameObject target)
     {
-        if (isConsuming) yield break;
-        isConsuming = true;
+        if (target == null)
+        {
+            EndConsume();
+            yield break;
+        }
 
         IConsumable consumable = target.GetComponent<IConsumable>();
 
@@ -629,26 +681,88 @@ public class PlayerController : MonoBehaviour
         }
         transform.localScale = originalScale;
 
-        isConsuming = false;
+        transform.localScale = originalScale;
+
+        EndConsume();
+
         Debug.Log("섭취!");
     }
 
     // ── 분열 ──────────────────────────────────────────────────────
 
+    /* void Fission()
+     {
+         if (playerPrefab == null) return;
+         if (currentFissionGauge < 30f) return;
+
+         if (animator != null)
+         {
+             animator.SetTrigger("Fission");
+         }
+
+         currentFissionGauge -= 30f;
+
+         float facing = (spr != null && spr.flipX) ? -1f : 1f;
+         Vector2 spawnPos =
+             (Vector2)transform.position
+             + Vector2.right * (-facing) * 0.5f;
+
+         GameObject clone =
+             Instantiate(playerPrefab, spawnPos, Quaternion.identity);
+
+         clone.transform.localScale *= 0.75f;
+
+         PlayerController cloneCtrl =
+             clone.GetComponent<PlayerController>();
+
+         if (cloneCtrl != null)
+             cloneCtrl.isClone = true;
+
+         Debug.Log("분열체 생성됨! (조작하려면 숫자키를 누르세요)");
+     }*/
     void Fission()
     {
         if (playerPrefab == null) return;
         if (currentFissionGauge < 30f) return;
 
         currentFissionGauge -= 30f;
-        float facing = (spr != null && spr.flipX) ? -1f : 1f;
-        Vector2 spawnPos = (Vector2)transform.position + Vector2.right * (-facing) * 0.5f;
-        GameObject clone = Instantiate(playerPrefab, spawnPos, Quaternion.identity);
-        clone.transform.localScale *= 0.75f;
-        PlayerController cloneCtrl = clone.GetComponent<PlayerController>();
-        if (cloneCtrl != null) cloneCtrl.isClone = true;
-        Debug.Log("분열체 생성됨! (조작하려면 숫자키를 누르세요)");
+
+        if (animator != null)
+        {
+            animator.SetTrigger("Fission");
+        }
     }
+    // Fission 애니메이션의 Animation Event에서 호출
+    public void SpawnFissionClone()
+    {
+        if (playerPrefab == null)
+        {
+            Debug.LogWarning("playerPrefab이 연결되어 있지 않습니다.");
+            return;
+        }
+
+        float facing = (spr != null && spr.flipX) ? -1f : 1f;
+
+        Vector2 spawnPos =
+            (Vector2)transform.position
+            + Vector2.right * (-facing) * 0.5f;
+
+        GameObject clone =
+            Instantiate(playerPrefab, spawnPos, Quaternion.identity);
+
+        clone.transform.localScale *= 0.75f;
+
+        PlayerController cloneCtrl =
+            clone.GetComponent<PlayerController>();
+
+        if (cloneCtrl != null)
+        {
+            cloneCtrl.isClone = true;
+        }
+
+        Debug.Log("Animation Event: 분열체 생성됨!");
+    }
+
 
     void FissionDash()
     {
@@ -781,7 +895,7 @@ public class PlayerController : MonoBehaviour
             if (!IsGroundCandidate(h.gameObject)) continue;
 
             // 옆에 서 있는 벽을 지면으로 오인하지 않도록, 발밑보다 위로 솟아있는 면은 제외
-            if (h.bounds.max.y > feetY + groundCheckRadius) continue;
+            //if (h.bounds.max.y > feetY + groundCheckRadius) continue;
 
             return true;
         }

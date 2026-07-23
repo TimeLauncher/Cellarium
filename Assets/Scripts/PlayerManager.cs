@@ -16,6 +16,18 @@ public class PlayerManager : MonoBehaviour
     public int cellCurrency;
     public int darkCellCurrency;
 
+    [Header("능력 해금")]
+    // A00 시작 시엔 이동/점프/대시/섭취만 가능. A02에서 분열 능력 획득 전까지 false 유지.
+    // 테스트 씬에서 바로 분열을 쓰려면 인스펙터에서 체크해두면 됨.
+    public bool fissionUnlocked = false;
+
+    // A02의 분열 능력 획득 지점(트리거/이벤트)에서 호출
+    public void UnlockFission()
+    {
+        fissionUnlocked = true;
+        UnityEngine.Debug.Log("분열 능력 해금!");
+    }
+
     void Awake()
     {
         if (Instance == null) Instance = this;

@@ -47,6 +47,7 @@ public class MonsterBase : MonoBehaviour, IConsumable
     [Header("히트박스")]
     public Collider2D attackHitbox; // Inspector에서 자식 오브젝트의 Collider2D 연결
     public bool showHitbox = true;  // 이펙트 에셋 나오기 전까지 공격 범위를 화면에 표시
+    public bool attackFrontOnly = true; // 바라보는 앞쪽만 공격 판정(뒤통수 안 때림). 히트박스도 방향 따라 뒤집힘
 
     [Header("공격 임시 타이머 (애니메이션 붙기 전까지만 사용)")]
     public float attackWindup = 0.2f;     // 판정 켜지는 시점
@@ -74,6 +75,8 @@ public class MonsterBase : MonoBehaviour, IConsumable
     protected bool returningHome;      // 추격 제한을 넘어 원점으로 복귀 중
     protected int lastChaseDir;        // 추적 중 마지막 이동 방향 (급전환 감지용)
     protected float turnPauseTimer;    // 이동 방향 급전환 시 잠깐 멈추는 타이머
+    protected int facingDir = 1;       // 바라보는 방향(+1 오른쪽 / -1 왼쪽). 히트박스 방향/앞쪽 판정에 사용
+    private float hitboxBaseOffsetX;   // 히트박스 자식의 원래 로컬 x 오프셋 크기 (방향 따라 부호만 바꿔줌)
     private Color baseColor;
     private float consumableTimer;
     private bool hitPlayerThisAttack;
@@ -110,6 +113,7 @@ public class MonsterBase : MonoBehaviour, IConsumable
         if (attackHitbox != null)
         {
             attackHitbox.enabled = false;
+            hitboxBaseOffsetX = Mathf.Abs(attackHitbox.transform.localPosition.x); // 방향 뒤집기용 기준 오프셋 저장
 
             // 이펙트 에셋이 없으므로 히트박스를 눈에 보이게 해준다 (인스펙터 작업 불필요)
             hitboxView = attackHitbox.GetComponent<HitboxVisualizer>();
@@ -421,8 +425,19 @@ public class MonsterBase : MonoBehaviour, IConsumable
 
     protected virtual void FaceDirection(float dirX)
     {
-        if (spr != null && Mathf.Abs(dirX) > 0.01f)
-            spr.flipX = dirX < 0;
+        if (Mathf.Abs(dirX) <= 0.01f) return;
+
+        facingDir = dirX < 0 ? -1 : 1;
+        if (spr != null) spr.flipX = dirX < 0;
+
+        // 공격 히트박스(자식)를 바라보는 방향으로 옮겨준다 — 스프라이트만 뒤집으면 히트박스는
+        // 고정된 쪽에 남아 뒤통수를 때리게 되므로 로컬 x 부호를 방향에 맞춘다.
+        if (attackHitbox != null && hitboxBaseOffsetX > 0.0001f)
+        {
+            Vector3 lp = attackHitbox.transform.localPosition;
+            lp.x = facingDir * hitboxBaseOffsetX;
+            attackHitbox.transform.localPosition = lp;
+        }
     }
 
     // 근접 접촉형 공격 시작 (몸통박치기 등). 다른 패턴(돌진/원거리/점프)은 서브클래스에서 override
@@ -484,6 +499,13 @@ public class MonsterBase : MonoBehaviour, IConsumable
         {
             PlayerController pc = h.GetComponent<PlayerController>();
             if (pc == null) continue;
+
+            // 앞쪽만 때리기: 바라보는 방향 반대편(뒤통수)에 있는 플레이어는 무시
+            if (attackFrontOnly)
+            {
+                float relX = pc.transform.position.x - transform.position.x;
+                if (Mathf.Abs(relX) > 0.05f && Mathf.Sign(relX) != facingDir) continue;
+            }
 
             Vector2 knockDir = ((Vector2)(pc.transform.position - transform.position)).normalized;
             if (knockDir.sqrMagnitude < 0.001f) knockDir = Vector2.up;

@@ -68,6 +68,10 @@ public class PlayerController : MonoBehaviour
     public float maxFissionGauge = 100f;
     public float fissionGaugeRecoverRate = 10f;
 
+    [Header("사망/부활")]
+    public float deathMotionDuration = 3f;                 // 사망 모션 길이(2~4초). 이 동안 조작 불가·무적
+    public Vector3 defaultRespawnPosition = Vector3.zero;  // 세이브포인트가 없을 때 부활 위치 (A00 중앙). 인스펙터에서 설정
+
     [Header("제어")]
     public bool isControlled = false;
     public bool isClone = false;
@@ -110,9 +114,13 @@ public class PlayerController : MonoBehaviour
     private float currentFissionGauge;
     private bool isStunned;
     private bool isInvincible;
+    private bool isDead;
     private float knockbackTimer;
     private float dashInvincibleTimer;
     private Color baseColor = Color.white;
+
+    // 분열 능력이 해금됐는지 (A02에서 획득 전까지 잠김). 매니저가 없으면 개발 편의상 허용
+    bool FissionUnlocked => PlayerManager.Instance == null || PlayerManager.Instance.fissionUnlocked;
 
     public float CurrentHp => currentHp;
     public float CurrentFissionGauge => currentFissionGauge;
@@ -164,6 +172,8 @@ public class PlayerController : MonoBehaviour
 
     void Update()
     {
+        if (isDead) return; // 사망 모션 중엔 입력·물리 판정 모두 정지
+
         if (thrownTimer > 0f)
             thrownTimer -= Time.deltaTime;
 
@@ -245,8 +255,8 @@ public class PlayerController : MonoBehaviour
             }
         }
 
-        // 분열 (홀드 0.5초, 분열체/분열대시 중 불가)
-        if (!isClone && !isFissionDashing)
+        // 분열 (홀드 0.5초, 분열체/분열대시 중 불가, 분열 능력 해금 전엔 불가)
+        if (!isClone && !isFissionDashing && FissionUnlocked)
         {
             if (Input.GetKey(KeyCode.Q))
             {
@@ -265,8 +275,8 @@ public class PlayerController : MonoBehaviour
         if (Input.GetMouseButtonDown(0) && !IsActionLocked())
             TryDashOrEat();
 
-        // 분열 대시 준비: 우클릭 누르면 (일반 대시 중엔 불가)
-        if (Input.GetMouseButtonDown(1) && !isNormalDashing && !isClone)
+        // 분열 대시 준비: 우클릭 누르면 (일반 대시 중엔 불가, 분열 능력 해금 전엔 불가)
+        if (Input.GetMouseButtonDown(1) && !isNormalDashing && !isClone && FissionUnlocked)
         {
             isFissionDashing = false;
             isDashReady = true;
@@ -345,6 +355,8 @@ public class PlayerController : MonoBehaviour
 
     void FixedUpdate()
     {
+        if (isDead) { rb.linearVelocity = Vector2.zero; return; } // 사망 모션 중 완전 정지
+
         bool isWallSlidingNow = isOnWall && !isGrounded && !isSlamming && wallJumpTimer <= 0f && isControlled && !isClone &&
             ((wallDir == 1 && moveX > 0) || (wallDir == -1 && moveX < 0));
         if (col != null)
@@ -464,6 +476,9 @@ public class PlayerController : MonoBehaviour
 
     public void TakeDamage(float amount, Vector2 knockback = default, float stunTime = 0f)
     {
+        // 사망 모션 중엔 더 이상 피격되지 않음
+        if (isDead) return;
+
         // 대시로 몬스터에 박는 동안은 공격 행동이므로 접촉 데미지를 받지 않는다
         if (isInvincible || dashInvincibleTimer > 0f) return;
 
@@ -486,11 +501,49 @@ public class PlayerController : MonoBehaviour
         if (stunTime > 0f)
             StartCoroutine(StunRoutine(stunTime));
 
+        if (currentHp <= 0f)
+        {
+            StartCoroutine(DeathRoutine());
+            return;
+        }
+
         // 경직이 없는 피해(가시 등)에도 무적 프레임은 항상 적용
         StartCoroutine(InvincibilityRoutine(stunTime + invincibleDuration));
+    }
 
-        if (currentHp <= 0f)
-            Debug.Log("플레이어 사망!");  // TODO: 사망 처리
+    // 사망 → 사망 모션(2~4초) → 마지막 세이브포인트(없으면 A00 중앙)에서 부활
+    // 본체만 여기 도달함 (분열체는 TakeDamage 맨 앞에서 즉시 Destroy)
+    IEnumerator DeathRoutine()
+    {
+        isDead = true;
+        isInvincible = true; // 모션 중 추가 피격 방지
+        moveX = 0f;
+        rb.linearVelocity = Vector2.zero;
+        rb.gravityScale = 0f;
+        if (animator != null) animator.SetTrigger("Death");
+        Debug.Log("플레이어 사망 — 부활 대기");
+
+        // 분열체 전부 자동 사망 (본체만 남기고 회수)
+        if (PlayerManager.Instance != null)
+            PlayerManager.Instance.RecallAllClones();
+
+        yield return new WaitForSeconds(deathMotionDuration);
+
+        // 부활 위치: 마지막 세이브포인트가 있으면 그곳, 없으면 기본 부활 위치(A00 중앙)
+        transform.position = SavePoint.HasSave ? SavePoint.LastSavePosition : defaultRespawnPosition;
+
+        // 상태 초기화 후 완전 회복
+        currentHp = maxHp;
+        currentFissionGauge = maxFissionGauge;
+        rb.linearVelocity = Vector2.zero;
+        rb.gravityScale = 1f;
+        jumpsLeft = maxJumps;
+        airDashLeft = maxAirDash;
+        isStunned = false;
+        knockbackTimer = 0f;
+        isDead = false;
+        isInvincible = false;
+        Debug.Log("부활!");
     }
 
     IEnumerator StunRoutine(float duration)
@@ -637,6 +690,7 @@ public class PlayerController : MonoBehaviour
 
     void Fission()
     {
+        if (!FissionUnlocked) return;
         if (playerPrefab == null) return;
         if (currentFissionGauge < 30f) return;
 
@@ -652,6 +706,7 @@ public class PlayerController : MonoBehaviour
 
     void FissionDash()
     {
+        if (!FissionUnlocked) return;
         if (currentFissionGauge < 100f) return;
 
         Vector2 dashDir = ((Vector2)(GetMouseWorld() - transform.position)).normalized;

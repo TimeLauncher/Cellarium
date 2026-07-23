@@ -26,15 +26,19 @@ public class PlayerHUD : MonoBehaviour
     public Color hpNotchColor = new Color(0.9f, 0.25f, 0.25f);      // 체력 칸 색 (빨강 계열)
     public Color fissionNotchColor = new Color(0.35f, 0.7f, 1f);    // 분열 칸 색 (하늘색 계열)
 
-    [Header("분열 연속 바 자동 생성 (칸 아래에 함께 표시)")]
-    public bool autoBuildFissionBar = true;                         // 분열 칸 아래에 지속 상승하는 바도 자동 생성
-    public float fissionBarHeight = 8f;                             // 바 두께
-    public float fissionBarYOffset = 6f;                            // 칸 아래로 띄우는 간격
-    public Color fissionBarBgColor = new Color(0f, 0f, 0f, 0.5f);   // 바 배경색
-    public Color fissionBarFillColor = new Color(0.35f, 0.7f, 1f);  // 바 채움색
+    [Header("분열 연속 바 자동 생성 (칸 뒤에 겹쳐 표시)")]
+    public bool autoBuildFissionBar = true;                         // 분열 칸 뒤에 지속 상승하는 바를 겹쳐 생성 (칸이 앞, 바가 뒤)
+    public float fissionBarHeight = 24f;                            // 바 두께 (칸 높이와 같게 두면 배경 바처럼 보임)
+    public float fissionBarYOffset = 0f;                            // 칸 중심 기준 바의 Y 미세조정 (0 = 칸과 같은 높이)
+    public Color fissionBarBgColor = new Color(0f, 0f, 0f, 0.5f);   // 바 배경색 (스프라이트 없을 때)
+    public Color fissionBarFillColor = new Color(0.35f, 0.7f, 1f);  // 바 채움색 (스프라이트 없을 때)
+    public Sprite fissionBarBgSprite;    // 바 배경 스프라이트 (예: FissionBarEmpty). 없으면 색 사각형
+    public Sprite fissionBarFillSprite;  // 바 채움 스프라이트 (예: fissionBar). Filled(가로)로 게이지 비율만큼 채움
 
-    private bool notchesBuilt;
-    private RectTransform fissionBarFillRT; // 자동 생성한 바의 채움 부분 (게이지 비율로 가로 폭 조절)
+    private int builtHpNotchCount = -1;      // 마지막으로 생성한 체력 칸 수 (최대체력 바뀌면 다시 만듦)
+    private int builtFissionNotchCount = -1; // 마지막으로 생성한 분열 칸 수
+    private Image fissionBarFillImg;        // 자동 생성한 바의 채움 Image
+    private RectTransform fissionBarFillRT; // 채움의 RectTransform (스프라이트 없을 때 폭으로 조절)
     private float fissionBarWidth;
 
     [Header("대시 쿨다운 (Image - Filled 타입)")]
@@ -72,11 +76,38 @@ public class PlayerHUD : MonoBehaviour
         UpdateHp(controlled);
         UpdateDashCooldown(controlled);
 
-        // 분열 게이지는 항상 본체(allPlayers[0]) 기준
-        PlayerController mainBody = manager.allPlayers.Count > 0 ? manager.allPlayers[0] : controlled;
-        UpdateFissionGauge(mainBody);
+        // 분열 능력 해금 전(A02 획득 전)엔 분열 게이지/가능횟수 UI를 통째로 숨긴다
+        bool fissionUnlocked = manager.fissionUnlocked;
+        SetFissionUIVisible(fissionUnlocked);
 
-        UpdateFissionIcons(manager);
+        if (fissionUnlocked)
+        {
+            // 분열 게이지는 항상 본체(allPlayers[0]) 기준
+            PlayerController mainBody = manager.allPlayers.Count > 0 ? manager.allPlayers[0] : controlled;
+            UpdateFissionGauge(mainBody);
+
+            UpdateFissionIcons(manager);
+        }
+    }
+
+    private bool fissionUIVisible = true;
+
+    // 분열 관련 UI(게이지 바/칸, 분열 가능 횟수 아이콘)를 한꺼번에 켜고 끈다.
+    // autoBuild로 만든 칸/바는 fissionNotchParent 자식이라 부모만 꺼도 같이 숨겨진다.
+    void SetFissionUIVisible(bool on)
+    {
+        if (fissionUIVisible == on) return; // 상태 바뀔 때만 토글
+        fissionUIVisible = on;
+
+        if (fissionGauge != null) fissionGauge.gameObject.SetActive(on);
+        if (fissionNotchParent != null) fissionNotchParent.gameObject.SetActive(on);
+        if (fissionNotches != null)
+            foreach (var n in fissionNotches)
+                if (n != null) n.gameObject.SetActive(on);
+        if (mainBodyIcon != null) mainBodyIcon.gameObject.SetActive(on);
+        if (fissionSlotIcons != null)
+            foreach (var s in fissionSlotIcons)
+                if (s != null) s.gameObject.SetActive(on);
     }
 
     void UpdateHp(PlayerController player)
@@ -126,13 +157,18 @@ public class PlayerHUD : MonoBehaviour
             }
         }
 
-        // 자동 생성한 연속 바: 현재/최대 비율로 가로 폭 조절 (지속 상승하는 바 형태)
-        if (fissionBarFillRT != null && player.MaxFissionGauge > 0f)
+        // 자동 생성한 연속 바: 현재/최대 비율만큼 채움 (지속 상승하는 바 형태)
+        if (fissionBarFillImg != null && player.MaxFissionGauge > 0f)
         {
             float frac = Mathf.Clamp01(player.CurrentFissionGauge / player.MaxFissionGauge);
-            Vector2 s = fissionBarFillRT.sizeDelta;
-            s.x = fissionBarWidth * frac;
-            fissionBarFillRT.sizeDelta = s;
+            if (fissionBarFillImg.type == Image.Type.Filled)
+                fissionBarFillImg.fillAmount = frac;               // 스프라이트: fillAmount로 채움
+            else if (fissionBarFillRT != null)
+            {
+                Vector2 s = fissionBarFillRT.sizeDelta;            // 색 사각형: 폭으로 채움
+                s.x = fissionBarWidth * frac;
+                fissionBarFillRT.sizeDelta = s;
+            }
         }
     }
 
@@ -151,23 +187,45 @@ public class PlayerHUD : MonoBehaviour
         }
     }
 
-    // 이미지 에셋이 없을 때 데모용으로 색깔 사각형 칸을 자동 생성 (플레이어 최대 수치를 알아야 개수가 정해져서 첫 Update 때 1회 생성)
+    // 최대 수치에 맞춰 칸을 자동 생성. 최대체력/최대게이지가 바뀌면(보스 처치 등) 그 줄만 다시 만든다.
+    // 스프라이트(Filled/On)가 지정돼 있으면 단색 사각형 대신 그 스프라이트로 생성 → 실제 아트 그대로 사용 가능.
     void EnsureNotchesBuilt(PlayerController hpRef, PlayerController fissionRef)
     {
-        if (!autoBuildNotches || notchesBuilt) return;
+        if (!autoBuildNotches) return;
 
         if (hpNotchParent != null && hpPerNotch > 0f)
-            hpNotches = BuildNotchRow(hpNotchParent, Mathf.CeilToInt(hpRef.maxHp / hpPerNotch), hpNotchColor);
+        {
+            int need = Mathf.Max(0, Mathf.CeilToInt(hpRef.maxHp / hpPerNotch));
+            if (need != builtHpNotchCount)
+            {
+                ClearChildren(hpNotchParent);
+                hpNotches = BuildNotchRow(hpNotchParent, need, hpNotchColor, hpFilledSprite);
+                builtHpNotchCount = need;
+            }
+        }
 
         if (fissionNotchParent != null && fissionPerNotch > 0f)
         {
-            int count = Mathf.CeilToInt(fissionRef.MaxFissionGauge / fissionPerNotch);
-            fissionNotches = BuildNotchRow(fissionNotchParent, count, fissionNotchColor);
-            if (autoBuildFissionBar)
-                BuildFissionBar(fissionNotchParent, count);
+            int need = Mathf.Max(0, Mathf.CeilToInt(fissionRef.MaxFissionGauge / fissionPerNotch));
+            if (need != builtFissionNotchCount)
+            {
+                ClearChildren(fissionNotchParent);
+                fissionBarFillImg = null;
+                fissionBarFillRT = null;
+                // 바를 먼저 생성해 뒤에 깔고(=먼저 그려짐), 칸을 나중에 생성해 앞에 올린다 (UI는 형제 순서대로 그려짐)
+                if (autoBuildFissionBar)
+                    BuildFissionBar(fissionNotchParent, need);
+                fissionNotches = BuildNotchRow(fissionNotchParent, need, fissionNotchColor, fissionNotchOnSprite);
+                builtFissionNotchCount = need;
+            }
         }
+    }
 
-        notchesBuilt = true;
+    // 자동 생성했던 칸/바를 지운다 (다시 만들기 전 정리). Destroy는 프레임 끝에 반영됨.
+    void ClearChildren(RectTransform parent)
+    {
+        for (int i = parent.childCount - 1; i >= 0; i--)
+            Destroy(parent.GetChild(i).gameObject);
     }
 
     // 분열 칸 아래에 지속 상승하는 연속 바(배경 + 채움)를 생성. 채움은 UpdateFissionGauge에서 폭 조절
@@ -175,14 +233,26 @@ public class PlayerHUD : MonoBehaviour
     {
         notchCount = Mathf.Max(1, notchCount);
         fissionBarWidth = notchCount * notchSize.x + (notchCount - 1) * notchSpacing; // 칸 행과 같은 전체 폭
-        float y = -(notchSize.y * 0.5f + fissionBarYOffset + fissionBarHeight * 0.5f);
+        float y = fissionBarYOffset; // 칸과 같은 높이(중심)에 겹쳐 배치 — 칸이 앞에서 덮음
 
-        MakeBarPart("FissionBarBg", parent, fissionBarBgColor, fissionBarWidth, y);
-        Image fill = MakeBarPart("FissionBarFill", parent, fissionBarFillColor, 0f, y);
+        MakeBarPart("FissionBarBg", parent, fissionBarBgColor, fissionBarBgSprite, fissionBarWidth, y);
+
+        // 채움: 스프라이트가 있으면 폭은 꽉 채운 뒤 Filled(가로)로 fillAmount 조절(스프라이트가 안 찌그러짐),
+        //       없으면 폭(sizeDelta)을 줄여 색 사각형으로 표현
+        Image fill = MakeBarPart("FissionBarFill", parent, fissionBarFillColor, fissionBarFillSprite,
+            fissionBarFillSprite != null ? fissionBarWidth : 0f, y);
+        if (fissionBarFillSprite != null)
+        {
+            fill.type = Image.Type.Filled;
+            fill.fillMethod = Image.FillMethod.Horizontal;
+            fill.fillOrigin = (int)Image.OriginHorizontal.Left;
+            fill.fillAmount = 0f;
+        }
+        fissionBarFillImg = fill;
         fissionBarFillRT = fill.rectTransform;
     }
 
-    Image MakeBarPart(string name, RectTransform parent, Color color, float width, float y)
+    Image MakeBarPart(string name, RectTransform parent, Color color, Sprite sprite, float width, float y)
     {
         GameObject go = new GameObject(name, typeof(RectTransform), typeof(Image));
         RectTransform rt = go.GetComponent<RectTransform>();
@@ -193,12 +263,15 @@ public class PlayerHUD : MonoBehaviour
         rt.anchoredPosition = new Vector2(0f, y);
 
         Image img = go.GetComponent<Image>();
-        img.color = color;
+        if (sprite != null) img.sprite = sprite; // 스프라이트면 색은 흰색 유지(원본 그대로)
+        else img.color = color;
         return img;
     }
 
-    // 부모 밑에 count개의 색깔 사각형 Image를 좌→우로 생성해 반환
-    Image[] BuildNotchRow(RectTransform parent, int count, Color color)
+    // 부모 밑에 count개의 칸 Image를 좌→우로 생성해 반환.
+    // sprite가 있으면 그 스프라이트로(색은 흰색=원본), 없으면 단색 사각형으로 렌더한다.
+    // 채움/빈칸 전환은 매 프레임 SetNotch가 처리하므로 여기선 초기 모양만 준다.
+    Image[] BuildNotchRow(RectTransform parent, int count, Color color, Sprite sprite)
     {
         count = Mathf.Max(0, count);
         Image[] arr = new Image[count];
@@ -213,7 +286,10 @@ public class PlayerHUD : MonoBehaviour
             rt.anchoredPosition = new Vector2(i * (notchSize.x + notchSpacing), 0f);
 
             Image img = go.GetComponent<Image>();
-            img.color = color; // 스프라이트 없이 단색 사각형으로 렌더됨
+            if (sprite != null)
+                img.sprite = sprite;  // 실제 스프라이트로 렌더 (색은 기본 흰색이라 원본 그대로)
+            else
+                img.color = color;    // 스프라이트 없으면 단색 사각형
             arr[i] = img;
         }
         return arr;

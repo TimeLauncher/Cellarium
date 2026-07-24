@@ -1,13 +1,10 @@
 fileFormatVersion: 2
-guid: 3db49c59ef11bd94f8891de35925278e
+guid: b382acade26b0174296af14cbdab3d76
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -6033804811190297774
-    second: pushedbutton_0
-  - first:
-      213: 5759063989513366190
-    second: pushedbutton_1
+      213: -6133466757516357652
+    second: Button_G_ON_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -103,45 +100,23 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: pushedbutton_0
+      name: Button_G_ON_0
       rect:
         serializedVersion: 2
-        x: 183
-        y: 134
-        width: 666
-        height: 169
+        x: 11
+        y: 0
+        width: 1518
+        height: 1024
       alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+      pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 25b95f02e7e934ca0800000000000000
-      internalID: -6033804811190297774
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: pushedbutton_1
-      rect:
-        serializedVersion: 2
-        x: 862
-        y: 95
-        width: 142
-        height: 85
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: eaa20b58f2e4cef40800000000000000
-      internalID: 5759063989513366190
+      spriteID: cef02940b7c81eaa0800000000000000
+      internalID: -6133466757516357652
       vertices: []
       indices: 
       edges: []
@@ -150,7 +125,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 4deaae7a72f7d6e409fb79479a72e595
+    spriteID: 
     internalID: 0
     vertices: []
     indices: 
@@ -160,8 +135,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      pushedbutton_0: -6033804811190297774
-      pushedbutton_1: 5759063989513366190
+      Button_G_ON_0: -6133466757516357652
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

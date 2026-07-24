@@ -1,13 +1,13 @@
 fileFormatVersion: 2
-guid: 3db49c59ef11bd94f8891de35925278e
+guid: 209c677b3daefed4e83588f14d813f81
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -6033804811190297774
-    second: pushedbutton_0
+      213: -3864355842741003333
+    second: pushed green button_0
   - first:
-      213: 5759063989513366190
-    second: pushedbutton_1
+      213: 2856727412061382502
+    second: pushed green button_1
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -103,29 +103,29 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: pushedbutton_0
+      name: pushed green button_0
       rect:
         serializedVersion: 2
-        x: 183
-        y: 134
-        width: 666
-        height: 169
+        x: 182
+        y: 135
+        width: 668
+        height: 161
       alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+      pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 25b95f02e7e934ca0800000000000000
-      internalID: -6033804811190297774
+      spriteID: bbb97b3d5dc0f5ac0800000000000000
+      internalID: -3864355842741003333
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: pushedbutton_1
+      name: pushed green button_1
       rect:
         serializedVersion: 2
         x: 862
@@ -133,15 +133,15 @@ TextureImporter:
         width: 142
         height: 85
       alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+      pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: eaa20b58f2e4cef40800000000000000
-      internalID: 5759063989513366190
+      spriteID: 6672a08127225a720800000000000000
+      internalID: 2856727412061382502
       vertices: []
       indices: 
       edges: []
@@ -150,7 +150,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 4deaae7a72f7d6e409fb79479a72e595
+    spriteID: 
     internalID: 0
     vertices: []
     indices: 
@@ -160,8 +160,8 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      pushedbutton_0: -6033804811190297774
-      pushedbutton_1: 5759063989513366190
+      pushed green button_0: -3864355842741003333
+      pushed green button_1: 2856727412061382502
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

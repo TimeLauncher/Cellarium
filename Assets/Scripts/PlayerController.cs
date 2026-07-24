@@ -10,7 +10,7 @@ public class PlayerController : MonoBehaviour
     [Header("점프")]
     public float jumpPower = 10f;
     public float jumpBuffer = 0.12f;
-    public int maxJumps = 2;
+    public int maxJumps =1;
     public float fallMultiplier = 3f;
     public float lowJumpMultiplier = 2f;
     public float ascendMultiplier = 1f;
@@ -230,7 +230,26 @@ public class PlayerController : MonoBehaviour
             if (!hasClones)
                 currentFissionGauge = Mathf.Min(maxFissionGauge, currentFissionGauge + fissionGaugeRecoverRate * Time.deltaTime);
         }
+        // 조종 여부와 상관없이 애니메이션 상태는 계속 갱신
+        if (animator != null)
+        {
+            animator.SetBool("IsGrounded", isGrounded);
+            animator.SetFloat("yVelocity", rb.linearVelocity.y);
 
+            // 비조종 분열체는 이동 모션이 나오지 않도록 처리
+            animator.SetBool(
+                "move",
+                isControlled && Mathf.Abs(moveX) > 0.01f
+            );
+
+            animator.SetBool("isDashing", isNormalDashing);
+        }
+
+        if (!isControlled)
+        {
+            moveX = 0f;
+            return;
+        }
         if (!isControlled) return;
 
         if (isStunned)
@@ -349,16 +368,17 @@ public class PlayerController : MonoBehaviour
             }
         }
 
-        if (spr != null && Mathf.Abs(moveX) > 0.01f)
-            spr.flipX = (moveX < 0f);
-
-        if (animator != null)
+        if (
+    spr != null &&
+    !isNormalDashing &&
+    !isConsuming &&
+    Mathf.Abs(moveX) > 0.01f
+)
         {
-            animator.SetBool("IsGrounded", isGrounded);
-            animator.SetFloat("yVelocity", rb.linearVelocity.y);
-            animator.SetBool("move", Mathf.Abs(moveX) > 0.01f);
-            animator.SetBool("isDashing", isNormalDashing); // pang4 Player.controller의 Dash 상태용
+            spr.flipX = moveX < 0f;
         }
+
+
     }
 
     // 색 처리는 한 곳에서만 — 조종 여부는 투명도로, 무적은 깜빡임으로 표현한다.
@@ -477,8 +497,23 @@ public class PlayerController : MonoBehaviour
         pendingConsumeTarget = target;
         rb.linearVelocity = Vector2.zero;
 
-        if (animator != null) animator.SetTrigger("Consume");
-        if (!HasAnimatorController) ExecuteConsume(); // 애니 이벤트가 없으면 바로 섭취
+        // 섭취 대상 방향으로 스프라이트 전환
+        float targetDirectionX = target.transform.position.x - transform.position.x;
+
+        if (spr != null && Mathf.Abs(targetDirectionX) > 0.01f)
+        {
+            spr.flipX = targetDirectionX < 0f;
+        }
+
+        if (animator != null)
+        {
+            animator.SetTrigger("Consume");
+        }
+
+        if (!HasAnimatorController)
+        {
+            ExecuteConsume();
+        }
     }
 
     // 섭취 애니메이션의 Animation Event에서 호출 (애니 없으면 StartConsumeAnimation이 직접 호출)
@@ -631,6 +666,12 @@ public class PlayerController : MonoBehaviour
     {
         isNormalDashing = true;
         normalDashCooldownTimer = dashCooldown;
+
+        // 대시 방향으로 스프라이트 전환
+        if (spr != null && Mathf.Abs(dashDir.x) > 0.01f)
+        {
+            spr.flipX = dashDir.x < 0f;
+        }
 
         float originalGravity = rb.gravityScale;
         rb.gravityScale = 0f;
@@ -899,7 +940,7 @@ public class PlayerController : MonoBehaviour
             if (!IsGroundCandidate(h.gameObject)) continue;
 
             // 옆에 서 있는 벽을 지면으로 오인하지 않도록, 발밑보다 위로 솟아있는 면은 제외
-            if (h.bounds.max.y > feetY + groundCheckRadius) continue;
+            //if (h.bounds.max.y > feetY + groundCheckRadius) continue;
 
             return true;
         }

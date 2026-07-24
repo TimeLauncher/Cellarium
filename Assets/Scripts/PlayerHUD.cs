@@ -29,7 +29,8 @@ public class PlayerHUD : MonoBehaviour
     [Header("분열 연속 바 자동 생성 (칸 뒤에 겹쳐 표시)")]
     public bool autoBuildFissionBar = true;                         // 분열 칸 뒤에 지속 상승하는 바를 겹쳐 생성 (칸이 앞, 바가 뒤)
     public float fissionBarHeight = 24f;                            // 바 두께 (칸 높이와 같게 두면 배경 바처럼 보임)
-    public float fissionBarYOffset = 0f;                            // 칸 중심 기준 바의 Y 미세조정 (0 = 칸과 같은 높이)
+    public float fissionBarXOffset = 0f;                            // 칸 왼쪽 기준 바의 X 위치 조정 (좌표 이동)
+    public float fissionBarYOffset = 0f;                            // 칸 중심 기준 바의 Y 위치 조정 (0 = 칸과 같은 높이)
     public Color fissionBarBgColor = new Color(0f, 0f, 0f, 0.5f);   // 바 배경색 (스프라이트 없을 때)
     public Color fissionBarFillColor = new Color(0.35f, 0.7f, 1f);  // 바 채움색 (스프라이트 없을 때)
     public Sprite fissionBarBgSprite;    // 바 배경 스프라이트 (예: FissionBarEmpty). 없으면 색 사각형
@@ -39,6 +40,7 @@ public class PlayerHUD : MonoBehaviour
     private int builtFissionNotchCount = -1; // 마지막으로 생성한 분열 칸 수
     private Image fissionBarFillImg;        // 자동 생성한 바의 채움 Image
     private RectTransform fissionBarFillRT; // 채움의 RectTransform (스프라이트 없을 때 폭으로 조절)
+    private RectTransform fissionBarBgRT;   // 배경 바의 RectTransform (좌표 실시간 반영용)
     private float fissionBarWidth;
 
     [Header("대시 쿨다운 (Image - Filled 타입)")]
@@ -51,9 +53,13 @@ public class PlayerHUD : MonoBehaviour
 
     [Header("분열 가능 횟수 - 분열체 아이콘 (좌→우, 소모는 우측부터)")]
     public Image[] fissionSlotIcons;
-    public Sprite slotDefaultSprite;      // 미사용
+    [Tooltip("분열체가 없는 빈 슬롯에 쓸 이미지. 비워두면 빈 슬롯은 숨겨짐(안 보임)")]
+    public Sprite slotDefaultSprite;      // 빈 슬롯 (분열체 없음)
+    [Tooltip("분열체가 있고 지금 조종 중일 때")]
     public Sprite slotControlledSprite;   // 조종 중인 분열체
+    [Tooltip("분열체가 있지만 지금 조종하지 않을 때")]
     public Sprite slotUncontrolledSprite; // 존재하지만 비조종인 분열체
+    [Range(0f, 1f)] public float uncontrolledSlotAlpha = 0.4f; // 스프라이트가 없을 때만, 비조종 슬롯을 흐리게 하는 투명도
 
     [Header("보유 재화")]
     public Image cellIcon;
@@ -76,7 +82,10 @@ public class PlayerHUD : MonoBehaviour
         UpdateHp(controlled);
         UpdateDashCooldown(controlled);
 
-        // 분열 능력 해금 전(A02 획득 전)엔 분열 게이지/가능횟수 UI를 통째로 숨긴다
+        // 본체 아이콘은 분열 해금/분열체 유무와 무관하게 항상 표시 ("이게 나(본체)"라는 표시)
+        UpdateMainBodyIcon(manager);
+
+        // 분열 능력 해금 전(A02 획득 전)엔 분열 게이지/가능횟수(분열체 슬롯) UI만 숨긴다
         bool fissionUnlocked = manager.fissionUnlocked;
         SetFissionUIVisible(fissionUnlocked);
 
@@ -104,7 +113,7 @@ public class PlayerHUD : MonoBehaviour
         if (fissionNotches != null)
             foreach (var n in fissionNotches)
                 if (n != null) n.gameObject.SetActive(on);
-        if (mainBodyIcon != null) mainBodyIcon.gameObject.SetActive(on);
+        // 본체 아이콘(mainBodyIcon)은 여기서 끄지 않는다 — 항상 표시(UpdateMainBodyIcon가 담당)
         if (fissionSlotIcons != null)
             foreach (var s in fissionSlotIcons)
                 if (s != null) s.gameObject.SetActive(on);
@@ -155,6 +164,15 @@ public class PlayerHUD : MonoBehaviour
                 if (!exists) continue;
                 SetNotch(fissionNotches[i], i < active, fissionNotchOnSprite, fissionNotchOffSprite);
             }
+        }
+
+        // 바 좌표(X/Y)를 매 프레임 반영 — 인스펙터에서 실행 중에 옮겨도 바로 적용됨
+        if (fissionBarBgRT != null) fissionBarBgRT.anchoredPosition = new Vector2(fissionBarXOffset, fissionBarYOffset);
+        if (fissionBarFillRT != null)
+        {
+            Vector2 p = fissionBarFillRT.anchoredPosition;
+            p.x = fissionBarXOffset; p.y = fissionBarYOffset;
+            fissionBarFillRT.anchoredPosition = p;
         }
 
         // 자동 생성한 연속 바: 현재/최대 비율만큼 채움 (지속 상승하는 바 형태)
@@ -235,7 +253,7 @@ public class PlayerHUD : MonoBehaviour
         fissionBarWidth = notchCount * notchSize.x + (notchCount - 1) * notchSpacing; // 칸 행과 같은 전체 폭
         float y = fissionBarYOffset; // 칸과 같은 높이(중심)에 겹쳐 배치 — 칸이 앞에서 덮음
 
-        MakeBarPart("FissionBarBg", parent, fissionBarBgColor, fissionBarBgSprite, fissionBarWidth, y);
+        fissionBarBgRT = MakeBarPart("FissionBarBg", parent, fissionBarBgColor, fissionBarBgSprite, fissionBarWidth, y).rectTransform;
 
         // 채움: 스프라이트가 있으면 폭은 꽉 채운 뒤 Filled(가로)로 fillAmount 조절(스프라이트가 안 찌그러짐),
         //       없으면 폭(sizeDelta)을 줄여 색 사각형으로 표현
@@ -260,7 +278,7 @@ public class PlayerHUD : MonoBehaviour
         rt.anchorMin = rt.anchorMax = new Vector2(0f, 0.5f);
         rt.pivot = new Vector2(0f, 0.5f);
         rt.sizeDelta = new Vector2(width, fissionBarHeight);
-        rt.anchoredPosition = new Vector2(0f, y);
+        rt.anchoredPosition = new Vector2(fissionBarXOffset, y);
 
         Image img = go.GetComponent<Image>();
         if (sprite != null) img.sprite = sprite; // 스프라이트면 색은 흰색 유지(원본 그대로)
@@ -301,19 +319,26 @@ public class PlayerHUD : MonoBehaviour
         dashCooldownFill.fillAmount = player.DashCooldownProgress;
     }
 
+    // 본체 아이콘은 분열 해금/분열체 유무와 무관하게 매 프레임 갱신 (항상 표시)
+    void UpdateMainBodyIcon(PlayerManager manager)
+    {
+        if (mainBodyIcon == null || manager.allPlayers.Count == 0) return;
+
+        bool mainControlled = manager.currentPlayer == manager.allPlayers[0];
+        if (mainBodyDefaultSprite != null && mainBodyUncontrolledSprite != null)
+            mainBodyIcon.sprite = mainControlled ? mainBodyDefaultSprite : mainBodyUncontrolledSprite;
+        // 조종 중이 아니면 색(투명도)을 줄여 선택된 개체만 선명하게 (스프라이트로 구분되면 굳이 흐리게 안 함)
+        bool hasStateSprites = mainBodyDefaultSprite != null && mainBodyUncontrolledSprite != null;
+        SetIconAlpha(mainBodyIcon, (mainControlled || hasStateSprites) ? 1f : uncontrolledSlotAlpha);
+    }
+
     void UpdateFissionIcons(PlayerManager manager)
     {
         if (manager.allPlayers.Count == 0) return;
-
-        if (mainBodyIcon != null)
-        {
-            bool mainControlled = manager.currentPlayer == manager.allPlayers[0];
-            mainBodyIcon.sprite = mainControlled ? mainBodyDefaultSprite : mainBodyUncontrolledSprite;
-        }
-
         if (fissionSlotIcons == null) return;
 
-        int cloneCount = manager.allPlayers.Count - 1; // 본체를 제외한 분열체 수
+        int cloneCount = manager.allPlayers.Count - 1;        // 현재 존재하는 분열체 수 (= 소모된 칸)
+        int capacity = Mathf.Max(0, manager.maxFissionCount); // 최대 분열 가능 횟수 = 켜둘 칸 수
         int totalSlots = fissionSlotIcons.Length;
 
         for (int i = 0; i < totalSlots; i++)
@@ -322,15 +347,43 @@ public class PlayerHUD : MonoBehaviour
 
             // 분열 가능 횟수를 소모할 때 우측부터 채워지도록 인덱스를 뒤집어서 매핑
             int fromRight = totalSlots - 1 - i;
-            if (fromRight >= cloneCount)
+
+            // 최대 분열 횟수를 넘는 여분 칸은 사용하지 않으므로 숨긴다
+            if (fromRight >= capacity)
             {
-                fissionSlotIcons[i].sprite = slotDefaultSprite;
+                fissionSlotIcons[i].enabled = false;
                 continue;
             }
 
+            fissionSlotIcons[i].enabled = true;
+
+            bool hasClone = fromRight < cloneCount;
+            if (!hasClone)
+            {
+                // 아직 분열하지 않은 '분열 가능' 칸 — 켜진 상태로 계속 표시한다
+                // (한 번 분열해도 남은 분열 가능 횟수만큼은 그대로 켜져 있음 — 꺼지지 않음)
+                if (slotDefaultSprite != null) fissionSlotIcons[i].sprite = slotDefaultSprite;
+                SetIconAlpha(fissionSlotIcons[i], 1f);
+                continue;
+            }
+
+            // 분열체가 있는(소모된) 칸 — 조종 중이면 controlled, 아니면 uncontrolled 스프라이트
             PlayerController clone = manager.allPlayers[1 + fromRight];
-            fissionSlotIcons[i].sprite = clone == manager.currentPlayer ? slotControlledSprite : slotUncontrolledSprite;
+            bool controlled = clone == manager.currentPlayer;
+            Sprite s = controlled ? slotControlledSprite : slotUncontrolledSprite;
+            if (s != null) fissionSlotIcons[i].sprite = s; // 각 상태 스프라이트는 독립적으로 검사 (한쪽만 넣어도 동작)
+
+            // 스프라이트로 상태가 구분되면 alpha는 1, 스프라이트가 없을 때만 비조종 칸을 흐리게
+            float a = (s != null) ? 1f : (controlled ? 1f : uncontrolledSlotAlpha);
+            SetIconAlpha(fissionSlotIcons[i], a);
         }
+    }
+
+    void SetIconAlpha(Image img, float a)
+    {
+        Color c = img.color;
+        c.a = a;
+        img.color = c;
     }
 
     // 재화 시스템 완성 전까지 외부(재화 매니저 등)에서 호출해 갱신

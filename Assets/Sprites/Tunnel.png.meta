@@ -1,0 +1,3315 @@
+fileFormatVersion: 2
+guid: 8ea6f17eeb38baa4490ed03c98bbab49
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: -5828474959326346466
+    second: Tunnel_0
+  - first:
+      213: -8182503826327614977
+    second: Tunnel_1
+  - first:
+      213: -2672907844622786357
+    second: Tunnel_2
+  - first:
+      213: 5369454959791287281
+    second: Tunnel_3
+  - first:
+      213: -7764406734258857691
+    second: Tunnel_4
+  - first:
+      213: 587654318658270438
+    second: Tunnel_5
+  - first:
+      213: 2455840456715003346
+    second: Tunnel_6
+  - first:
+      213: 5213074018317949884
+    second: Tunnel_7
+  - first:
+      213: -1791408685870000394
+    second: Tunnel_8
+  - first:
+      213: -1464792845269872049
+    second: Tunnel_9
+  - first:
+      213: -7816338853583187179
+    second: Tunnel_10
+  - first:
+      213: -3406067333719457338
+    second: Tunnel_11
+  - first:
+      213: -5861877027058445679
+    second: Tunnel_12
+  - first:
+      213: 5318192421661005600
+    second: Tunnel_13
+  - first:
+      213: -8731185908815620635
+    second: Tunnel_14
+  - first:
+      213: -9071294060052053676
+    second: Tunnel_15
+  - first:
+      213: 2678103027214758538
+    second: Tunnel_16
+  - first:
+      213: -1198571688563434669
+    second: Tunnel_17
+  - first:
+      213: -1515219112711770796
+    second: Tunnel_18
+  - first:
+      213: -3638764648023349175
+    second: Tunnel_19
+  - first:
+      213: 7247112824236758197
+    second: Tunnel_20
+  - first:
+      213: -1759251118162153005
+    second: Tunnel_21
+  - first:
+      213: 6091689414009934333
+    second: Tunnel_22
+  - first:
+      213: -7277720660112777122
+    second: Tunnel_23
+  - first:
+      213: 5938628783804032747
+    second: Tunnel_24
+  - first:
+      213: -2595636127006517777
+    second: Tunnel_25
+  - first:
+      213: 8673282531305244360
+    second: Tunnel_26
+  - first:
+      213: 7740941344742398843
+    second: Tunnel_27
+  - first:
+      213: -6327782558439237106
+    second: Tunnel_28
+  - first:
+      213: -1348827377803899507
+    second: Tunnel_29
+  - first:
+      213: -8122287596908122850
+    second: Tunnel_30
+  - first:
+      213: -9028622774548603272
+    second: Tunnel_31
+  - first:
+      213: -7318304700433281601
+    second: Tunnel_32
+  - first:
+      213: -564234450230167585
+    second: Tunnel_33
+  - first:
+      213: -4720875301622086889
+    second: Tunnel_34
+  - first:
+      213: -1293712946161148836
+    second: Tunnel_35
+  - first:
+      213: 8079809128359751676
+    second: Tunnel_36
+  - first:
+      213: 289667736666057574
+    second: Tunnel_37
+  - first:
+      213: -2061821101860025309
+    second: Tunnel_38
+  - first:
+      213: 2577771824598482022
+    second: Tunnel_39
+  - first:
+      213: -563726765066301416
+    second: Tunnel_40
+  - first:
+      213: 9030978057345986611
+    second: Tunnel_41
+  - first:
+      213: -6904292772277538837
+    second: Tunnel_42
+  - first:
+      213: 3133684628125898174
+    second: Tunnel_43
+  - first:
+      213: 3398280432354063382
+    second: Tunnel_44
+  - first:
+      213: -314604815900430537
+    second: Tunnel_45
+  - first:
+      213: 2470413423817084551
+    second: Tunnel_46
+  - first:
+      213: 2288314146900189607
+    second: Tunnel_47
+  - first:
+      213: 1785497103275303441
+    second: Tunnel_48
+  - first:
+      213: -4283733095525721561
+    second: Tunnel_49
+  - first:
+      213: 7517506837540561822
+    second: Tunnel_50
+  - first:
+      213: 1716962117521359719
+    second: Tunnel_51
+  - first:
+      213: -7087680322414819402
+    second: Tunnel_52
+  - first:
+      213: -6976475142214551446
+    second: Tunnel_53
+  - first:
+      213: 6022608414424831294
+    second: Tunnel_54
+  - first:
+      213: -6893999639222592672
+    second: Tunnel_55
+  - first:
+      213: -680664691905441306
+    second: Tunnel_56
+  - first:
+      213: -4135098461530046705
+    second: Tunnel_57
+  - first:
+      213: -8898462141049923746
+    second: Tunnel_58
+  - first:
+      213: -2907222143713008283
+    second: Tunnel_59
+  - first:
+      213: -7179679190036247040
+    second: Tunnel_60
+  - first:
+      213: -7314345877306434762
+    second: Tunnel_61
+  - first:
+      213: 5611214533583370665
+    second: Tunnel_62
+  - first:
+      213: -8283149842799370939
+    second: Tunnel_63
+  - first:
+      213: -7967270832035251284
+    second: Tunnel_64
+  - first:
+      213: 3940852439753387679
+    second: Tunnel_65
+  - first:
+      213: -3002742509577890696
+    second: Tunnel_66
+  - first:
+      213: -6766981766183331556
+    second: Tunnel_67
+  - first:
+      213: -8685023375824818146
+    second: Tunnel_68
+  - first:
+      213: 8862094086260388144
+    second: Tunnel_69
+  - first:
+      213: -3005228481563563275
+    second: Tunnel_70
+  - first:
+      213: -975582052770685343
+    second: Tunnel_71
+  - first:
+      213: 145803569700784085
+    second: Tunnel_72
+  - first:
+      213: -8860911740081257766
+    second: Tunnel_73
+  - first:
+      213: -4460330469843674552
+    second: Tunnel_74
+  - first:
+      213: 4600283321450412550
+    second: Tunnel_75
+  - first:
+      213: 8832912536008430859
+    second: Tunnel_76
+  - first:
+      213: -2480641142309266624
+    second: Tunnel_77
+  - first:
+      213: -4165093586514562734
+    second: Tunnel_78
+  - first:
+      213: 3418565532476046635
+    second: Tunnel_79
+  - first:
+      213: 1906034511305669859
+    second: Tunnel_80
+  - first:
+      213: 5700630353973523905
+    second: Tunnel_81
+  - first:
+      213: 3358236559442460394
+    second: Tunnel_82
+  - first:
+      213: 6915546897886237436
+    second: Tunnel_83
+  - first:
+      213: 3483536414931022730
+    second: Tunnel_84
+  - first:
+      213: 6639965349151742810
+    second: Tunnel_85
+  - first:
+      213: 2942368977731560470
+    second: Tunnel_86
+  - first:
+      213: -552259728325435687
+    second: Tunnel_87
+  - first:
+      213: 419897549948871618
+    second: Tunnel_88
+  - first:
+      213: 1578301036556166873
+    second: Tunnel_89
+  - first:
+      213: -1443023468497376611
+    second: Tunnel_90
+  - first:
+      213: 2238209537992185663
+    second: Tunnel_91
+  - first:
+      213: 7685543374024778986
+    second: Tunnel_92
+  - first:
+      213: -2780347709136609293
+    second: Tunnel_93
+  - first:
+      213: 6425840442265381626
+    second: Tunnel_94
+  - first:
+      213: 5872327439796866920
+    second: Tunnel_95
+  - first:
+      213: 1579831374119646916
+    second: Tunnel_96
+  - first:
+      213: 7646841293987693132
+    second: Tunnel_97
+  - first:
+      213: -6504288724648092794
+    second: Tunnel_98
+  - first:
+      213: 1520432695263620283
+    second: Tunnel_99
+  - first:
+      213: 4012196551425910649
+    second: Tunnel_100
+  - first:
+      213: -6467271210022838975
+    second: Tunnel_101
+  - first:
+      213: -6372756765882513700
+    second: Tunnel_102
+  - first:
+      213: -6083307901049229375
+    second: Tunnel_103
+  - first:
+      213: 6845314183438547859
+    second: Tunnel_104
+  - first:
+      213: 3556678669829281177
+    second: Tunnel_105
+  - first:
+      213: 7606059952121490488
+    second: Tunnel_106
+  - first:
+      213: -5563316519338574655
+    second: Tunnel_107
+  - first:
+      213: 9159046655315517728
+    second: Tunnel_108
+  - first:
+      213: -3566027579526937126
+    second: Tunnel_109
+  - first:
+      213: 2833216340065045983
+    second: Tunnel_110
+  - first:
+      213: 5339736371664178317
+    second: Tunnel_111
+  - first:
+      213: -96957016038085875
+    second: Tunnel_112
+  - first:
+      213: -2719246570024431763
+    second: Tunnel_113
+  - first:
+      213: -1185427388249562251
+    second: Tunnel_114
+  - first:
+      213: 7532956665910801957
+    second: Tunnel_115
+  - first:
+      213: 7184419319265219130
+    second: Tunnel_116
+  - first:
+      213: 670256992135955512
+    second: Tunnel_117
+  - first:
+      213: 1753578064644543454
+    second: Tunnel_118
+  - first:
+      213: 384788694933608792
+    second: Tunnel_119
+  - first:
+      213: 3438406830097991730
+    second: Tunnel_120
+  - first:
+      213: 5581071234027775049
+    second: Tunnel_121
+  - first:
+      213: 4408021526442260707
+    second: Tunnel_122
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 1
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 700
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: Tunnel_0
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 1044
+        height: 1008
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e130813b7e81d1fa0800000000000000
+      internalID: -5828474959326346466
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Tunnel_1
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 999
+        width: 5
+        height: 9
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ff9c77a6f18e17e80800000000000000
+      internalID: -8182503826327614977
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Tunnel_2
+      rect:
+        serializedVersion: 2
+        x: 3
+        y: 981
+        width: 23
+        height: 27
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: bc067eb1a7ce7ead0800000000000000
+      internalID: -2672907844622786357
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Tunnel_3
+      rect:
+        serializedVersion: 2
+        x: 73
+        y: 1003
+        width: 6
+        height: 5
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1fba1db56d2248a40800000000000000
+      internalID: 5369454959791287281
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Tunnel_4
+      rect:
+        serializedVersion: 2
+        x: 331
+        y: 999
+        width: 6
+        height: 8
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 52999d876394f3490800000000000000
+      internalID: -7764406734258857691
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Tunnel_5
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 980
+        width: 8
+        height: 18
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6e4b9524d74c72800800000000000000
+      internalID: 587654318658270438
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Tunnel_6
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 975
+        width: 7
+        height: 8
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2d5e78f32e5e41220800000000000000
+      internalID: 2455840456715003346
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Tunnel_7
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 889
+        width: 23
+        height: 89
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: cbbd8a9133f885840800000000000000
+      internalID: 5213074018317949884
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Tunnel_8
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 957
+        width: 7
+        height: 11
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6f65b2f9a43a327e0800000000000000
+      internalID: -1791408685870000394
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Tunnel_9
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 952
+        width: 5
+        height: 6
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f42d7240ba20cabe0800000000000000
+      internalID: -1464792845269872049
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Tunnel_10
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 941
+        width: 11
+        height: 9
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5131714b939c68390800000000000000
+      internalID: -7816338853583187179
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Tunnel_11
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 925
+        width: 11
+        height: 11
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6c1079c5ec73bb0d0800000000000000
+      internalID: -3406067333719457338
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Tunnel_12
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 919
+        width: 6
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1929825c6ed66aea0800000000000000
+      internalID: -5861877027058445679
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Tunnel_13
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 901
+        width: 11
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 027574c94d30ec940800000000000000
+      internalID: 5318192421661005600
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Tunnel_14
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 894
+        width: 5
+        height: 9
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5e5162dfca894d680800000000000000
+      internalID: -8731185908815620635
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Tunnel_15
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 885
+        width: 11
+        height: 9
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4518c793d1a4c1280800000000000000
+      internalID: -9071294060052053676
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Tunnel_16
+      rect:
+        serializedVersion: 2
+        x: 7
+        y: 869
+        width: 18
+        height: 20
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a82b80993888a2520800000000000000
+      internalID: 2678103027214758538
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Tunnel_17
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 879
+        width: 5
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 35b16594661dd5fe0800000000000000
+      internalID: -1198571688563434669
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Tunnel_18
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 871
+        width: 10
+        height: 10
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 45daee5be3cd8fae0800000000000000
+      internalID: -1515219112711770796
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Tunnel_19
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 861
+        width: 9
+        height: 11
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 948a155e4d2808dc0800000000000000
+      internalID: -3638764648023349175
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Tunnel_20
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 851
+        width: 13
+        height: 19
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5b45fcf77bae29460800000000000000
+      internalID: 7247112824236758197
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Tunnel_21
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 831
+        width: 19
+        height: 22
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3d17c3fcd62e597e0800000000000000
+      internalID: -1759251118162153005
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Tunnel_22
+      rect:
+        serializedVersion: 2
+        x: 6
+        y: 853
+        width: 9
+        height: 12
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: df1d1143f370a8450800000000000000
+      internalID: 6091689414009934333
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Tunnel_23
+      rect:
+        serializedVersion: 2
+        x: 10
+        y: 853
+        width: 13
+        height: 20
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e50e47f5e97500b90800000000000000
+      internalID: -7277720660112777122
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Tunnel_24
+      rect:
+        serializedVersion: 2
+        x: 10
+        y: 837
+        width: 13
+        height: 15
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: be6ac872a6f3a6250800000000000000
+      internalID: 5938628783804032747
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Tunnel_25
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 814
+        width: 11
+        height: 18
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: fe51b9bd1b27afbd0800000000000000
+      internalID: -2595636127006517777
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Tunnel_26
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 807
+        width: 7
+        height: 9
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8c6cc0b5280bd5870800000000000000
+      internalID: 8673282531305244360
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Tunnel_27
+      rect:
+        serializedVersion: 2
+        x: 5
+        y: 817
+        width: 7
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b7b5188c3295d6b60800000000000000
+      internalID: 7740941344742398843
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Tunnel_28
+      rect:
+        serializedVersion: 2
+        x: 10
+        y: 816
+        width: 13
+        height: 20
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e0a11540a433f28a0800000000000000
+      internalID: -6327782558439237106
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Tunnel_29
+      rect:
+        serializedVersion: 2
+        x: 11
+        y: 809
+        width: 11
+        height: 9
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d8d4da275a0084de0800000000000000
+      internalID: -1348827377803899507
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Tunnel_30
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 799
+        width: 9
+        height: 8
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e1deabed676d74f80800000000000000
+      internalID: -8122287596908122850
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Tunnel_31
+      rect:
+        serializedVersion: 2
+        x: 4
+        y: 789
+        width: 19
+        height: 20
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 87e57081c63e3b280800000000000000
+      internalID: -9028622774548603272
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Tunnel_32
+      rect:
+        serializedVersion: 2
+        x: 7
+        y: 804
+        width: 9
+        height: 11
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: fbd4a9426a8207a90800000000000000
+      internalID: -7318304700433281601
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Tunnel_33
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 780
+        width: 6
+        height: 19
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: fd73ef7c1cf6b28f0800000000000000
+      internalID: -564234450230167585
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Tunnel_34
+      rect:
+        serializedVersion: 2
+        x: 2
+        y: 781
+        width: 6
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 71386e9ece41c7eb0800000000000000
+      internalID: -4720875301622086889
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Tunnel_35
+      rect:
+        serializedVersion: 2
+        x: 6
+        y: 777
+        width: 13
+        height: 11
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c5c9dba0eeecb0ee0800000000000000
+      internalID: -1293712946161148836
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Tunnel_36
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 773
+        width: 7
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: cff67d4f79f312070800000000000000
+      internalID: 8079809128359751676
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Tunnel_37
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 763
+        width: 17
+        height: 14
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 66b2fd2954b150400800000000000000
+      internalID: 289667736666057574
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Tunnel_38
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 725
+        width: 19
+        height: 42
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 32c8a31c1a0f263e0800000000000000
+      internalID: -2061821101860025309
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Tunnel_39
+      rect:
+        serializedVersion: 2
+        x: 7
+        y: 753
+        width: 10
+        height: 9
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 66cf33d11d516c320800000000000000
+      internalID: 2577771824598482022
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Tunnel_40
+      rect:
+        serializedVersion: 2
+        x: 11
+        y: 747
+        width: 6
+        height: 6
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 810d7d17e7d3d28f0800000000000000
+      internalID: -563726765066301416
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Tunnel_41
+      rect:
+        serializedVersion: 2
+        x: 7
+        y: 729
+        width: 8
+        height: 10
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 330747ae1ba745d70800000000000000
+      internalID: 9030978057345986611
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Tunnel_42
+      rect:
+        serializedVersion: 2
+        x: 7
+        y: 721
+        width: 10
+        height: 11
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: befa91bdd460f20a0800000000000000
+      internalID: -6904292772277538837
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Tunnel_43
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 711
+        width: 7
+        height: 14
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: eb5db89f0951d7b20800000000000000
+      internalID: 3133684628125898174
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Tunnel_44
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 694
+        width: 8
+        height: 18
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 614ff916c0e192f20800000000000000
+      internalID: 3398280432354063382
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Tunnel_45
+      rect:
+        serializedVersion: 2
+        x: 1
+        y: 701
+        width: 15
+        height: 21
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 73fa0a7369c42abf0800000000000000
+      internalID: -314604815900430537
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Tunnel_46
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 677
+        width: 17
+        height: 20
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 78e49fe8beba84220800000000000000
+      internalID: 2470413423817084551
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Tunnel_47
+      rect:
+        serializedVersion: 2
+        x: 6
+        y: 692
+        width: 10
+        height: 9
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7a1ac74b799b1cf10800000000000000
+      internalID: 2288314146900189607
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Tunnel_48
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 668
+        width: 17
+        height: 14
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 112a63cc72c57c810800000000000000
+      internalID: 1785497103275303441
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Tunnel_49
+      rect:
+        serializedVersion: 2
+        x: 11
+        y: 671
+        width: 6
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 72ada90227f1d84c0800000000000000
+      internalID: -4283733095525721561
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Tunnel_50
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 653
+        width: 19
+        height: 16
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e93ec28a3ac835860800000000000000
+      internalID: 7517506837540561822
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Tunnel_51
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 636
+        width: 16
+        height: 22
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 763c9a3f2ffd3d710800000000000000
+      internalID: 1716962117521359719
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Tunnel_52
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 646
+        width: 5
+        height: 9
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6b740f48c4083ad90800000000000000
+      internalID: -7087680322414819402
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Tunnel_53
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 624
+        width: 11
+        height: 14
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a6875f332d49e2f90800000000000000
+      internalID: -6976475142214551446
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Tunnel_54
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 621
+        width: 8
+        height: 9
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e35121b917a949350800000000000000
+      internalID: 6022608414424831294
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Tunnel_55
+      rect:
+        serializedVersion: 2
+        x: 10
+        y: 629
+        width: 13
+        height: 8
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 06b5776aad79350a0800000000000000
+      internalID: -6893999639222592672
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Tunnel_56
+      rect:
+        serializedVersion: 2
+        x: 11
+        y: 621
+        width: 10
+        height: 8
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6e153dba11bcd86f0800000000000000
+      internalID: -680664691905441306
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Tunnel_57
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 609
+        width: 11
+        height: 12
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f0fbc31abdd2d96c0800000000000000
+      internalID: -4135098461530046705
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Tunnel_58
+      rect:
+        serializedVersion: 2
+        x: 2
+        y: 617
+        width: 9
+        height: 8
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e57157b24df428480800000000000000
+      internalID: -8898462141049923746
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Tunnel_59
+      rect:
+        serializedVersion: 2
+        x: 11
+        y: 605
+        width: 8
+        height: 12
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 56526d80dd877a7d0800000000000000
+      internalID: -2907222143713008283
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Tunnel_60
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 607
+        width: 7
+        height: 6
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 00e00a4f0d7ac5c90800000000000000
+      internalID: -7179679190036247040
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Tunnel_61
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 599
+        width: 11
+        height: 8
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 63b9eca7d293e7a90800000000000000
+      internalID: -7314345877306434762
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Tunnel_62
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 581
+        width: 11
+        height: 18
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9a9feb883e90fdd40800000000000000
+      internalID: 5611214533583370665
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Tunnel_63
+      rect:
+        serializedVersion: 2
+        x: 5
+        y: 594
+        width: 6
+        height: 6
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 54d5c9e9a175c0d80800000000000000
+      internalID: -8283149842799370939
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Tunnel_64
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 575
+        width: 5
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: cab353304619e6190800000000000000
+      internalID: -7967270832035251284
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Tunnel_65
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 562
+        width: 6
+        height: 14
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f9e6bb71a68b0b630800000000000000
+      internalID: 3940852439753387679
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Tunnel_66
+      rect:
+        serializedVersion: 2
+        x: 5
+        y: 565
+        width: 18
+        height: 18
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 87415a4c89d1456d0800000000000000
+      internalID: -3002742509577890696
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Tunnel_67
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 538
+        width: 12
+        height: 31
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c19d819cfe9d612a0800000000000000
+      internalID: -6766981766183331556
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Tunnel_68
+      rect:
+        serializedVersion: 2
+        x: 11
+        y: 552
+        width: 8
+        height: 9
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e107ff14149987780800000000000000
+      internalID: -8685023375824818146
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Tunnel_69
+      rect:
+        serializedVersion: 2
+        x: 10
+        y: 513
+        width: 13
+        height: 9
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 031f3a93e9b7cfa70800000000000000
+      internalID: 8862094086260388144
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Tunnel_70
+      rect:
+        serializedVersion: 2
+        x: 15
+        y: 521
+        width: 8
+        height: 8
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5fa648f4e984b46d0800000000000000
+      internalID: -3005228481563563275
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Tunnel_71
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 494
+        width: 6
+        height: 24
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 16e5b57ba490672f0800000000000000
+      internalID: -975582052770685343
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Tunnel_72
+      rect:
+        serializedVersion: 2
+        x: 7
+        y: 504
+        width: 6
+        height: 9
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5d7cffaf29ff50200800000000000000
+      internalID: 145803569700784085
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Tunnel_73
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 488
+        width: 5
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ad24e5238b7b70580800000000000000
+      internalID: -8860911740081257766
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Tunnel_74
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 472
+        width: 11
+        height: 14
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 84add1cc119b912c0800000000000000
+      internalID: -4460330469843674552
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Tunnel_75
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 457
+        width: 6
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 60ab439be4d77df30800000000000000
+      internalID: 4600283321450412550
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Tunnel_76
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 439
+        width: 11
+        height: 11
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b0590e8172fc49a70800000000000000
+      internalID: 8832912536008430859
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Tunnel_77
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 433
+        width: 7
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 04bdf69260ef29dd0800000000000000
+      internalID: -2480641142309266624
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Tunnel_78
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 423
+        width: 5
+        height: 8
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 251ba8f537d9236c0800000000000000
+      internalID: -4165093586514562734
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Tunnel_79
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 417
+        width: 7
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b2df0ac4d3f217f20800000000000000
+      internalID: 3418565532476046635
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Tunnel_80
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 409
+        width: 6
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3ec72081a48937a10800000000000000
+      internalID: 1906034511305669859
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Tunnel_81
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 399
+        width: 7
+        height: 9
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1c5b66c8a15bc1f40800000000000000
+      internalID: 5700630353973523905
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Tunnel_82
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 382
+        width: 6
+        height: 17
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: aee3c4dab5ada9e20800000000000000
+      internalID: 3358236559442460394
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Tunnel_83
+      rect:
+        serializedVersion: 2
+        x: 5
+        y: 391
+        width: 6
+        height: 6
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: cf250147345f8ff50800000000000000
+      internalID: 6915546897886237436
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Tunnel_84
+      rect:
+        serializedVersion: 2
+        x: 973
+        y: 382
+        width: 8
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a83f91ea9e1085030800000000000000
+      internalID: 3483536414931022730
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Tunnel_85
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 360
+        width: 7
+        height: 6
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a5b97151e45e52c50800000000000000
+      internalID: 6639965349151742810
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Tunnel_86
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 343
+        width: 5
+        height: 8
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 614a1d3fef465d820800000000000000
+      internalID: 2942368977731560470
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Tunnel_87
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 333
+        width: 8
+        height: 9
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9de986df3baf558f0800000000000000
+      internalID: -552259728325435687
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Tunnel_88
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 324
+        width: 7
+        height: 10
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2c362c2d896c3d500800000000000000
+      internalID: 419897549948871618
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Tunnel_89
+      rect:
+        serializedVersion: 2
+        x: 11
+        y: 329
+        width: 6
+        height: 8
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9d6af883e6047e510800000000000000
+      internalID: 1578301036556166873
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Tunnel_90
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 305
+        width: 7
+        height: 12
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d9a69a50dc959fbe0800000000000000
+      internalID: -1443023468497376611
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Tunnel_91
+      rect:
+        serializedVersion: 2
+        x: 5
+        y: 297
+        width: 6
+        height: 8
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f375aec57b7bf0f10800000000000000
+      internalID: 2238209537992185663
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Tunnel_92
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 295
+        width: 5
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ae4aa9a9af888aa60800000000000000
+      internalID: 7685543374024778986
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Tunnel_93
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 287
+        width: 5
+        height: 8
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3ff57dc4d783a69d0800000000000000
+      internalID: -2780347709136609293
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Tunnel_94
+      rect:
+        serializedVersion: 2
+        x: 5
+        y: 289
+        width: 6
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: afa219036db2d2950800000000000000
+      internalID: 6425840442265381626
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Tunnel_95
+      rect:
+        serializedVersion: 2
+        x: 5
+        y: 273
+        width: 6
+        height: 6
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 86f0fdd81b2be7150800000000000000
+      internalID: 5872327439796866920
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Tunnel_96
+      rect:
+        serializedVersion: 2
+        x: 11
+        y: 268
+        width: 6
+        height: 8
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4c63b63b340bce510800000000000000
+      internalID: 1579831374119646916
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Tunnel_97
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 263
+        width: 8
+        height: 8
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c42cce564a90f1a60800000000000000
+      internalID: 7646841293987693132
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Tunnel_98
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 255
+        width: 6
+        height: 8
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 68b95cabddf1cb5a0800000000000000
+      internalID: -6504288724648092794
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Tunnel_99
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 223
+        width: 5
+        height: 16
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: bbce3121b79a91510800000000000000
+      internalID: 1520432695263620283
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Tunnel_100
+      rect:
+        serializedVersion: 2
+        x: 4
+        y: 231
+        width: 7
+        height: 6
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 977e9c8818f2ea730800000000000000
+      internalID: 4012196551425910649
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Tunnel_101
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 215
+        width: 5
+        height: 8
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 14d5a7c7913af36a0800000000000000
+      internalID: -6467271210022838975
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Tunnel_102
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 205
+        width: 6
+        height: 11
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: cd60b995c7b6f87a0800000000000000
+      internalID: -6372756765882513700
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Tunnel_103
+      rect:
+        serializedVersion: 2
+        x: 5
+        y: 215
+        width: 6
+        height: 6
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1cf22aad1bfb39ba0800000000000000
+      internalID: -6083307901049229375
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Tunnel_104
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 185
+        width: 5
+        height: 6
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 39b3cc75bf07ffe50800000000000000
+      internalID: 6845314183438547859
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Tunnel_105
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 176
+        width: 5
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9951267f76cdb5130800000000000000
+      internalID: 3556678669829281177
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Tunnel_106
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 166
+        width: 6
+        height: 11
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 83ca6825a372e8960800000000000000
+      internalID: 7606059952121490488
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Tunnel_107
+      rect:
+        serializedVersion: 2
+        x: 3
+        y: 154
+        width: 8
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1ccf2c3f9112bc2b0800000000000000
+      internalID: -5563316519338574655
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Tunnel_108
+      rect:
+        serializedVersion: 2
+        x: 7
+        y: 154
+        width: 10
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 021af4308687b1f70800000000000000
+      internalID: 9159046655315517728
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Tunnel_109
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 136
+        width: 6
+        height: 8
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ad50d0f5fcce28ec0800000000000000
+      internalID: -3566027579526937126
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Tunnel_110
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 126
+        width: 6
+        height: 11
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: fddc861104b915720800000000000000
+      internalID: 2833216340065045983
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Tunnel_111
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 88
+        width: 5
+        height: 8
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d8cc64b50fd8a1a40800000000000000
+      internalID: 5339736371664178317
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Tunnel_112
+      rect:
+        serializedVersion: 2
+        x: 511
+        y: 53
+        width: 6
+        height: 6
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d0b619c8b1a87aef0800000000000000
+      internalID: -96957016038085875
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Tunnel_113
+      rect:
+        serializedVersion: 2
+        x: 603
+        y: 47
+        width: 8
+        height: 12
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d6f8ef8d6ab434ad0800000000000000
+      internalID: -2719246570024431763
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Tunnel_114
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 30
+        width: 7
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 573ad5032148c8fe0800000000000000
+      internalID: -1185427388249562251
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Tunnel_115
+      rect:
+        serializedVersion: 2
+        x: 525
+        y: 33
+        width: 9
+        height: 8
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 52636042d207a8860800000000000000
+      internalID: 7532956665910801957
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Tunnel_116
+      rect:
+        serializedVersion: 2
+        x: 528
+        y: 16
+        width: 14
+        height: 22
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a32d1426e4f24b360800000000000000
+      internalID: 7184419319265219130
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Tunnel_117
+      rect:
+        serializedVersion: 2
+        x: 546
+        y: 38
+        width: 6
+        height: 6
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8344c74ee2b3d4900800000000000000
+      internalID: 670256992135955512
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Tunnel_118
+      rect:
+        serializedVersion: 2
+        x: 598
+        y: 29
+        width: 9
+        height: 8
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ed31e0d75f5f55810800000000000000
+      internalID: 1753578064644543454
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Tunnel_119
+      rect:
+        serializedVersion: 2
+        x: 612
+        y: 31
+        width: 7
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8599a13874b075500800000000000000
+      internalID: 384788694933608792
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Tunnel_120
+      rect:
+        serializedVersion: 2
+        x: 629
+        y: 37
+        width: 8
+        height: 10
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 23884456bcca7bf20800000000000000
+      internalID: 3438406830097991730
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Tunnel_121
+      rect:
+        serializedVersion: 2
+        x: 1
+        y: 22
+        width: 6
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9446062b7b2f37d40800000000000000
+      internalID: 5581071234027775049
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Tunnel_122
+      rect:
+        serializedVersion: 2
+        x: 522
+        y: 24
+        width: 6
+        height: 6
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3e8bddd39307c2d30800000000000000
+      internalID: 4408021526442260707
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: 
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries: []
+    nameFileIdTable:
+      Tunnel_0: -5828474959326346466
+      Tunnel_1: -8182503826327614977
+      Tunnel_10: -7816338853583187179
+      Tunnel_100: 4012196551425910649
+      Tunnel_101: -6467271210022838975
+      Tunnel_102: -6372756765882513700
+      Tunnel_103: -6083307901049229375
+      Tunnel_104: 6845314183438547859
+      Tunnel_105: 3556678669829281177
+      Tunnel_106: 7606059952121490488
+      Tunnel_107: -5563316519338574655
+      Tunnel_108: 9159046655315517728
+      Tunnel_109: -3566027579526937126
+      Tunnel_11: -3406067333719457338
+      Tunnel_110: 2833216340065045983
+      Tunnel_111: 5339736371664178317
+      Tunnel_112: -96957016038085875
+      Tunnel_113: -2719246570024431763
+      Tunnel_114: -1185427388249562251
+      Tunnel_115: 7532956665910801957
+      Tunnel_116: 7184419319265219130
+      Tunnel_117: 670256992135955512
+      Tunnel_118: 1753578064644543454
+      Tunnel_119: 384788694933608792
+      Tunnel_12: -5861877027058445679
+      Tunnel_120: 3438406830097991730
+      Tunnel_121: 5581071234027775049
+      Tunnel_122: 4408021526442260707
+      Tunnel_13: 5318192421661005600
+      Tunnel_14: -8731185908815620635
+      Tunnel_15: -9071294060052053676
+      Tunnel_16: 2678103027214758538
+      Tunnel_17: -1198571688563434669
+      Tunnel_18: -1515219112711770796
+      Tunnel_19: -3638764648023349175
+      Tunnel_2: -2672907844622786357
+      Tunnel_20: 7247112824236758197
+      Tunnel_21: -1759251118162153005
+      Tunnel_22: 6091689414009934333
+      Tunnel_23: -7277720660112777122
+      Tunnel_24: 5938628783804032747
+      Tunnel_25: -2595636127006517777
+      Tunnel_26: 8673282531305244360
+      Tunnel_27: 7740941344742398843
+      Tunnel_28: -6327782558439237106
+      Tunnel_29: -1348827377803899507
+      Tunnel_3: 5369454959791287281
+      Tunnel_30: -8122287596908122850
+      Tunnel_31: -9028622774548603272
+      Tunnel_32: -7318304700433281601
+      Tunnel_33: -564234450230167585
+      Tunnel_34: -4720875301622086889
+      Tunnel_35: -1293712946161148836
+      Tunnel_36: 8079809128359751676
+      Tunnel_37: 289667736666057574
+      Tunnel_38: -2061821101860025309
+      Tunnel_39: 2577771824598482022
+      Tunnel_4: -7764406734258857691
+      Tunnel_40: -563726765066301416
+      Tunnel_41: 9030978057345986611
+      Tunnel_42: -6904292772277538837
+      Tunnel_43: 3133684628125898174
+      Tunnel_44: 3398280432354063382
+      Tunnel_45: -314604815900430537
+      Tunnel_46: 2470413423817084551
+      Tunnel_47: 2288314146900189607
+      Tunnel_48: 1785497103275303441
+      Tunnel_49: -4283733095525721561
+      Tunnel_5: 587654318658270438
+      Tunnel_50: 7517506837540561822
+      Tunnel_51: 1716962117521359719
+      Tunnel_52: -7087680322414819402
+      Tunnel_53: -6976475142214551446
+      Tunnel_54: 6022608414424831294
+      Tunnel_55: -6893999639222592672
+      Tunnel_56: -680664691905441306
+      Tunnel_57: -4135098461530046705
+      Tunnel_58: -8898462141049923746
+      Tunnel_59: -2907222143713008283
+      Tunnel_6: 2455840456715003346
+      Tunnel_60: -7179679190036247040
+      Tunnel_61: -7314345877306434762
+      Tunnel_62: 5611214533583370665
+      Tunnel_63: -8283149842799370939
+      Tunnel_64: -7967270832035251284
+      Tunnel_65: 3940852439753387679
+      Tunnel_66: -3002742509577890696
+      Tunnel_67: -6766981766183331556
+      Tunnel_68: -8685023375824818146
+      Tunnel_69: 8862094086260388144
+      Tunnel_7: 5213074018317949884
+      Tunnel_70: -3005228481563563275
+      Tunnel_71: -975582052770685343
+      Tunnel_72: 145803569700784085
+      Tunnel_73: -8860911740081257766
+      Tunnel_74: -4460330469843674552
+      Tunnel_75: 4600283321450412550
+      Tunnel_76: 8832912536008430859
+      Tunnel_77: -2480641142309266624
+      Tunnel_78: -4165093586514562734
+      Tunnel_79: 3418565532476046635
+      Tunnel_8: -1791408685870000394
+      Tunnel_80: 1906034511305669859
+      Tunnel_81: 5700630353973523905
+      Tunnel_82: 3358236559442460394
+      Tunnel_83: 6915546897886237436
+      Tunnel_84: 3483536414931022730
+      Tunnel_85: 6639965349151742810
+      Tunnel_86: 2942368977731560470
+      Tunnel_87: -552259728325435687
+      Tunnel_88: 419897549948871618
+      Tunnel_89: 1578301036556166873
+      Tunnel_9: -1464792845269872049
+      Tunnel_90: -1443023468497376611
+      Tunnel_91: 2238209537992185663
+      Tunnel_92: 7685543374024778986
+      Tunnel_93: -2780347709136609293
+      Tunnel_94: 6425840442265381626
+      Tunnel_95: 5872327439796866920
+      Tunnel_96: 1579831374119646916
+      Tunnel_97: 7646841293987693132
+      Tunnel_98: -6504288724648092794
+      Tunnel_99: 1520432695263620283
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

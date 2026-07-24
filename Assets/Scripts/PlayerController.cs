@@ -57,6 +57,8 @@ public class PlayerController : MonoBehaviour
     public float wallSlideSpeed = 1.5f;
     public float wallJumpX = 6f;
     public float wallJumpY = 10f;
+    public bool allowWallJump = true;  // 끄면 벽점프(공중 추가 점프)를 막음 — 이단점프 없는 데모에서 유용
+    public bool allowWallSlide = true; // 끄면 벽 슬라이딩(벽에 붙어 천천히 내려가기)도 막음
     public LayerMask wallMask; // 현재 미사용 — 맵이 wall/ground로 나뉘어 있지 않아 기하학적 판정(CheckWallSide)을 씀
 
     [Header("체력")]
@@ -67,6 +69,8 @@ public class PlayerController : MonoBehaviour
     [Header("분열 게이지")]
     public float maxFissionGauge = 100f;
     public float fissionGaugeRecoverRate = 10f;
+    public float fissionCost = 30f;      // Q 분열 1회에 소모하는 게이지 (HUD의 Fission Per Notch를 이 값과 맞추면 1회=1칸)
+    public float fissionDashCost = 100f; // 우클릭 분열 대시에 소모하는 게이지
 
     [Header("사망/부활")]
     public float deathMotionDuration = 3f;                 // 사망 모션 길이(2~4초). 이 동안 조작 불가·무적
@@ -105,6 +109,8 @@ public class PlayerController : MonoBehaviour
     private float fissionDashTimer;
     private float fissionDashHoldTimer;
     private float fissionHoldTimer;
+    private bool isFissioning;            // Q 홀드로 분열을 차징하는 동안 (제자리 고정 + 다른 조작 차단)
+    private bool fissionConsumedThisHold; // 이번 Q 입력에서 이미 분열했는지 (한 번 누를 때 1회만 분열)
 
     // 섭취
     private bool isConsuming;
@@ -256,20 +262,33 @@ public class PlayerController : MonoBehaviour
         }
 
         // 분열 (홀드 0.5초, 분열체/분열대시 중 불가, 분열 능력 해금 전엔 불가)
+        // - 차징 중(isFissioning)엔 이동/점프/대시가 잠겨 제자리에 고정된다
+        // - Q를 한 번 누르는 동안엔 1회만 분열한다 (계속 눌러도 반복 분열 안 됨)
+        isFissioning = false;
         if (!isClone && !isFissionDashing && FissionUnlocked)
         {
-            if (Input.GetKey(KeyCode.Q))
+            if (Input.GetKeyDown(KeyCode.Q))
+                fissionConsumedThisHold = false;
+
+            if (Input.GetKey(KeyCode.Q) && !fissionConsumedThisHold)
             {
                 fissionHoldTimer += Time.deltaTime;
+                isFissioning = true; // 차징하는 동안 제자리 고정
                 if (fissionHoldTimer >= fissionHoldDuration)
                 {
                     fissionHoldTimer = 0f;
+                    fissionConsumedThisHold = true; // 뗐다 다시 누르기 전까진 재분열 없음
+                    isFissioning = false;
                     Fission();
                 }
             }
             if (Input.GetKeyUp(KeyCode.Q))
                 fissionHoldTimer = 0f;
         }
+
+        // 차징 중엔 이동 입력을 무시해 제자리에 고정 (점프/대시 등은 IsActionLocked로 차단됨)
+        if (isFissioning)
+            moveX = 0f;
 
         // 좌클릭: 마우스 커서 위치 몬스터 있으면 섭취, 없으면 일반 대시
         if (Input.GetMouseButtonDown(0) && !IsActionLocked())
@@ -307,7 +326,7 @@ public class PlayerController : MonoBehaviour
         // 점프 (벽점프 우선)
         if (jumpBufferTimer > 0f && !isDashReady && !IsActionLocked())
         {
-            if (isWallSliding && wallDir != lastWallJumpDir && !isClone)
+            if (allowWallJump && isWallSliding && wallDir != lastWallJumpDir && !isClone)
             {
                 rb.linearVelocity = new Vector2(-wallDir * wallJumpX, wallJumpY);
                 jumpsLeft = maxJumps - 1;
@@ -403,7 +422,7 @@ public class PlayerController : MonoBehaviour
             rb.linearVelocity = new Vector2(moveX * moveSpeed, rb.linearVelocity.y);
 
         // 벽 슬라이딩
-        bool isWallSliding = isOnWall && !isGrounded && !isSlamming && wallJumpTimer <= 0f && !isClone &&
+        bool isWallSliding = allowWallSlide && isOnWall && !isGrounded && !isSlamming && wallJumpTimer <= 0f && !isClone &&
             ((wallDir == 1 && moveX > 0) || (wallDir == -1 && moveX < 0));
         if (isWallSliding)
         {
@@ -423,7 +442,7 @@ public class PlayerController : MonoBehaviour
     // 대시/섭취/분열 대시/경직 중엔 점프·내려찍기·대시 추가 입력 차단
     bool IsActionLocked()
     {
-        return isDashReady || isFissionDashing || isNormalDashing || isConsuming || isStunned;
+        return isDashReady || isFissionDashing || isNormalDashing || isConsuming || isStunned || isFissioning;
     }
 
     // ── 일반 대시 / 섭취 ───────────────────────────────────────────
@@ -692,9 +711,9 @@ public class PlayerController : MonoBehaviour
     {
         if (!FissionUnlocked) return;
         if (playerPrefab == null) return;
-        if (currentFissionGauge < 30f) return;
+        if (currentFissionGauge < fissionCost) return;
 
-        currentFissionGauge -= 30f;
+        currentFissionGauge -= fissionCost;
         float facing = (spr != null && spr.flipX) ? -1f : 1f;
         Vector2 spawnPos = (Vector2)transform.position + Vector2.right * (-facing) * 0.5f;
         GameObject clone = Instantiate(playerPrefab, spawnPos, Quaternion.identity);
@@ -707,12 +726,12 @@ public class PlayerController : MonoBehaviour
     void FissionDash()
     {
         if (!FissionUnlocked) return;
-        if (currentFissionGauge < 100f) return;
+        if (currentFissionGauge < fissionDashCost) return;
 
         Vector2 dashDir = ((Vector2)(GetMouseWorld() - transform.position)).normalized;
         if (dashDir.sqrMagnitude < 0.001f) return;
 
-        currentFissionGauge -= 100f;
+        currentFissionGauge -= fissionDashCost;
 
         // 분열체를 원래 위치(대시 반대방향 약간 오프셋)에 남기고 본체가 마우스 방향으로 대시
         if (playerPrefab != null)
@@ -856,7 +875,9 @@ public class PlayerController : MonoBehaviour
         OneWayPlatformTile owp = collision.gameObject.GetComponent<OneWayPlatformTile>();
         if (owp != null) currentOneWayPlatform = owp;
 
-        if (IsGroundCandidate(collision.gameObject) && HasUpwardContact(collision))
+        // 상승 중(방금 점프)이면 리셋하지 않는다 — 이륙 프레임엔 아직 바닥 접촉이 남아있어
+        // 점프로 소모한 jumpsLeft가 곧바로 되돌아가 이단점프가 되던 문제 방지
+        if (rb.linearVelocity.y <= 0.1f && IsGroundCandidate(collision.gameObject) && HasUpwardContact(collision))
         {
             isGrounded = true;
             jumpsLeft = maxJumps;

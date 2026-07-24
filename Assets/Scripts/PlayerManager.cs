@@ -66,6 +66,9 @@ public class PlayerManager : MonoBehaviour
 
     void Update()
     {
+        // 분열체 조종 전환(숫자키)/분열 회수(R)도 다크셀 잔재로 능력을 해금하기 전까진 잠긴다
+        if (!fissionUnlocked) return;
+
         if (Input.GetKeyDown(KeyCode.Alpha1)) SwitchControl(0);
         if (Input.GetKeyDown(KeyCode.Alpha2)) SwitchControl(1);
         if (Input.GetKeyDown(KeyCode.Alpha3)) SwitchControl(2);

@@ -36,6 +36,7 @@ public class MonsterBase : MonoBehaviour, IConsumable
     [Header("피격 넉백 (대시 등)")]
     public float knockbackResistance = 1f;    // 밀려나는 정도 배율 (0이면 아예 안 밀림)
     public float knockbackRecoverTime = 0.2f; // 이 시간 동안은 AI 이동이 넉백 속도를 덮어쓰지 않음
+    public bool knockbackDuringAttack = false; // 공격 모션 중에도 넉백/정지에 영향받을지 (기본 false = 공격 중엔 안 밀리고 안 멈춤). 몬스터별로 조정
 
     [Header("공격")]
     public float attackRange = 1.5f;
@@ -321,6 +322,9 @@ public class MonsterBase : MonoBehaviour, IConsumable
     public virtual void ApplyKnockback(Vector2 force)
     {
         if (rb == null || knockbackResistance <= 0f || IsDead) return;
+        // 공격 모션 중엔 넉백으로 밀려나지도, (knockbackTimer로) 멈추지도 않는다 — 공격이 끊기지 않게.
+        // 몬스터마다 다르게 하려면 인스펙터에서 knockbackDuringAttack 체크
+        if (isAttacking && !knockbackDuringAttack) return;
         rb.linearVelocity = force * knockbackResistance;
         knockbackTimer = knockbackRecoverTime;
     }

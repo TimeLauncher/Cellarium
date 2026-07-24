@@ -18,6 +18,7 @@ public class FloaterGerm : MonsterBase
     public float selfDestructWindup = 1.5f;
     public float selfDestructRadius = 1.5f;
     public float selfDestructDamage = 100f;
+    public bool showExplosionRange = true; // 이펙트 에셋 나오기 전까지 자폭 범위를 화면에 원으로 표시
 
     private bool isDetonating;
 
@@ -117,6 +118,11 @@ public class FloaterGerm : MonsterBase
         CancelInvoke(nameof(FireProjectile));
         CancelInvoke(nameof(StopAttack));
         DisableHitbox();
+
+        // 자폭 준비 동안 폭발 범위를 미리 보여준다 (FloaterSpreaderGerm도 이 OnDeath를 상속하므로 함께 적용됨)
+        if (showExplosionRange)
+            gameObject.AddComponent<ExplosionRangeIndicator>().Begin(selfDestructRadius, selfDestructWindup);
+
         if (animator != null) animator.SetTrigger("SelfDestruct");
         Invoke(nameof(Detonate), selfDestructWindup);
     }
@@ -130,5 +136,13 @@ public class FloaterGerm : MonsterBase
             if (pc != null) pc.TakeDamage(selfDestructDamage);
         }
         Destroy(gameObject);
+    }
+
+    protected override void OnDrawGizmosSelected()
+    {
+        base.OnDrawGizmosSelected();
+        // 자폭 폭발 범위 (Scene 뷰 미리보기)
+        Gizmos.color = new Color(1f, 0.35f, 0.1f, 0.9f);
+        Gizmos.DrawWireSphere(transform.position, selfDestructRadius);
     }
 }

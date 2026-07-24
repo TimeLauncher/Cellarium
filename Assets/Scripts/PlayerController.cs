@@ -582,7 +582,15 @@ public class PlayerController : MonoBehaviour
 
         yield return new WaitForSeconds(deathMotionDuration);
 
-        // 부활 위치: 마지막 세이브포인트가 있으면 그곳, 없으면 기본 부활 위치(A00 중앙)
+        // 부활: 체크포인트 씬을 리로드해 몬스터/버튼/문 등 배치 오브젝트를 전부 초기 상태로 되돌린다.
+        // (플레이어 위치/재화/해금은 RespawnManager가 마지막 세이브포인트 스냅샷으로 복원)
+        if (RespawnManager.Instance != null)
+        {
+            RespawnManager.Instance.Respawn();
+            yield break; // 씬이 리로드되므로 이 오브젝트는 사라진다
+        }
+
+        // (폴백) RespawnManager가 없으면 예전처럼 제자리에서 부활 — 위치: 세이브포인트 or 기본 부활 지점
         transform.position = SavePoint.HasSave ? SavePoint.LastSavePosition : defaultRespawnPosition;
 
         // 상태 초기화 후 완전 회복

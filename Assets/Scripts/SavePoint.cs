@@ -40,6 +40,10 @@ public class SavePoint : MonoBehaviour
         LastSavePosition = transform.position;
         HasSave = true;
 
+        // 체크포인트 저장 — 사망 시 이 지점/이 시점의 진행상황으로 되돌아온다 (몬스터/버튼은 씬 리로드로 초기화)
+        if (RespawnManager.Instance != null)
+            RespawnManager.Instance.SaveCheckpoint(transform.position);
+
         // 활성화되면 이미지 교체 (한 번만, 이후 계속 활성 이미지 유지)
         if (!IsActivated)
         {

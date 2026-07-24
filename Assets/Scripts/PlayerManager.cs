@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using Unity.Cinemachine;
 
 public class PlayerManager : MonoBehaviour
 {
@@ -20,6 +21,10 @@ public class PlayerManager : MonoBehaviour
     // A00 시작 시엔 이동/점프/대시/섭취만 가능. A02에서 분열 능력 획득 전까지 false 유지.
     // 테스트 씬에서 바로 분열을 쓰려면 인스펙터에서 체크해두면 됨.
     public bool fissionUnlocked = false;
+    //카메라
+    [Header("카메라")]
+    [SerializeField] private CinemachineCamera cinemachineCamera;
+
 
     // A02의 분열 능력 획득 지점(트리거/이벤트)에서 호출
     public void UnlockFission()
@@ -144,15 +149,23 @@ public class PlayerManager : MonoBehaviour
 
     public void SwitchControl(int index)
     {
-        if (index >= allPlayers.Count) return;
+        if (index < 0 || index >= allPlayers.Count) return;
 
-        // 색은 각 PlayerController가 LateUpdate에서 스스로 처리한다 (원래 스프라이트 색 보존)
         foreach (var p in allPlayers)
-            p.isControlled = false;
+        {
+            if (p != null)
+                p.isControlled = false;
+        }
 
         currentPlayer = allPlayers[index];
+
+        if (currentPlayer == null) return;
+
         currentPlayer.isControlled = true;
 
-        UnityEngine.Debug.Log($"{index + 1}번 캐릭터로 조종 전환!");
+        if (cinemachineCamera != null)
+            cinemachineCamera.Follow = currentPlayer.transform;
+
+        Debug.Log($"{index + 1}번 캐릭터로 조종 전환!");
     }
 }

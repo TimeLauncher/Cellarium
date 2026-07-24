@@ -6,7 +6,9 @@
       "Bash(git push *)",
       "Bash(git fetch *)",
       "Bash(git log *)",
-      "Bash(git ls-remote *)"
+      "Bash(git ls-remote *)",
+      "Bash(git restore *)",
+      "Bash(git merge *)"
     ]
   }
 }

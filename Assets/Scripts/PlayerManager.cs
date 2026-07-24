@@ -12,6 +12,9 @@ public class PlayerManager : MonoBehaviour
     // ���� �п� ���� Ƚ���� 1 (���߿� ���׷��̵� �� �ִ� 3���� ����)
     public int maxFissionCount = 3;
 
+    [Tooltip("켜면 최대 분열 횟수에 도달했을 때 새 분열을 아예 막는다(가장 오래된 분열체를 회수하지 않음). 튜토리얼에서 분열 1회만 허용하려면 이 값을 켜고 Max Fission Count = 1 로 둔다")]
+    public bool hardFissionCap = false;
+
     // 보유 재화
     public int cellCurrency;
     public int darkCellCurrency;
@@ -87,6 +90,16 @@ public class PlayerManager : MonoBehaviour
         UnityEngine.Debug.Log("분열체 전체 회수!");
     }
 
+    // 지금 새 분열체를 만들 수 있는가.
+    // 하드 캡이 켜져 있으면 현재 분열체 수가 최대치 미만일 때만 허용(도달하면 분열 차단).
+    // 꺼져 있으면 항상 허용 — 초과 시 RegisterPlayer가 가장 오래된 분열체를 회수(기존 동작).
+    public bool CanSpawnClone()
+    {
+        if (!hardFissionCap) return true;
+        int cloneCount = allPlayers.Count - 1; // 본체(인덱스 0) 제외
+        return cloneCount < maxFissionCount;
+    }
+
     public void RegisterPlayer(PlayerController player)
     {
         if (!allPlayers.Contains(player))
@@ -120,7 +133,7 @@ public class PlayerManager : MonoBehaviour
                 player.isControlled = false;
 
                 // ��ȹ�� �ݿ�: �п� Ƚ�� �ʰ� �� ���� ������ �п�ü(�ε��� 1) ȸ��(�ı�)
-                if (allPlayers.Count > maxFissionCount + 1)
+                if (!hardFissionCap && allPlayers.Count > maxFissionCount + 1)
                 {
                     PlayerController oldestClone = allPlayers[1];
                     Destroy(oldestClone.gameObject); // OnDestroy���� Unregister �ڵ� ȣ���

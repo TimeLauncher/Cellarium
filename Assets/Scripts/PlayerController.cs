@@ -69,7 +69,7 @@ public class PlayerController : MonoBehaviour
     [Header("분열 게이지")]
     public float maxFissionGauge = 100f;
     public float fissionGaugeRecoverRate = 10f;
-    public float fissionCost = 30f;      // Q 분열 1회에 소모하는 게이지 (HUD의 Fission Per Notch를 이 값과 맞추면 1회=1칸)
+    public float fissionCost = 100f;     // Q 분열 1회에 소모하는 게이지 (기획: 게이지 100 = 분열 1회. maxFissionGauge와 같으면 '가득 차야 분열')
     public float fissionDashCost = 100f; // 우클릭 분열 대시에 소모하는 게이지
 
     [Header("사망/부활")]
@@ -746,6 +746,8 @@ public class PlayerController : MonoBehaviour
         if (!FissionUnlocked) return;
         if (playerPrefab == null) return;
         if (currentFissionGauge < fissionCost) return;
+        // 최대 분열 횟수 도달 시 차단(튜토리얼 등 하드 캡). 게이지를 소모하기 전에 막아 낭비 방지
+        if (PlayerManager.Instance != null && !PlayerManager.Instance.CanSpawnClone()) return;
 
         currentFissionGauge -= fissionCost;
 
@@ -757,6 +759,7 @@ public class PlayerController : MonoBehaviour
     public void SpawnFissionClone()
     {
         if (playerPrefab == null) return;
+        if (PlayerManager.Instance != null && !PlayerManager.Instance.CanSpawnClone()) return; // 하드 캡 도달 시 애니 이벤트 경로도 차단
 
         float facing = (spr != null && spr.flipX) ? -1f : 1f;
         Vector2 spawnPos = (Vector2)transform.position + Vector2.right * (-facing) * 0.5f;
@@ -771,6 +774,7 @@ public class PlayerController : MonoBehaviour
     {
         if (!FissionUnlocked) return;
         if (currentFissionGauge < fissionDashCost) return;
+        if (PlayerManager.Instance != null && !PlayerManager.Instance.CanSpawnClone()) return; // 분열 대시도 분열체를 남기므로 하드 캡 적용
 
         Vector2 dashDir = ((Vector2)(GetMouseWorld() - transform.position)).normalized;
         if (dashDir.sqrMagnitude < 0.001f) return;
@@ -932,7 +936,9 @@ public class PlayerController : MonoBehaviour
     void OnCollisionStay2D(Collision2D collision)
     {
         // 착지 순간 접촉점이 아직 안 잡히는 경우가 있어 유지 중에도 갱신 (벽 위에 올라선 경우 포함)
-        if (IsGroundCandidate(collision.gameObject) && HasUpwardContact(collision))
+        // 단, 상승 중(방금 점프)이면 리셋하지 않는다 — 이륙 프레임엔 아직 바닥 접촉이 남아있어
+        // 매 프레임 jumpsLeft가 되돌아가 maxJumps=1이어도 이단점프가 되던 문제 방지 (OnCollisionEnter2D와 동일한 가드)
+        if (rb.linearVelocity.y <= 0.1f && IsGroundCandidate(collision.gameObject) && HasUpwardContact(collision))
         {
             jumpsLeft = maxJumps;
             airDashLeft = maxAirDash;

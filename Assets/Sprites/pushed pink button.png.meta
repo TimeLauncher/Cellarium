@@ -1,10 +1,13 @@
 fileFormatVersion: 2
-guid: b5a5e39889730314b88f235d1b2897f6
+guid: 2855a983eec963148a9b4b72ceb400da
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -7150481472227712347
-    second: WhiteSell_0
+      213: -8265969311820181528
+    second: pushed pink button_0
+  - first:
+      213: -8692283847422815460
+    second: pushed pink button_1
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -46,7 +49,7 @@ TextureImporter:
   nPOTScale: 0
   lightmap: 0
   compressionQuality: 50
-  spriteMode: 1
+  spriteMode: 2
   spriteExtrude: 1
   spriteMeshType: 1
   alignment: 0
@@ -100,13 +103,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: WhiteSell_0
+      name: pushed pink button_0
       rect:
         serializedVersion: 2
-        x: 139
-        y: 253
-        width: 632
-        height: 693
+        x: 182
+        y: 135
+        width: 668
+        height: 161
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -115,8 +118,30 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 5a2ead26cf264cc90800000000000000
-      internalID: -7150481472227712347
+      spriteID: 8ef8da4b4b0694d80800000000000000
+      internalID: -8265969311820181528
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: pushed pink button_1
+      rect:
+        serializedVersion: 2
+        x: 862
+        y: 95
+        width: 142
+        height: 85
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c135f7bf4edce5780800000000000000
+      internalID: -8692283847422815460
       vertices: []
       indices: 
       edges: []
@@ -125,7 +150,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 5e97eb03825dee720800000000000000
+    spriteID: 
     internalID: 0
     vertices: []
     indices: 
@@ -135,7 +160,8 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      WhiteSell_0: -7150481472227712347
+      pushed pink button_0: -8265969311820181528
+      pushed pink button_1: -8692283847422815460
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

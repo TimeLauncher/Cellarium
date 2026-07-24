@@ -8,12 +8,25 @@ public class SavePoint : MonoBehaviour
     public static Vector3 LastSavePosition { get; private set; }
     public static bool HasSave { get; private set; }
 
+    [Header("활성화 이미지 교체")]
+    [Tooltip("활성화되면 이 스프라이트로 바뀐다 (비우면 아래 색으로 대체)")]
+    public Sprite activatedSprite;
+    [Tooltip("기본(미활성) 스프라이트. 비우면 시작 시의 스프라이트를 그대로 사용")]
+    public Sprite inactiveSprite;
+    public Color activatedColor = Color.white; // activatedSprite가 없을 때 대체로 입힐 색
+    public bool IsActivated { get; private set; }
+
     private bool playerInRange;
+    private SpriteRenderer spr;
 
     void Awake()
     {
         Collider2D col = GetComponent<Collider2D>();
         if (col != null) col.isTrigger = true;
+
+        spr = GetComponentInChildren<SpriteRenderer>();
+        if (spr != null && inactiveSprite != null)
+            spr.sprite = inactiveSprite; // 기본 스프라이트 지정 시 초기화
     }
 
     void Update()
@@ -26,6 +39,17 @@ public class SavePoint : MonoBehaviour
     {
         LastSavePosition = transform.position;
         HasSave = true;
+
+        // 활성화되면 이미지 교체 (한 번만, 이후 계속 활성 이미지 유지)
+        if (!IsActivated)
+        {
+            IsActivated = true;
+            if (spr != null)
+            {
+                if (activatedSprite != null) spr.sprite = activatedSprite;
+                else spr.color = activatedColor;
+            }
+        }
 
         if (PlayerManager.Instance != null)
         {

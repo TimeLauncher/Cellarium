@@ -16,6 +16,11 @@ public class ButtonSwitch : MonoBehaviour
     public Color pressedColor = Color.cyan;
     public float pressDepth = 0.08f; // 밟으면 이만큼 내려가 눌린 느낌을 줌
 
+    [Header("문 표시등 이미지 (이 스위치 색의 표시등 스프라이트)")]
+    [Tooltip("이 스위치가 문에 켤 표시등 이미지. 색깔별로 다른 이미지를 넣으면 문 표시등이 그 이미지로 바뀐다")]
+    public Sprite indicatorOnSprite;   // 눌렸을 때 (색깔별 켜진 이미지)
+    public Sprite indicatorOffSprite;  // 안 눌렸을 때 (꺼진 이미지, 없으면 off일 때 표시등 숨김)
+
     public bool IsActive { get; private set; }
 
     private Collider2D col;

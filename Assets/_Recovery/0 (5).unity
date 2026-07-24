@@ -7500,7 +7500,7 @@ MonoBehaviour:
   wallSlideSpeed: 1.5
   wallJumpX: 6
   wallJumpY: 15
-  allowWallJump: 0
+  allowWallJump: 1
   allowWallSlide: 1
   wallMask:
     serializedVersion: 2

@@ -1,10 +1,19 @@
 fileFormatVersion: 2
-guid: c23b714769a180f4db1769040d6a5afb
+guid: 26e41e439e2bc864cb0b57e3fb1154a9
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 6116182182591426966
-    second: shelljunk_0
+      213: 7581305520753337138
+    second: acid_0
+  - first:
+      213: -6737730626325751522
+    second: acid_1
+  - first:
+      213: 8054280360478193846
+    second: acid_2
+  - first:
+      213: -8638329562825418561
+    second: acid_3
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -46,12 +55,12 @@ TextureImporter:
   nPOTScale: 0
   lightmap: 0
   compressionQuality: 50
-  spriteMode: 1
+  spriteMode: 2
   spriteExtrude: 1
   spriteMeshType: 1
   alignment: 0
   spritePivot: {x: 0.5, y: 0.5}
-  spritePixelsToUnits: 400
+  spritePixelsToUnits: 100
   spriteBorder: {x: 0, y: 0, z: 0, w: 0}
   spriteGenerateFallbackPhysicsShape: 1
   alphaUsage: 1
@@ -100,13 +109,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: shelljunk_0
+      name: acid_0
       rect:
         serializedVersion: 2
-        x: 0
-        y: 0
-        width: 503
-        height: 478
+        x: 142
+        y: 154
+        width: 201
+        height: 119
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -115,8 +124,74 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 6917fe64a4b01e450800000000000000
-      internalID: 6116182182591426966
+      spriteID: 233e5322435363960800000000000000
+      internalID: 7581305520753337138
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: acid_1
+      rect:
+        serializedVersion: 2
+        x: 336
+        y: 210
+        width: 39
+        height: 22
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e19559181b5ce72a0800000000000000
+      internalID: -6737730626325751522
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: acid_2
+      rect:
+        serializedVersion: 2
+        x: 391
+        y: 189
+        width: 26
+        height: 17
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6b835bf705d86cf60800000000000000
+      internalID: 8054280360478193846
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: acid_3
+      rect:
+        serializedVersion: 2
+        x: 448
+        y: 188
+        width: 16
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: fb8190bc70d7e1880800000000000000
+      internalID: -8638329562825418561
       vertices: []
       indices: 
       edges: []
@@ -125,7 +200,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 5e97eb03825dee720800000000000000
+    spriteID: 
     internalID: 0
     vertices: []
     indices: 
@@ -135,7 +210,10 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      shelljunk_0: 6116182182591426966
+      acid_0: 7581305520753337138
+      acid_1: -6737730626325751522
+      acid_2: 8054280360478193846
+      acid_3: -8638329562825418561
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

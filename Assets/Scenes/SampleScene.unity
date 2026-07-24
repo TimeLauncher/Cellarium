@@ -963,19 +963,19 @@ MonoBehaviour:
   obstructionMask:
     serializedVersion: 2
     m_Bits: 0
-  avoidLedges: 1
+  avoidLedges: 0
   ledgeCheckAhead: 0.3
   ledgeCheckDepth: 1.2
-  patrolDistance: 3
-  patrolPauseDuration: 1
+  patrolDistance: 0
+  patrolPauseDuration: 0
   patrolDistanceVariance: 0
   patrolPauseVariance: 0
   maxLeashDistance: 8
   postAttackPause: 0.5
   turnPauseDuration: 0.5
-  knockbackResistance: 1
+  knockbackResistance: 0.2
   knockbackRecoverTime: 0.2
-  knockbackDuringAttack: 0
+  knockbackDuringAttack: 1
   attackRange: 1.5
   attackDamage: 10
   attackCooldown: 3.5
@@ -995,7 +995,7 @@ MonoBehaviour:
   fireWindup: 0.5
   fireRecovery: 0.3
   selfDestructWindup: 1.5
-  selfDestructRadius: 1.5
+  selfDestructRadius: 2
   selfDestructDamage: 100
   showExplosionRange: 1
 --- !u!61 &103644128
@@ -1139,7 +1139,7 @@ Transform:
   m_GameObject: {fileID: 103644126}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 14.16, y: -0.76, z: 0}
+  m_LocalPosition: {x: 23.72, y: -2.47, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -3586,8 +3586,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f3f9f77c61c24bc418f3d94f5b5eee4c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::FloaterSpreaderGerm
-  maxHp: 100
-  moveSpeed: 3
+  maxHp: 200
+  moveSpeed: 0.5
   consumeThreshold: 0.25
   detectionRange: 6
   detectionExpandMultiplier: 3
@@ -3598,22 +3598,22 @@ MonoBehaviour:
   obstructionMask:
     serializedVersion: 2
     m_Bits: 64
-  avoidLedges: 1
+  avoidLedges: 0
   ledgeCheckAhead: 0.3
   ledgeCheckDepth: 1.2
-  patrolDistance: 3
-  patrolPauseDuration: 1
+  patrolDistance: 0
+  patrolPauseDuration: 0
   patrolDistanceVariance: 0
   patrolPauseVariance: 0
-  maxLeashDistance: 8
+  maxLeashDistance: 0
   postAttackPause: 0.5
   turnPauseDuration: 0.5
-  knockbackResistance: 1
+  knockbackResistance: 0.1
   knockbackRecoverTime: 0.2
-  knockbackDuringAttack: 0
+  knockbackDuringAttack: 1
   attackRange: 1.5
-  attackDamage: 10
-  attackCooldown: 1.5
+  attackDamage: 50
+  attackCooldown: 4
   knockbackForce: 5
   stunDuration: 0.3
   attackHitbox: {fileID: 0}
@@ -5296,7 +5296,7 @@ Transform:
   m_GameObject: {fileID: 1051709536}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 11.41, y: -6.3, z: 0}
+  m_LocalPosition: {x: 14.91, y: -12.79, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -5316,7 +5316,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GeneralGerm
   maxHp: 100
-  moveSpeed: 1.7
+  moveSpeed: 1.5
   consumeThreshold: 0.25
   detectionRange: 6
   detectionExpandMultiplier: 3
@@ -5331,18 +5331,18 @@ MonoBehaviour:
   ledgeCheckAhead: 0.3
   ledgeCheckDepth: 1.2
   patrolDistance: 3
-  patrolPauseDuration: 1
-  patrolDistanceVariance: 0
-  patrolPauseVariance: 0
-  maxLeashDistance: 8
+  patrolPauseDuration: 2
+  patrolDistanceVariance: 1
+  patrolPauseVariance: 1
+  maxLeashDistance: 0
   postAttackPause: 0.5
   turnPauseDuration: 0.5
   knockbackResistance: 1
   knockbackRecoverTime: 0.2
   knockbackDuringAttack: 0
   attackRange: 2
-  attackDamage: 10
-  attackCooldown: 1.5
+  attackDamage: 50
+  attackCooldown: 3
   knockbackForce: 5
   stunDuration: 0.3
   attackHitbox: {fileID: 748455632}
@@ -6739,7 +6739,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ce53c700912c83e49b678abfdb3bc133, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CrusherGerm
-  maxHp: 100
+  maxHp: 150
   moveSpeed: 2
   consumeThreshold: 0.25
   detectionRange: 6
@@ -6755,17 +6755,17 @@ MonoBehaviour:
   ledgeCheckAhead: 0.3
   ledgeCheckDepth: 1.2
   patrolDistance: 3
-  patrolPauseDuration: 1
-  patrolDistanceVariance: 0
-  patrolPauseVariance: 0
-  maxLeashDistance: 8
+  patrolPauseDuration: 2
+  patrolDistanceVariance: 1
+  patrolPauseVariance: 1
+  maxLeashDistance: 0
   postAttackPause: 0.5
   turnPauseDuration: 0.5
-  knockbackResistance: 1
-  knockbackRecoverTime: 0.2
+  knockbackResistance: 0.3
+  knockbackRecoverTime: 0.1
   knockbackDuringAttack: 0
   attackRange: 1.5
-  attackDamage: 10
+  attackDamage: 50
   attackCooldown: 1.5
   knockbackForce: 5
   stunDuration: 0.3
@@ -6924,7 +6924,7 @@ Transform:
   m_GameObject: {fileID: 1447688274}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 20.77, y: -6.28, z: 0}
+  m_LocalPosition: {x: 21.49, y: -5.72, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -7255,17 +7255,17 @@ MonoBehaviour:
   ledgeCheckAhead: 0.3
   ledgeCheckDepth: 1.2
   patrolDistance: 3
-  patrolPauseDuration: 1
+  patrolPauseDuration: 2
   patrolDistanceVariance: 1
-  patrolPauseVariance: 0
-  maxLeashDistance: 8
+  patrolPauseVariance: 1
+  maxLeashDistance: 0
   postAttackPause: 0.5
   turnPauseDuration: 0.5
-  knockbackResistance: 1
+  knockbackResistance: 0.5
   knockbackRecoverTime: 0.2
   knockbackDuringAttack: 0
   attackRange: 1.5
-  attackDamage: 10
+  attackDamage: 50
   attackCooldown: 3
   knockbackForce: 5
   stunDuration: 0.2
@@ -7276,7 +7276,7 @@ MonoBehaviour:
   attackActiveTime: 0.3
   consumableLifetime: 5
   chaseSpeed: 2.6
-  diveAttackRange: 3
+  diveAttackRange: 4
   diveSpeed: 10
   diveWindup: 0.5
   diveMaxDuration: 1

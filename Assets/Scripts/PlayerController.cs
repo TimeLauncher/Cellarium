@@ -114,6 +114,7 @@ public class PlayerController : MonoBehaviour
 
     // 섭취
     private bool isConsuming;
+    private GameObject pendingConsumeTarget; // 애니메이션 이벤트로 섭취를 실행할 때 대상을 잠시 보관
 
     // 체력
     private float currentHp;
@@ -127,6 +128,10 @@ public class PlayerController : MonoBehaviour
 
     // 분열 능력이 해금됐는지 (A02에서 획득 전까지 잠김). 매니저가 없으면 개발 편의상 허용
     bool FissionUnlocked => PlayerManager.Instance == null || PlayerManager.Instance.fissionUnlocked;
+
+    // Animator에 실제 컨트롤러가 연결돼 있는지 — 없으면 애니메이션 이벤트 대신 즉시 실행
+    // (섭취/분열이 애니메이션 클립·이벤트가 아직 없어도 정상 동작하도록. 몬스터 히트박스와 같은 패턴)
+    bool HasAnimatorController => animator != null && animator.runtimeAnimatorController != null;
 
     public float CurrentHp => currentHp;
     public float CurrentFissionGauge => currentFissionGauge;
@@ -352,6 +357,7 @@ public class PlayerController : MonoBehaviour
             animator.SetBool("IsGrounded", isGrounded);
             animator.SetFloat("yVelocity", rb.linearVelocity.y);
             animator.SetBool("move", Mathf.Abs(moveX) > 0.01f);
+            animator.SetBool("isDashing", isNormalDashing); // pang4 Player.controller의 Dash 상태용
         }
     }
 
@@ -454,11 +460,39 @@ public class PlayerController : MonoBehaviour
         Transform target = GetMouseTarget();
         if (target != null)
         {
-            StartCoroutine(ConsumeRoutine(target.gameObject));
+            StartConsumeAnimation(target.gameObject);
             return;
         }
 
         TryNormalDash();
+    }
+
+    // 섭취 애니메이션 시작 — 실제 섭취는 애니메이션 이벤트(ExecuteConsume)에서 실행.
+    // 애니메이터 컨트롤러가 없으면(아직 애니 안 붙음) 즉시 실행해 애니 없이도 동작하게 한다.
+    void StartConsumeAnimation(GameObject target)
+    {
+        if (isConsuming || target == null) return;
+
+        isConsuming = true;
+        pendingConsumeTarget = target;
+        rb.linearVelocity = Vector2.zero;
+
+        if (animator != null) animator.SetTrigger("Consume");
+        if (!HasAnimatorController) ExecuteConsume(); // 애니 이벤트가 없으면 바로 섭취
+    }
+
+    // 섭취 애니메이션의 Animation Event에서 호출 (애니 없으면 StartConsumeAnimation이 직접 호출)
+    public void ExecuteConsume()
+    {
+        if (pendingConsumeTarget == null) { EndConsume(); return; }
+        StartCoroutine(ConsumeRoutine(pendingConsumeTarget));
+    }
+
+    // 섭취 마무리(대상 정리) — 코루틴 종료 시 호출
+    public void EndConsume()
+    {
+        pendingConsumeTarget = null;
+        isConsuming = false;
     }
 
     // 카메라~월드 좌표 변환 (공용)
@@ -655,8 +689,8 @@ public class PlayerController : MonoBehaviour
 
     IEnumerator ConsumeRoutine(GameObject target)
     {
-        if (isConsuming) yield break;
-        isConsuming = true;
+        // isConsuming은 StartConsumeAnimation에서 이미 세팅됨. 대상만 유효성 검사
+        if (target == null) { EndConsume(); yield break; }
 
         IConsumable consumable = target.GetComponent<IConsumable>();
 
@@ -701,7 +735,7 @@ public class PlayerController : MonoBehaviour
         }
         transform.localScale = originalScale;
 
-        isConsuming = false;
+        EndConsume();
         Debug.Log("섭취!");
     }
 
@@ -714,6 +748,16 @@ public class PlayerController : MonoBehaviour
         if (currentFissionGauge < fissionCost) return;
 
         currentFissionGauge -= fissionCost;
+
+        if (animator != null) animator.SetTrigger("Fission");
+        if (!HasAnimatorController) SpawnFissionClone(); // 애니 이벤트가 없으면 바로 생성
+    }
+
+    // 분열 애니메이션의 Animation Event에서 호출 (애니 없으면 Fission이 직접 호출)
+    public void SpawnFissionClone()
+    {
+        if (playerPrefab == null) return;
+
         float facing = (spr != null && spr.flipX) ? -1f : 1f;
         Vector2 spawnPos = (Vector2)transform.position + Vector2.right * (-facing) * 0.5f;
         GameObject clone = Instantiate(playerPrefab, spawnPos, Quaternion.identity);

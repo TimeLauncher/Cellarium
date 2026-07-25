@@ -16,6 +16,13 @@ public class ButtonSwitch : MonoBehaviour
     public Color pressedColor = Color.cyan;
     public float pressDepth = 0.08f; // 밟으면 이만큼 내려가 눌린 느낌을 줌
 
+    [Header("그리는 순서")]
+    [Tooltip("켜면 아래 값으로 Order in Layer를 덮어쓴다. 맵 타일(보통 0)보다 뒤에 두려면 음수")]
+    public bool overrideSortingOrder = true;
+    public int sortingOrder = -10;
+    [Tooltip("비우면 현재 Sorting Layer를 그대로 둔다")]
+    public string sortingLayer = "";
+
     [Header("문 표시등 이미지 (이 스위치 색의 표시등 스프라이트)")]
     [Tooltip("이 스위치가 문에 켤 표시등 이미지. 색깔별로 다른 이미지를 넣으면 문 표시등이 그 이미지로 바뀐다")]
     public Sprite indicatorOnSprite;   // 눌렸을 때 (색깔별 켜진 이미지)
@@ -34,6 +41,12 @@ public class ButtonSwitch : MonoBehaviour
         spr = GetComponent<SpriteRenderer>();
         if (spr != null) baseColor = spr.color;
         basePos = transform.position;
+
+        if (spr != null && overrideSortingOrder)
+        {
+            if (!string.IsNullOrEmpty(sortingLayer)) spr.sortingLayerName = sortingLayer;
+            spr.sortingOrder = sortingOrder;
+        }
 
         if (col == null)
             Debug.LogWarning($"[{name}] Collider2D가 없습니다. 버튼이 눌림을 감지할 수 없습니다.", this);

@@ -8,7 +8,12 @@
       "Bash(git log *)",
       "Bash(git ls-remote *)",
       "Bash(git restore *)",
-      "Bash(git merge *)"
+      "Bash(git merge *)",
+      "Bash(awk '/^--- !u!/{hdr=$0} /m_GameObject: \\\\{fileID: 1083230935\\\\}/{print NR\": \"hdr}' \"Assets/Scenes/Heart A01.unity\")",
+      "Bash(python -c ' *)",
+      "Bash(xargs grep -n \"DefaultExecutionOrder\\\\|void LateUpdate\")",
+      "Bash(sed -n '/void Awake/,/^    }/p' Assets/Scripts/PlayerManager.cs)",
+      "Bash(sed -n '/public void RegisterPlayer/,/^    }/p' Assets/Scripts/PlayerManager.cs)"
     ]
   }
 }

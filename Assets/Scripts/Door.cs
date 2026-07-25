@@ -44,7 +44,15 @@ public class Door : MonoBehaviour
     public Vector2 indicatorAreaOffset = Vector2.zero; // 문 중심 기준 표시등 줄의 시작 위치
     public float indicatorSpacing = 0.4f;              // 표시등 사이 간격
     public float indicatorScale = 0.3f;                // 표시등 크기(월드 유닛)
-    public int indicatorSortingOffset = 1;             // 문보다 이만큼 앞에 그린다(문 앞에 보이게)
+
+    [Header("표시등 그리는 순서")]
+    [Tooltip("끄면 '문 기준 상대'(Indicator Sorting Offset). 켜면 아래 값을 그대로 쓴다 — 맵 타일보다 뒤로 보내려면 켜고 음수를 넣을 것")]
+    public bool indicatorAbsoluteSorting = false;
+    [Tooltip("Absolute일 때 쓰는 Order in Layer. 맵 타일(보통 0)보다 뒤에 두려면 -10 등 음수")]
+    public int indicatorSortingOrder = -10;
+    [Tooltip("Absolute일 때 쓸 Sorting Layer 이름. 비우면 문과 같은 레이어를 쓴다")]
+    public string indicatorSortingLayer = "";
+    public int indicatorSortingOffset = 1;             // 상대 모드에서 문보다 이만큼 앞에 그린다
 
     [Header("개방 연출 (사라지지 않고 위로 열림)")]
     [Tooltip("위로 올라가는 거리 (문 높이만큼 주면 천장으로 들어가듯 열림)")]
@@ -171,7 +179,11 @@ public class Door : MonoBehaviour
         int created = 0;
         for (int i = 0; i < n; i++)
         {
-            if (switchIndicators[i] != null) continue; // 이미 있으면(수동 포함) 둔다
+            if (switchIndicators[i] != null)
+            {
+                ApplyIndicatorSorting(switchIndicators[i]); // 수동 배치한 것도 정렬은 인스펙터 설정을 따르게
+                continue;
+            }
             switchIndicators[i] = CreateIndicator(i, n);
             created++;
         }
@@ -212,16 +224,37 @@ public class Door : MonoBehaviour
         sr.sprite = IndOff(i) != null ? IndOff(i)
                   : IndOn(i) != null ? IndOn(i)
                   : FallbackSquare();
+        ApplyIndicatorSorting(sr);
+        return sr;
+    }
+
+    // 표시등의 Sorting Layer / Order를 정한다.
+    // 자동 생성한 것뿐 아니라 수동 배치한 표시등에도 적용해야 인스펙터 설정이 실제로 반영된다.
+    void ApplyIndicatorSorting(SpriteRenderer sr)
+    {
+        if (sr == null) return;
+
+        if (indicatorAbsoluteSorting)
+        {
+            if (!string.IsNullOrEmpty(indicatorSortingLayer))
+                sr.sortingLayerName = indicatorSortingLayer;
+            else if (spr != null)
+                sr.sortingLayerID = spr.sortingLayerID;
+
+            sr.sortingOrder = indicatorSortingOrder;
+            return;
+        }
+
+        // 상대 모드: 문과 같은 레이어에서 문보다 offset만큼 앞
         if (spr != null)
         {
             sr.sortingLayerID = spr.sortingLayerID;
-            sr.sortingOrder = spr.sortingOrder + indicatorSortingOffset; // 문 앞에 보이도록
+            sr.sortingOrder = spr.sortingOrder + indicatorSortingOffset;
         }
         else
         {
             sr.sortingOrder = indicatorSortingOffset;
         }
-        return sr;
     }
 
     // 표시등 스프라이트를 안 넣었을 때 쓰는 기본 흰 사각형 (색으로 tint해서 표시)

@@ -824,7 +824,7 @@ GameObject:
   - component: {fileID: 78813007}
   - component: {fileID: 78813006}
   m_Layer: 0
-  m_Name: CellChunk
+  m_Name: Bigcell
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1110,6 +1110,7 @@ MonoBehaviour:
   selfDestructRadius: 2
   selfDestructDamage: 100
   showExplosionRange: 1
+  chaseReadyDuration: 0.5
 --- !u!61 &103644128
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -1347,7 +1348,7 @@ GameObject:
   - component: {fileID: 188999139}
   - component: {fileID: 188999138}
   m_Layer: 0
-  m_Name: door
+  m_Name: Button_Door
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -3883,6 +3884,7 @@ MonoBehaviour:
   selfDestructRadius: 1.5
   selfDestructDamage: 100
   showExplosionRange: 1
+  chaseReadyDuration: 0.5
   spreadAngle: 30
   floaterGermPrefab: {fileID: 0}
   spawnCount: 3
@@ -4679,7 +4681,7 @@ GameObject:
   - component: {fileID: 828614642}
   - component: {fileID: 828614641}
   m_Layer: 8
-  m_Name: penetration
+  m_Name: through
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -8360,6 +8362,7 @@ MonoBehaviour:
   cellCurrency: 0
   darkCellCurrency: 0
   fissionUnlocked: 0
+  cinemachineCamera: {fileID: 0}
 --- !u!4 &1850083896
 Transform:
   m_ObjectHideFlags: 0
@@ -9663,7 +9666,7 @@ GameObject:
   - component: {fileID: 2118739055}
   - component: {fileID: 2118739054}
   m_Layer: 0
-  m_Name: Savepoint
+  m_Name: Save
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

@@ -52,7 +52,15 @@ public class PlayerController : MonoBehaviour
 
     [Header("분열 시스템")]
     public GameObject playerPrefab;
+    [Tooltip("Q를 누른 뒤 이 시간 동안 제자리 고정 + 다른 조작 차단 (분열 모션 길이에 맞출 것). " +
+             "분열체가 나오는 시점 자체는 split2 클립의 SpawnFissionClone 애니메이션 이벤트가 정한다")]
+    public float fissionMotionLock = 0.4f;
+    [Tooltip("사용 안 함 — 예전 '홀드해서 차징' 방식의 잔재. 지금은 Q를 누르는 즉시 발동한다")]
     public float fissionHoldDuration = 0.5f;
+    [Tooltip("분열체 크기 배율 (본체 대비)")]
+    public float cloneScaleRatio = 0.75f;
+    [Tooltip("분열체를 몸 밖에 생성할 때 두는 여유 간격. 0이면 콜라이더가 딱 맞닿은 채로 생성된다")]
+    public float fissionSpawnMargin = 0.15f;
 
     [Header("섭취")]
     public float consumeRange = 2f;
@@ -121,9 +129,8 @@ public class PlayerController : MonoBehaviour
     private bool isFissionDashing;
     private float fissionDashTimer;
     private float fissionDashHoldTimer;
-    private float fissionHoldTimer;
+    private float fissionMotionTimer; // 분열 모션 중 제자리 고정이 남은 시간
     private bool isFissioning;            // Q 홀드로 분열을 차징하는 동안 (제자리 고정 + 다른 조작 차단)
-    private bool fissionConsumedThisHold; // 이번 Q 입력에서 이미 분열했는지 (한 번 누를 때 1회만 분열)
 
     // 섭취
     private bool isConsuming;
@@ -149,7 +156,10 @@ public class PlayerController : MonoBehaviour
     public float CurrentHp => currentHp;
     public float CurrentFissionGauge => currentFissionGauge;
     public float MaxFissionGauge => maxFissionGauge;
-    public float FissionHoldProgress => fissionHoldTimer > 0f ? fissionHoldTimer / fissionHoldDuration : 0f;
+    // 분열 모션 진행도 (0→1). 홀드 차징이 없어졌으므로 이제 '모션이 도는 동안'을 나타낸다.
+    // FissionChargeIndicator가 이 값을 쓰는데, 즉시 발동이라 차지 게이지로서의 의미는 사라졌다.
+    public float FissionHoldProgress =>
+        fissionMotionTimer > 0f && fissionMotionLock > 0f ? 1f - (fissionMotionTimer / fissionMotionLock) : 0f;
     public float FissionDashHoldProgress => isDashReady ? Mathf.Clamp01(fissionDashHoldTimer / fissionDashHoldDuration) : 0f;
     public float DashCooldownProgress => normalDashCooldownTimer > 0f ? normalDashCooldownTimer / dashCooldown : 0f;
 
@@ -315,29 +325,20 @@ public class PlayerController : MonoBehaviour
             }
         }
 
-        // 분열 (홀드 0.5초, 분열체/분열대시 중 불가, 분열 능력 해금 전엔 불가)
-        // - 차징 중(isFissioning)엔 이동/점프/대시가 잠겨 제자리에 고정된다
-        // - Q를 한 번 누르는 동안엔 1회만 분열한다 (계속 눌러도 반복 분열 안 됨)
-        isFissioning = false;
-        if (!isClone && !isFissionDashing && FissionUnlocked)
-        {
-            if (Input.GetKeyDown(KeyCode.Q))
-                fissionConsumedThisHold = false;
+        // 분열 (Q를 누르는 즉시 발동, 분열체/분열대시 중 불가, 분열 능력 해금 전엔 불가)
+        // - 준비동작은 split2 애니메이션 자체가 담당한다. 분열체가 나오는 타이밍은
+        //   클립의 SpawnFissionClone 애니메이션 이벤트 위치로 조절한다 (코드 타이머 아님).
+        // - 모션이 끝날 때까지(fissionMotionLock) 제자리 고정 + 다른 조작 차단.
+        if (fissionMotionTimer > 0f) fissionMotionTimer -= Time.deltaTime;
+        isFissioning = fissionMotionTimer > 0f;
 
-            if (Input.GetKey(KeyCode.Q) && !fissionConsumedThisHold)
+        if (!isClone && !isFissionDashing && FissionUnlocked && Input.GetKeyDown(KeyCode.Q) && !isFissioning)
+        {
+            if (Fission())
             {
-                fissionHoldTimer += Time.deltaTime;
-                isFissioning = true; // 차징하는 동안 제자리 고정
-                if (fissionHoldTimer >= fissionHoldDuration)
-                {
-                    fissionHoldTimer = 0f;
-                    fissionConsumedThisHold = true; // 뗐다 다시 누르기 전까진 재분열 없음
-                    isFissioning = false;
-                    Fission();
-                }
+                fissionMotionTimer = fissionMotionLock;
+                isFissioning = true; // 누른 프레임부터 바로 고정
             }
-            if (Input.GetKeyUp(KeyCode.Q))
-                fissionHoldTimer = 0f;
         }
 
         // 차징 중엔 이동 입력을 무시해 제자리에 고정 (점프/대시 등은 IsActionLocked로 차단됨)
@@ -848,18 +849,32 @@ public class PlayerController : MonoBehaviour
 
     // ── 분열 ──────────────────────────────────────────────────────
 
-    void Fission()
+    // 분열 시작. 실제로 발동했으면 true (게이지 부족 등으로 막히면 false → 모션 잠금도 안 걸림)
+    bool Fission()
     {
-        if (!FissionUnlocked) return;
-        if (playerPrefab == null) return;
-        if (currentFissionGauge < fissionCost) return;
+        if (!FissionUnlocked) return false;
+        if (playerPrefab == null) return false;
+        if (currentFissionGauge < fissionCost) return false;
         // 최대 분열 횟수 도달 시 차단(튜토리얼 등 하드 캡). 게이지를 소모하기 전에 막아 낭비 방지
-        if (PlayerManager.Instance != null && !PlayerManager.Instance.CanSpawnClone()) return;
+        if (PlayerManager.Instance != null && !PlayerManager.Instance.CanSpawnClone()) return false;
 
         currentFissionGauge -= fissionCost;
 
+        // 여기서 모션이 시작되고, 분열체는 split2 클립의 애니메이션 이벤트가 생성한다
         if (animator != null) animator.SetTrigger("Fission");
-        if (!HasAnimatorController) SpawnFissionClone(); // 애니 이벤트가 없으면 바로 생성
+        if (!HasAnimatorController) SpawnFissionClone(); // 애니 컨트롤러가 없으면 이벤트가 안 오므로 즉시 생성
+
+        return true;
+    }
+
+    // 분열체를 본체 콜라이더 밖에 생성하기 위한 거리.
+    // ★ 전엔 0.5로 하드코딩돼 있었는데, 실제 몸 반지름(약 0.48)과 분열체 반지름(약 0.36)을 더하면
+    //   0.84가 필요해서 분열체가 본체 안에 겹쳐 생성됐다. 분열체↔본체는 충돌이 살아 있으므로
+    //   물리 엔진이 둘을 계속 밀어내고, 본체가 걸어가면 분열체가 같이 밀려가 '따라다니는' 것처럼 보였다.
+    float CloneSpawnDistance()
+    {
+        float half = col != null ? col.bounds.extents.x : 0.5f;
+        return half * (1f + cloneScaleRatio) + fissionSpawnMargin;
     }
 
     // 분열 애니메이션의 Animation Event에서 호출 (애니 없으면 Fission이 직접 호출)
@@ -869,9 +884,9 @@ public class PlayerController : MonoBehaviour
         if (PlayerManager.Instance != null && !PlayerManager.Instance.CanSpawnClone()) return; // 하드 캡 도달 시 애니 이벤트 경로도 차단
 
         float facing = (spr != null && spr.flipX) ? -1f : 1f;
-        Vector2 spawnPos = (Vector2)transform.position + Vector2.right * (-facing) * 0.5f;
+        Vector2 spawnPos = (Vector2)transform.position + Vector2.right * (-facing) * CloneSpawnDistance();
         GameObject clone = Instantiate(playerPrefab, spawnPos, Quaternion.identity);
-        clone.transform.localScale *= 0.75f;
+        clone.transform.localScale *= cloneScaleRatio;
         PlayerController cloneCtrl = clone.GetComponent<PlayerController>();
         if (cloneCtrl != null) cloneCtrl.isClone = true;
         Debug.Log("분열체 생성됨! (조작하려면 숫자키를 누르세요)");
@@ -892,9 +907,9 @@ public class PlayerController : MonoBehaviour
         // 분열체를 원래 위치(대시 반대방향 약간 오프셋)에 남기고 본체가 마우스 방향으로 대시
         if (playerPrefab != null)
         {
-            Vector2 spawnPos = (Vector2)transform.position - dashDir * 0.6f;
+            Vector2 spawnPos = (Vector2)transform.position - dashDir * CloneSpawnDistance();
             GameObject clone = Instantiate(playerPrefab, spawnPos, Quaternion.identity);
-            clone.transform.localScale *= 0.75f;
+            clone.transform.localScale *= cloneScaleRatio;
             PlayerController cloneCtrl = clone.GetComponent<PlayerController>();
             if (cloneCtrl != null) cloneCtrl.isClone = true;
         }

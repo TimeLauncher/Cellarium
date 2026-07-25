@@ -3036,7 +3036,7 @@ MonoBehaviour:
   jumpPower: 13.5
   jumpBuffer: 0.12
   maxJumps: 1
-  fallMultiplier: 8
+  fallMultiplier: 3
   lowJumpMultiplier: 5.5
   ascendMultiplier: 2
   allowSlam: 0
@@ -3064,7 +3064,10 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 256
   playerPrefab: {fileID: 1181797107}
+  fissionMotionLock: 0.5
   fissionHoldDuration: 0.5
+  cloneScaleRatio: 0.75
+  fissionSpawnMargin: 0.15
   consumeRange: 5
   monsterMask:
     serializedVersion: 2

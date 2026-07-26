@@ -115,7 +115,11 @@ public class PlayerController : MonoBehaviour
     public bool forceSortingOrder = true;
     public int playerSortingOrder = 100;
     [Range(0f, 1f)] public float uncontrolledAlpha = 0.5f; // 조종 중이 아닌 개체의 투명도
-    public Color invincibleBlinkColor = Color.white;       // 무적 중 깜빡일 색
+    // ★ SpriteRenderer.color는 '곱하기' 틴트다. 흰색(1,1,1)을 넣으면 원본 그대로라 깜빡임이 안 보인다.
+    //   예전 필드명(invincibleBlinkColor)은 씬 3개에 전부 흰색으로 박혀 있어서 이름을 바꿨다 —
+    //   Unity가 없는 필드의 직렬화 값은 버리므로, 씬을 안 고쳐도 아래 기본값(빨강)이 적용된다.
+    [Tooltip("피격 후 무적 동안 깜빡일 색. 스프라이트 색에 곱해지므로 흰색이면 아무 변화가 없다")]
+    public Color hitFlashColor = new Color(1f, 0.3f, 0.3f, 1f);
     public float invincibleBlinkInterval = 0.08f;
 
     [HideInInspector] public float thrownTimer = 0f;
@@ -435,8 +439,11 @@ public class PlayerController : MonoBehaviour
 
         Color c = baseColor;
 
-        if (isInvincible && Mathf.FloorToInt(Time.time / Mathf.Max(0.01f, invincibleBlinkInterval)) % 2 == 0)
-            c = invincibleBlinkColor;
+        // 사망 모션 중엔 깜빡이지 않는다 — DeathRoutine이 추가 피격을 막으려고 isInvincible을 켜두는데,
+        // 그것까지 깜빡이면 사망 애니메이션 내내 3초를 빨갛게 점멸한다.
+        if (isInvincible && !isDead &&
+            Mathf.FloorToInt(Time.time / Mathf.Max(0.01f, invincibleBlinkInterval)) % 2 == 0)
+            c = hitFlashColor;
 
         // 회수 비행은 연출이 보여야 하므로 '조종 안 함' 반투명 처리에서 제외한다
         if (!isControlled && !isReturning)
@@ -717,10 +724,9 @@ public class PlayerController : MonoBehaviour
          }*/
         if (ScreenFadeManager.Instance != null)
         {
-            yield return ScreenFadeManager.Instance.FadeOut();
+            yield return ScreenFadeManager.Instance.FadeOutAndRespawn();
+            yield break;
         }
-
-        // 검은 화면이 완성된 상태에서 씬 재로드
         if (RespawnManager.Instance != null)
         {
             RespawnManager.Instance.Respawn();

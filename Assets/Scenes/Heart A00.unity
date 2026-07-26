@@ -3198,8 +3198,8 @@ MonoBehaviour:
   forceSortingOrder: 1
   playerSortingOrder: 100
   uncontrolledAlpha: 0.5
-  invincibleBlinkColor: {r: 1, g: 1, b: 1, a: 1}
-  invincibleBlinkInterval: 0.08
+  hitFlashColor: {r: 1, g: 0.3, b: 0.3, a: 1}
+  invincibleBlinkInterval: 0.1
   thrownTimer: 0
 --- !u!95 &1181797111
 Animator:
@@ -4016,6 +4016,7 @@ MonoBehaviour:
   targetEntryId: from_A00
   requireKeyPress: 0
   interactKey: 101
+  fadeOnTransition: 1
 --- !u!1 &1926712017
 GameObject:
   m_ObjectHideFlags: 0

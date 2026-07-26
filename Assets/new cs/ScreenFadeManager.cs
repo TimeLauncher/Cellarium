@@ -109,6 +109,26 @@ public class ScreenFadeManager : MonoBehaviour
         canvasGroup.alpha = 0f;
         canvasGroup.blocksRaycasts = false;
     }
+    public IEnumerator FadeOutAndRespawn()
+    {
+        // 화면을 완전히 검게 만든다.
+        yield return FadeOut();
+
+        // RespawnManager가 저장된 체크포인트 씬과 위치를 기준으로 부활 처리
+        if (RespawnManager.Instance != null)
+        {
+            RespawnManager.Instance.Respawn();
+        }
+        else
+        {
+            Debug.LogWarning(
+                "RespawnManager가 없어 부활을 실행할 수 없습니다."
+            );
+
+            // 실패했으면 검은 화면을 다시 밝힌다.
+            yield return FadeIn();
+        }
+    }
 
     private void StopCurrentFade()
     {

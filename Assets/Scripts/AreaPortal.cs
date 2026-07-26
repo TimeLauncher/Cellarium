@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -24,6 +25,12 @@ public class AreaPortal : MonoBehaviour
     [Tooltip("켜면 범위 안에서 E키를 눌러야 이동. 끄면 닿는 즉시 이동")]
     public bool requireKeyPress = false;
     public KeyCode interactKey = KeyCode.E;
+
+    [Header("연출")]
+    [Tooltip("켜면 화면이 검게 어두워진 뒤 씬을 로드한다. 새 씬에서 다시 밝아지는 건 " +
+             "ScreenFadeManager가 sceneLoaded에서 자동 처리하므로 여기선 어둡게만 하면 된다. " +
+             "씬에 ScreenFadeManager가 없으면 이 값과 무관하게 즉시 이동한다")]
+    public bool fadeOnTransition = true;
 
     private bool triggered;
     private bool playerInRange;
@@ -75,6 +82,17 @@ public class AreaPortal : MonoBehaviour
             SceneEntryPoint.ClearEntry(); // 이전 예약이 남아 엉뚱한 곳으로 가지 않게
 
         Debug.Log($"[{name}] 씬 이동: {targetScene} (도착 지점: {(string.IsNullOrEmpty(targetEntryId) ? "지정 없음" : targetEntryId)})");
+
+        if (fadeOnTransition && ScreenFadeManager.Instance != null)
+            StartCoroutine(FadeThenLoad());
+        else
+            SceneManager.LoadScene(targetScene);
+    }
+
+    // 검게 어두워진 뒤 로드. 밝아지는 쪽은 ScreenFadeManager가 sceneLoaded에서 알아서 한다.
+    IEnumerator FadeThenLoad()
+    {
+        yield return ScreenFadeManager.Instance.FadeOut();
         SceneManager.LoadScene(targetScene);
     }
 

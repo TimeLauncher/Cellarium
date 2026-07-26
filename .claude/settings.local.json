@@ -16,7 +16,13 @@
       "Bash(sed -n '/public void RegisterPlayer/,/^    }/p' Assets/Scripts/PlayerManager.cs)",
       "PowerShell(Select-String -Path 'Assets/Scripts/PlayerController.cs' -Pattern 'void Update|void FixedUpdate|void OnDestroy|void OnEnable|RegisterPlayer|UnregisterPlayer|void LateUpdate|isDead' -Context 1,3 | ForEach-Object { echo \"--- line $\\($_.LineNumber\\) ---\"; $_.Context.PreContext; \">> \" + $_.Line; $_.Context.PostContext; echo \"\" } | Select-Object -First 90)",
       "PowerShell(git fetch *)",
-      "PowerShell(Select-String -Path 'Assets/Scripts/PlayerController.cs' -Pattern 'InvincibilityRoutine|isInvincible' -Context 1,4 | ForEach-Object { echo \"--- L$\\($_.LineNumber\\) ---\"; $_.Context.PreContext; \">> \"+$_.Line; $_.Context.PostContext; echo \"\" })"
+      "PowerShell(Select-String -Path 'Assets/Scripts/PlayerController.cs' -Pattern 'InvincibilityRoutine|isInvincible' -Context 1,4 | ForEach-Object { echo \"--- L$\\($_.LineNumber\\) ---\"; $_.Context.PreContext; \">> \"+$_.Line; $_.Context.PostContext; echo \"\" })",
+      "Bash(cat)",
+      "Bash(python /tmp/ctrl.py \"Assets/Sprites/monster/일반균_모션/일반균_대기/generalGerm.controller\" \"Assets/Sprites/monster/분쇄균_모션/분쇄_idle/CrushGerm.controller\" \"Assets/Sprites/monster/일반비행균_모션/idle/Flyinggerm.controller\" \"Assets/Sprites/monster/부유균_모션/Floatergerm.controller\")",
+      "Bash(python /tmp/ctrl2.py \"Assets/Sprites/monster/일반균_모션/일반균_대기/generalGerm.controller\" \"Assets/Sprites/monster/분쇄균_모션/분쇄_idle/CrushGerm.controller\")",
+      "Bash(python /tmp/ctrl2.py \"Assets/Sprites/monster/일반비행균_모션/idle/Flyinggerm.controller\" \"Assets/Sprites/monster/부유균_모션/Floatergerm.controller\" \"Assets/Sprites/monster/부유산포균_모션/mom_float_idle/BigFloatergerm.controller\")",
+      "Bash(python /tmp/ctrl3.py \"Assets/Sprites/monster/일반비행균_모션/idle/Flyinggerm.controller\" \"Assets/Sprites/monster/부유균_모션/Floatergerm.controller\" \"Assets/Sprites/monster/분쇄균_모션/분쇄_idle/CrushGerm.controller\" \"Assets/Sprites/monster/일반균_모션/일반균_대기/generalGerm.controller\" \"Assets/Sprites/monster/부유산포균_모션/mom_float_idle/BigFloatergerm.controller\")",
+      "Bash(python /tmp/clip.py)"
     ]
   }
 }

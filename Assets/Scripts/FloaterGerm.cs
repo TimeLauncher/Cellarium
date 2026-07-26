@@ -185,6 +185,11 @@ public class FloaterGerm : MonsterBase
         if (rb == null || IsDead)
             return;
 
+        // 넉백/공격후 딜레이 중엔 속도를 건드리지 않는다. 이 아래 분기들이 매 FixedUpdate마다
+        // linearVelocity를 하드 세팅하므로, 이 가드가 없으면 ApplyKnockback이 넣은 속도가
+        // 다음 물리 프레임에 그대로 지워져 넉백이 아예 안 걸린다.
+        if (MovementSuppressed()) return;
+
         if (isChasePreparing || !detectionPrepared)
         {
             rb.linearVelocity = Vector2.zero;

@@ -105,7 +105,7 @@ private RuntimeAnimatorController cloneAnimatorController;
     public float returnTimeout = 4f;                       // 본체가 사라지는 등 도달 실패 시 강제 종료
     [Tooltip("회수 중 재생할 Animator 트리거 이름. 컨트롤러에 해당 파라미터가 없으면 조용히 무시된다")]
     public string returnTriggerName = "ReturnReady";
-    public bool shrinkWhileReturning = true;               // 본체에 가까워질수록 작아지는 흡수 연출
+    public bool shrinkWhileReturning = false;               // 본체에 가까워질수록 작아지는 흡수 연출
 
     [Header("제어")]
     public bool isControlled = false;

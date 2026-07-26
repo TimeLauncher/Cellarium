@@ -93,6 +93,18 @@ public class PlayerController : MonoBehaviour
     public float deathMotionDuration = 3f;                 // 사망 모션 길이(2~4초). 이 동안 조작 불가·무적
     public Vector3 defaultRespawnPosition = Vector3.zero;  // 세이브포인트가 없을 때 부활 위치 (A00 중앙). 인스펙터에서 설정
 
+    [Header("분열체 회수")]
+    // R 회수 / 분열체 사망 시 그냥 사라지지 않고 본체까지 날아와서 흡수된다.
+    // 회수가 시작되면 Rigidbody 시뮬레이션을 꺼서 지형·몬스터·그물망 등 모든 장애물을 통과한다.
+    public float returnStartSpeed = 6f;                    // 회수 시작 속도
+    public float returnMaxSpeed = 22f;                     // 가속 후 최고 속도
+    public float returnAcceleration = 45f;                 // 초당 속도 증가량
+    public float returnArriveDistance = 0.35f;             // 이 거리 안에 들어오면 흡수 완료
+    public float returnTimeout = 4f;                       // 본체가 사라지는 등 도달 실패 시 강제 종료
+    [Tooltip("회수 중 재생할 Animator 트리거 이름. 컨트롤러에 해당 파라미터가 없으면 조용히 무시된다")]
+    public string returnTriggerName = "Return";
+    public bool shrinkWhileReturning = true;               // 본체에 가까워질수록 작아지는 흡수 연출
+
     [Header("제어")]
     public bool isControlled = false;
     public bool isClone = false;
@@ -142,6 +154,7 @@ public class PlayerController : MonoBehaviour
     private bool isStunned;
     private bool isInvincible;
     private bool isDead;
+    private bool isReturning;   // 본체로 회수되어 날아가는 중 — 입력·물리·피격 전부 정지
     private float knockbackTimer;
     private float dashInvincibleTimer;
     private Color baseColor = Color.white;
@@ -154,6 +167,7 @@ public class PlayerController : MonoBehaviour
     bool HasAnimatorController => animator != null && animator.runtimeAnimatorController != null;
 
     public float CurrentHp => currentHp;
+    public bool IsReturning => isReturning;
     public float CurrentFissionGauge => currentFissionGauge;
     public float MaxFissionGauge => maxFissionGauge;
     // 분열 모션 진행도 (0→1). 홀드 차징이 없어졌으므로 이제 '모션이 도는 동안'을 나타낸다.
@@ -219,6 +233,7 @@ public class PlayerController : MonoBehaviour
     void Update()
     {
         if (isDead) return; // 사망 모션 중엔 입력·물리 판정 모두 정지
+        if (isReturning) return; // 회수 비행 중엔 ReturnRoutine이 위치를 직접 옮긴다
 
         if (thrownTimer > 0f)
             thrownTimer -= Time.deltaTime;
@@ -423,7 +438,8 @@ public class PlayerController : MonoBehaviour
         if (isInvincible && Mathf.FloorToInt(Time.time / Mathf.Max(0.01f, invincibleBlinkInterval)) % 2 == 0)
             c = invincibleBlinkColor;
 
-        if (!isControlled)
+        // 회수 비행은 연출이 보여야 하므로 '조종 안 함' 반투명 처리에서 제외한다
+        if (!isControlled && !isReturning)
             c.a = baseColor.a * uncontrolledAlpha;
 
         spr.color = c;
@@ -432,6 +448,7 @@ public class PlayerController : MonoBehaviour
     void FixedUpdate()
     {
         if (isDead) { rb.linearVelocity = Vector2.zero; return; } // 사망 모션 중 완전 정지
+        if (isReturning) return; // 회수 중엔 rb.simulated = false 라 물리 갱신 자체가 무의미
 
         // 공중에 있는 동안은 마찰을 0으로 둔다.
         // 마찰이 남아 있으면 벽 슬라이딩을 꺼놔도 벽 방향 키를 누르는 것만으로 벽에 매달린다
@@ -626,15 +643,19 @@ public class PlayerController : MonoBehaviour
         // 사망 모션 중엔 더 이상 피격되지 않음
         if (isDead) return;
 
+        // 회수 비행 중엔 장애물·몬스터를 전부 무시하고 지나가므로 피격도 받지 않는다
+        if (isReturning) return;
+
         // 대시로 몬스터에 박는 동안은 공격 행동이므로 접촉 데미지를 받지 않는다
         if (isInvincible || dashInvincibleTimer > 0f) return;
 
-        // 분열체는 피격 시 즉시 사망 (QA (4). 추후 1회 무효화 등 추가 예정)
-        // Destroy → OnDestroy에서 PlayerManager.UnregisterPlayer가 조종 전환/목록 정리까지 자동 처리
+        // 분열체는 피격 시 사망 (QA (4). 추후 1회 무효화 등 추가 예정)
+        // 그 자리에서 사라지지 않고 본체까지 날아와 흡수된다 — 도착 시 Destroy,
+        // OnDestroy에서 PlayerManager.UnregisterPlayer가 조종 전환/목록 정리까지 자동 처리
         if (isClone)
         {
-            Debug.Log("분열체 피격 — 즉시 사망");
-            Destroy(gameObject);
+            Debug.Log("분열체 피격 — 본체로 회수");
+            ReturnToBody();
             return;
         }
 
@@ -720,6 +741,92 @@ public class PlayerController : MonoBehaviour
         isDead = false;
         isInvincible = false;
         Debug.Log("부활!");
+    }
+
+    // R 회수 / 분열체 사망의 공통 진입점.
+    // 그 자리에서 뿅 사라지지 않고 어디에 있든 본체까지 날아와서 흡수된다.
+    // 회수가 시작된 순간 PlayerManager 목록에서 빠지므로 숫자키 조종 대상과
+    // 분열 횟수 계산에서 즉시 제외된다 (날아오는 중에 조종되면 안 됨).
+    public void ReturnToBody()
+    {
+        if (isReturning) return;
+        if (!isClone) return; // 본체는 회수 대상이 아니다
+
+        PlayerController body = FindBody();
+        if (body == null || body == this)
+        {
+            Destroy(gameObject); // 돌아갈 본체가 없으면 기존처럼 즉시 소멸
+            return;
+        }
+
+        isReturning = true;
+        isControlled = false;
+
+        if (PlayerManager.Instance != null)
+            PlayerManager.Instance.UnregisterPlayer(this);
+
+        // 물리 시뮬레이션을 끄면 이 몸의 콜라이더가 물리 씬에서 통째로 빠진다.
+        // → 지형·벽·관통발판·조직 그물망을 전부 통과하고, 겹침 검사로 접촉 데미지를 주는
+        //   MonsterBase의 Overlap 쿼리에도 더 이상 잡히지 않는다. (TakeDamage도 isReturning으로 막아둠)
+        rb.linearVelocity = Vector2.zero;
+        rb.simulated = false;
+
+        if (HasAnimatorParameter(returnTriggerName))
+            animator.SetTrigger(returnTriggerName);
+
+        StartCoroutine(ReturnRoutine(body));
+    }
+
+    // 본체 = allPlayers 안에서 isClone이 false인 개체
+    PlayerController FindBody()
+    {
+        if (PlayerManager.Instance == null) return null;
+        foreach (PlayerController p in PlayerManager.Instance.allPlayers)
+            if (p != null && !p.isClone) return p;
+        return null;
+    }
+
+    // 본체를 향해 직선으로 가속하며 날아간다. 본체가 움직이면 매 프레임 따라간다.
+    IEnumerator ReturnRoutine(PlayerController body)
+    {
+        float speed = returnStartSpeed;
+        float elapsed = 0f;
+        Vector3 startScale = transform.localScale;
+        float startDistance = Mathf.Max(0.01f, Vector2.Distance(transform.position, body.transform.position));
+
+        while (elapsed < returnTimeout)
+        {
+            if (body == null) break; // 씬 리로드 등으로 본체가 사라지면 더 따라갈 대상이 없다
+
+            Vector3 target = body.transform.position;
+            float distance = Vector2.Distance(transform.position, target);
+            if (distance <= returnArriveDistance) break;
+
+            speed = Mathf.Min(returnMaxSpeed, speed + returnAcceleration * Time.deltaTime);
+            transform.position = Vector3.MoveTowards(transform.position, target, speed * Time.deltaTime);
+
+            if (spr != null && Mathf.Abs(target.x - transform.position.x) > 0.01f)
+                spr.flipX = target.x < transform.position.x; // flipX = 왼쪽을 봄 (SpawnFissionClone과 같은 규칙)
+
+            if (shrinkWhileReturning)
+                transform.localScale = startScale * Mathf.Clamp01(distance / startDistance);
+
+            elapsed += Time.deltaTime;
+            yield return null;
+        }
+
+        Destroy(gameObject);
+    }
+
+    // 컨트롤러에 그 이름의 파라미터가 실제로 있는지 확인.
+    // 없는 트리거를 쏘면 Unity가 매번 경고를 뱉으므로, 회수 애니메이션을 아직
+    // 안 붙였어도 코드가 조용히 동작하도록 막아둔다.
+    bool HasAnimatorParameter(string paramName)
+    {
+        if (!HasAnimatorController || string.IsNullOrEmpty(paramName)) return false;
+        foreach (AnimatorControllerParameter p in animator.parameters)
+            if (p.name == paramName) return true;
+        return false;
     }
 
     IEnumerator StunRoutine(float duration)

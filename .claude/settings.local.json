@@ -13,7 +13,8 @@
       "Bash(python -c ' *)",
       "Bash(xargs grep -n \"DefaultExecutionOrder\\\\|void LateUpdate\")",
       "Bash(sed -n '/void Awake/,/^    }/p' Assets/Scripts/PlayerManager.cs)",
-      "Bash(sed -n '/public void RegisterPlayer/,/^    }/p' Assets/Scripts/PlayerManager.cs)"
+      "Bash(sed -n '/public void RegisterPlayer/,/^    }/p' Assets/Scripts/PlayerManager.cs)",
+      "PowerShell(Select-String -Path 'Assets/Scripts/PlayerController.cs' -Pattern 'void Update|void FixedUpdate|void OnDestroy|void OnEnable|RegisterPlayer|UnregisterPlayer|void LateUpdate|isDead' -Context 1,3 | ForEach-Object { echo \"--- line $\\($_.LineNumber\\) ---\"; $_.Context.PreContext; \">> \" + $_.Line; $_.Context.PostContext; echo \"\" } | Select-Object -First 90)"
     ]
   }
 }

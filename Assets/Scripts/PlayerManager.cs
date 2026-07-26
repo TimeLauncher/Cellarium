@@ -86,10 +86,13 @@ public class PlayerManager : MonoBehaviour
 
     public void RecallAllClones()
     {
-        // 본체(인덱스 0)만 남기고 분열체 전부 제거
-        for (int i = allPlayers.Count - 1; i >= 1; i--)
+        // 본체만 남기고 분열체 전부 회수.
+        // 즉시 Destroy하지 않고 본체까지 날아오게 하며, 도착하면 스스로 소멸한다.
+        // ReturnToBody가 곧바로 UnregisterPlayer를 호출해 목록을 바꾸므로 먼저 복사해두고 돈다.
+        PlayerController[] snapshot = allPlayers.ToArray();
+        foreach (PlayerController p in snapshot)
         {
-            Destroy(allPlayers[i].gameObject);
+            if (p != null && p.isClone) p.ReturnToBody();
         }
         SwitchControl(0);
         UnityEngine.Debug.Log("분열체 전체 회수!");
@@ -141,7 +144,7 @@ public class PlayerManager : MonoBehaviour
                 if (!hardFissionCap && allPlayers.Count > maxFissionCount + 1)
                 {
                     PlayerController oldestClone = allPlayers[1];
-                    Destroy(oldestClone.gameObject); // OnDestroy���� Unregister �ڵ� ȣ���
+                    oldestClone.ReturnToBody(); // 초과분도 그냥 사라지지 않고 본체로 날아와 흡수된다
                     UnityEngine.Debug.Log("�ִ� �п� Ƚ�� �ʰ�! ���� ������ �п�ü�� ȸ���Ǿ����ϴ�.");
                 }
             }

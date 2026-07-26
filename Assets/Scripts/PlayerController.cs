@@ -61,6 +61,8 @@ public class PlayerController : MonoBehaviour
     public float cloneScaleRatio = 0.75f;
     [Tooltip("분열체를 몸 밖에 생성할 때 두는 여유 간격. 0이면 콜라이더가 딱 맞닿은 채로 생성된다")]
     public float fissionSpawnMargin = 0.15f;
+    [SerializeField]
+private RuntimeAnimatorController cloneAnimatorController;
 
     [Header("섭취")]
     public float consumeRange = 2f;
@@ -102,7 +104,7 @@ public class PlayerController : MonoBehaviour
     public float returnArriveDistance = 0.35f;             // 이 거리 안에 들어오면 흡수 완료
     public float returnTimeout = 4f;                       // 본체가 사라지는 등 도달 실패 시 강제 종료
     [Tooltip("회수 중 재생할 Animator 트리거 이름. 컨트롤러에 해당 파라미터가 없으면 조용히 무시된다")]
-    public string returnTriggerName = "Return";
+    public string returnTriggerName = "ReturnReady";
     public bool shrinkWhileReturning = true;               // 본체에 가까워질수록 작아지는 흡수 연출
 
     [Header("제어")]
@@ -121,6 +123,7 @@ public class PlayerController : MonoBehaviour
     [Tooltip("피격 후 무적 동안 깜빡일 색. 스프라이트 색에 곱해지므로 흰색이면 아무 변화가 없다")]
     public Color hitFlashColor = new Color(1f, 0.3f, 0.3f, 1f);
     public float invincibleBlinkInterval = 0.08f;
+
 
     [HideInInspector] public float thrownTimer = 0f;
 
@@ -194,6 +197,7 @@ public class PlayerController : MonoBehaviour
     private PhysicsMaterial2D originalMat;
     private OneWayPlatformTile currentOneWayPlatform;
 
+    private PlayerController returnBodyTarget;
     void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
@@ -756,32 +760,68 @@ public class PlayerController : MonoBehaviour
     // 분열 횟수 계산에서 즉시 제외된다 (날아오는 중에 조종되면 안 됨).
     public void ReturnToBody()
     {
-        if (isReturning) return;
-        if (!isClone) return; // 본체는 회수 대상이 아니다
+        if (isReturning)
+            return;
+
+        if (!isClone)
+            return;
 
         PlayerController body = FindBody();
+
         if (body == null || body == this)
         {
-            Destroy(gameObject); // 돌아갈 본체가 없으면 기존처럼 즉시 소멸
+            Destroy(gameObject);
             return;
         }
 
         isReturning = true;
         isControlled = false;
+        returnBodyTarget = body;
 
+        // 회수 시작과 동시에 조종 목록에서 제외
         if (PlayerManager.Instance != null)
             PlayerManager.Instance.UnregisterPlayer(this);
 
-        // 물리 시뮬레이션을 끄면 이 몸의 콜라이더가 물리 씬에서 통째로 빠진다.
-        // → 지형·벽·관통발판·조직 그물망을 전부 통과하고, 겹침 검사로 접촉 데미지를 주는
-        //   MonsterBase의 Overlap 쿼리에도 더 이상 잡히지 않는다. (TakeDamage도 isReturning으로 막아둠)
-        rb.linearVelocity = Vector2.zero;
-        rb.simulated = false;
+        // 제자리에서 준비 애니메이션을 보여주기 위해 물리 정지
+        if (rb != null)
+        {
+            rb.linearVelocity = Vector2.zero;
+            rb.simulated = false;
+        }
 
+        // 작아지는 준비 애니메이션 실행
         if (HasAnimatorParameter(returnTriggerName))
-            animator.SetTrigger(returnTriggerName);
+        {
+            Debug.Log(
+                $"[회수] Trigger 실행: {returnTriggerName}, " +
+                $"Controller: {animator.runtimeAnimatorController.name}"
+            );
 
-        StartCoroutine(ReturnRoutine(body));
+            animator.ResetTrigger(returnTriggerName);
+            animator.SetTrigger(returnTriggerName);
+        }
+        else
+        {
+            Debug.LogWarning(
+                $"[회수] 현재 Animator에 {returnTriggerName} Trigger가 없음. " +
+                $"Controller: {(animator != null && animator.runtimeAnimatorController != null? animator.runtimeAnimatorController.name: "없음")}"
+            );
+
+            StartReturnFlight();
+        }
+    }
+    public void StartReturnFlight()
+    {
+        if (!isReturning)
+            return;
+
+        if (returnBodyTarget == null)
+        {
+            Destroy(gameObject);
+            return;
+        }
+
+        StartCoroutine(ReturnRoutine(returnBodyTarget));
     }
 
     // 본체 = allPlayers 안에서 isClone이 false인 개체
@@ -1020,10 +1060,16 @@ public class PlayerController : MonoBehaviour
 
         float facing = (spr != null && spr.flipX) ? -1f : 1f;
         Vector2 spawnPos = (Vector2)transform.position + Vector2.right * (-facing) * CloneSpawnDistance();
-        GameObject clone = Instantiate(playerPrefab, spawnPos, Quaternion.identity);
+        /*GameObject clone = Instantiate(playerPrefab, spawnPos, Quaternion.identity);
         clone.transform.localScale *= cloneScaleRatio;
         PlayerController cloneCtrl = clone.GetComponent<PlayerController>();
-        if (cloneCtrl != null) cloneCtrl.isClone = true;
+        if (cloneCtrl != null) cloneCtrl.isClone = true;*/
+        GameObject clone =
+    Instantiate(playerPrefab, spawnPos, Quaternion.identity);
+
+        clone.transform.localScale *= cloneScaleRatio;
+
+        SetupClone(clone);
         Debug.Log("분열체 생성됨! (조작하려면 숫자키를 누르세요)");
     }
 
@@ -1043,10 +1089,16 @@ public class PlayerController : MonoBehaviour
         if (playerPrefab != null)
         {
             Vector2 spawnPos = (Vector2)transform.position - dashDir * CloneSpawnDistance();
-            GameObject clone = Instantiate(playerPrefab, spawnPos, Quaternion.identity);
+            /*GameObject clone = Instantiate(playerPrefab, spawnPos, Quaternion.identity);
             clone.transform.localScale *= cloneScaleRatio;
             PlayerController cloneCtrl = clone.GetComponent<PlayerController>();
-            if (cloneCtrl != null) cloneCtrl.isClone = true;
+            if (cloneCtrl != null) cloneCtrl.isClone = true;*/
+            GameObject clone =
+    Instantiate(playerPrefab, spawnPos, Quaternion.identity);
+
+            clone.transform.localScale *= cloneScaleRatio;
+
+            SetupClone(clone);
         }
 
         rb.gravityScale = 0f;
@@ -1055,6 +1107,32 @@ public class PlayerController : MonoBehaviour
         fissionDashTimer = fissionDashDuration;
 
         Debug.Log("분열 대시!");
+    }
+    private void SetupClone(GameObject clone)
+    {
+        if (clone == null)
+            return;
+
+        PlayerController cloneCtrl =
+            clone.GetComponent<PlayerController>();
+
+        if (cloneCtrl != null)
+        {
+            cloneCtrl.isClone = true;
+            cloneCtrl.isControlled = false;
+        }
+
+        Animator cloneAnimator =
+            clone.GetComponent<Animator>();
+
+        if (
+            cloneAnimator != null &&
+            cloneAnimatorController != null
+        )
+        {
+            cloneAnimator.runtimeAnimatorController =
+                cloneAnimatorController;
+        }
     }
 
     // ── 내려찍기 ──────────────────────────────────────────────────

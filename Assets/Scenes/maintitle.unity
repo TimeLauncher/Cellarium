@@ -304,8 +304,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -0.00000095367, y: 0.0000071526}
-  m_SizeDelta: {x: 563.4086, y: 165.8925}
+  m_AnchoredPosition: {x: 0, y: 0.0000076293945}
+  m_SizeDelta: {x: 885.2733, y: 260.6637}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &103404900
 MonoBehaviour:
@@ -987,10 +987,10 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1526485195}
-        m_TargetAssemblyTypeName: SceneLoader, Assembly-CSharp
-        m_MethodName: LoadScene
-        m_Mode: 5
+      - m_Target: {fileID: 1526485193}
+        m_TargetAssemblyTypeName: MainTitleManager, Assembly-CSharp
+        m_MethodName: StartGame
+        m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
@@ -1087,8 +1087,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -142, y: -29}
-  m_SizeDelta: {x: 20, y: 20}
+  m_AnchoredPosition: {x: -224.58945, y: -50.060604}
+  m_SizeDelta: {x: 33.458, y: 33.458}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &852763041
 MonoBehaviour:
@@ -1234,8 +1234,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 128, y: -24}
-  m_SizeDelta: {x: 60, y: 20}
+  m_AnchoredPosition: {x: 227.0931, y: -50.060604}
+  m_SizeDelta: {x: 100.3739, y: 33.458}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &923739005
 MonoBehaviour:
@@ -1564,7 +1564,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &1215506984
 RectTransform:
   m_ObjectHideFlags: 0
@@ -1790,7 +1790,7 @@ MonoBehaviour:
   - {fileID: 78009800}
   - {fileID: 166248144}
   arrow: {fileID: 126948706}
-  arrowOffset: {x: 200, y: 0}
+  arrowOffset: {x: 100, y: 0}
 --- !u!4 &1246910077
 Transform:
   m_ObjectHideFlags: 0
@@ -2285,8 +2285,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -165.5, y: -29}
-  m_SizeDelta: {x: 15, y: 15}
+  m_AnchoredPosition: {x: -263.90253, y: -50.060604}
+  m_SizeDelta: {x: 25.0935, y: 25.0935}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1623100200
 MonoBehaviour:
@@ -2647,8 +2647,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0.000026703, y: 31}
-  m_SizeDelta: {x: 240, y: 20}
+  m_AnchoredPosition: {x: 0.000030517578, y: 36.57986}
+  m_SizeDelta: {x: 459.53, y: 38.2942}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &2023013313
 MonoBehaviour:

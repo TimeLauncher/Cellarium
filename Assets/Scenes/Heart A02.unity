@@ -5041,7 +5041,7 @@ Transform:
   m_GameObject: {fileID: 866211444}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 32.474644, y: 16.786068, z: -12.6605}
+  m_LocalPosition: {x: -40.994534, y: -23, z: -12.6605}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -56369,7 +56369,7 @@ MonoBehaviour:
   dashAttackDamage: 50
   dashKnockbackSpeed: 7
   dashKnockbackUpRatio: 0.6
-  dashInvincibleTime: 0.4
+  dashInvincibleTime: 0.2
   dashMonsterKnockback: 8
   fissionDashSpeed: 20
   fissionDashDuration: 0.2
@@ -56553,7 +56553,7 @@ Transform:
   m_GameObject: {fileID: 1965552590}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 32.474644, y: 16.786068, z: -2.6605}
+  m_LocalPosition: {x: -52.21, y: -26.21, z: -2.6605}
   m_LocalScale: {x: 1, y: 1, z: 0}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -56824,7 +56824,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 2.5840745, y: 2.5840745, z: 1}
+  m_LocalScale: {x: 2.5831614, y: 2.5831614, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
@@ -103642,7 +103642,7 @@ Transform:
   m_GameObject: {fileID: 2088609506}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 32.474644, y: 16.786068, z: -12.6605}
+  m_LocalPosition: {x: -52.21, y: -26.21, z: -12.6605}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []

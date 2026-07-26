@@ -3848,7 +3848,7 @@ MonoBehaviour:
   dashAttackDamage: 50
   dashKnockbackSpeed: 7
   dashKnockbackUpRatio: 0.6
-  dashInvincibleTime: 0.4
+  dashInvincibleTime: 0.2
   dashMonsterKnockback: 8
   fissionDashSpeed: 20
   fissionDashDuration: 0.2
@@ -4823,6 +4823,59 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerCameraTracker
   cinemachineCamera: {fileID: 1557976633}
+--- !u!1 &1620241752
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1620241754}
+  - component: {fileID: 1620241753}
+  m_Layer: 0
+  m_Name: MusicManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1620241753
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1620241752}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8190d3287b68d2b4190e3243e6db8495, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::MusicManager
+  sceneTracks:
+  - sceneName: Heart A00
+    clip: {fileID: 8300000, guid: 2ba76634da855cd4eb32cfce430df1df, type: 3}
+  stopMusicScenes:
+  - maintitle
+  - SaveSelectScene
+  volume: 0.5
+  crossfadeDuration: 1
+  loop: 1
+--- !u!4 &1620241754
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1620241752}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -27.07523, y: -9.5299, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1771161039
 GameObject:
   m_ObjectHideFlags: 0
@@ -6001,3 +6054,4 @@ SceneRoots:
   - {fileID: 794923066}
   - {fileID: 220544374}
   - {fileID: 780419941}
+  - {fileID: 1620241754}

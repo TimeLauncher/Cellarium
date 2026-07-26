@@ -797,7 +797,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 2.5840745, y: 2.5840745, z: 1}
+  m_LocalScale: {x: 2.5831614, y: 2.5831614, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
@@ -37336,7 +37336,7 @@ Transform:
   m_GameObject: {fileID: 577478682}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -31.988869, y: -12, z: -12.6605}
+  m_LocalPosition: {x: -31.994528, y: -12, z: -12.6605}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -40217,7 +40217,7 @@ MonoBehaviour:
   dashAttackDamage: 50
   dashKnockbackSpeed: 7
   dashKnockbackUpRatio: 0.6
-  dashInvincibleTime: 0.4
+  dashInvincibleTime: 0.2
   dashMonsterKnockback: 8
   fissionDashSpeed: 20
   fissionDashDuration: 0.2

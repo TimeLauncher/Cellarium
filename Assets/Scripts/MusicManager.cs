@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 // 배경음악 재생 담당. DontDestroyOnLoad 싱글턴이라 씬을 넘어가도 살아남는다.
@@ -26,6 +27,13 @@ public class MusicManager : MonoBehaviour
     [Tooltip("씬 이름이 목록에 없으면 재생 중인 곡을 그대로 유지한다")]
     public SceneTrack[] sceneTracks;
 
+    [Header("BGM을 끄는 씬")]
+    // '목록에 없으면 유지'는 사망 리로드에서 음악이 끊기지 않게 하려는 규칙인데,
+    // 그것 때문에 타이틀로 나가도 게임 BGM이 계속 흘렀다. 확실히 꺼야 하는 씬은 여기 적는다.
+    // (새 필드라 씬에 저장된 값이 없어서, 씬을 안 고쳐도 아래 기본값이 그대로 적용된다)
+    [Tooltip("이 목록에 있는 씬으로 들어가면 재생 중인 BGM을 멈춘다. sceneTracks보다 먼저 검사한다")]
+    public string[] stopMusicScenes = { "maintitle", "SaveSelectScene" };
+
     [Header("설정")]
     [Range(0f, 1f)] public float volume = 0.5f;
     [Tooltip("곡이 바뀔 때 서서히 갈아타는 시간 (0이면 즉시 전환)")]
@@ -38,7 +46,16 @@ public class MusicManager : MonoBehaviour
 
     void Awake()
     {
-        if (Instance != null && Instance != this) { Destroy(gameObject); return; }
+        if (Instance != null && Instance != this)
+        {
+            // 씬마다 MusicManager를 하나씩 배치해둔 구성이라, 중복이라고 그냥 버리면
+            // 그 씬에 적어둔 곡 정보까지 같이 사라져 BGM이 안 바뀐다. 목록만 넘기고 사라진다.
+            // (씬 오브젝트의 Awake는 sceneLoaded 콜백보다 먼저 돌기 때문에,
+            //  합쳐둔 목록이 이번 씬 전환에 곧바로 반영된다)
+            Instance.MergeTracks(sceneTracks);
+            Destroy(gameObject);
+            return;
+        }
         Instance = this;
         DontDestroyOnLoad(gameObject);
 
@@ -63,12 +80,44 @@ public class MusicManager : MonoBehaviour
         PlayForScene(scene.name);
     }
 
+    // 중복 인스턴스가 들고 있던 씬별 곡 정보를 살아남는 쪽에 흡수한다. 같은 씬 이름은 먼저 등록된 쪽 우선.
+    void MergeTracks(SceneTrack[] incoming)
+    {
+        if (incoming == null || incoming.Length == 0) return;
+
+        List<SceneTrack> merged = sceneTracks != null
+            ? new List<SceneTrack>(sceneTracks)
+            : new List<SceneTrack>();
+
+        foreach (SceneTrack t in incoming)
+        {
+            if (t == null || string.IsNullOrEmpty(t.sceneName)) continue;
+            if (merged.Exists(m => m != null && m.sceneName == t.sceneName)) continue;
+            merged.Add(t);
+        }
+
+        sceneTracks = merged.ToArray();
+    }
+
+    // 씬 이름 비교는 대소문자를 무시한다.
+    // 실제 씬 파일은 'maintitle'인데 코드/인스펙터에는 'MainTitle'로 적혀 있는 곳이 섞여 있어서,
+    // 문자열 == 로 비교하면 조용히 안 맞는다. (GameScene.TITLE, SaveSelectManager.titleSceneName)
+    static bool SameScene(string a, string b)
+    {
+        return !string.IsNullOrEmpty(a) && string.Equals(a, b, System.StringComparison.OrdinalIgnoreCase);
+    }
+
     void PlayForScene(string sceneName)
     {
+        // 음악이 없어야 하는 씬(타이틀 등)을 먼저 본다 — 여기 걸리면 무조건 정지
+        if (stopMusicScenes != null)
+            foreach (string s in stopMusicScenes)
+                if (SameScene(s, sceneName)) { Stop(); return; }
+
         if (sceneTracks == null) return;
 
         foreach (SceneTrack t in sceneTracks)
-            if (t != null && t.sceneName == sceneName) { Play(t.clip); return; }
+            if (t != null && SameScene(t.sceneName, sceneName)) { Play(t.clip); return; }
 
         // 목록에 없는 씬이면 아무것도 하지 않는다 — 재생 중인 곡이 그대로 이어진다
     }

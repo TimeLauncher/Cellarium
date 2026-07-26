@@ -14325,7 +14325,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &769580478
 RectTransform:
   m_ObjectHideFlags: 0
@@ -14905,6 +14905,9 @@ MonoBehaviour:
   sceneTracks:
   - sceneName: Heart A01
     clip: {fileID: 8300000, guid: 58fe2d681bc484a40958750184531376, type: 3}
+  stopMusicScenes:
+  - maintitle
+  - SaveSelectScene
   volume: 0.5
   crossfadeDuration: 1
   loop: 1
@@ -15947,7 +15950,7 @@ MonoBehaviour:
   forceSortingOrder: 1
   playerSortingOrder: 100
   uncontrolledAlpha: 0.5
-  invincibleBlinkColor: {r: 1, g: 1, b: 1, a: 1}
+  hitFlashColor: {r: 1, g: 0.3, b: 0.3, a: 1}
   invincibleBlinkInterval: 0.08
   thrownTimer: 0
 --- !u!95 &1083230939
@@ -50023,6 +50026,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellChunk
   cellAmount: 100
+  persistentId: 
 --- !u!58 &1433264181
 CircleCollider2D:
   m_ObjectHideFlags: 0
@@ -51022,6 +51026,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::DarkCellResidue
   abilityDescription: "\uBD84\uC5F4 / \uBD84\uC5F4 \uD68C\uC218 / \uBD84\uC5F4\uCCB4
     \uC870\uC885"
+  persistentId: 
 --- !u!61 &1579652395
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -51829,6 +51834,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellChunk
   cellAmount: 500
+  persistentId: 
 --- !u!58 &1782002427
 CircleCollider2D:
   m_ObjectHideFlags: 0
@@ -52002,6 +52008,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellChunk
   cellAmount: 100
+  persistentId: 
 --- !u!58 &1876177824
 CircleCollider2D:
   m_ObjectHideFlags: 0

@@ -325,7 +325,7 @@ public class PlayerController : MonoBehaviour
             isDashReady = true;
             fissionDashHoldTimer = 0f;
             rb.linearVelocity = Vector2.zero;
-            rb.gravityScale = 0f;
+            rb.gravityScale = 1f;
         }
 
         if (isDashReady && Input.GetMouseButton(1))
@@ -580,6 +580,17 @@ public class PlayerController : MonoBehaviour
         }
 
         currentHp = Mathf.Max(0f, currentHp - amount);
+
+        if (currentHp > 0f)
+        {
+            if (animator != null)
+                animator.SetTrigger("Hit");
+        }
+        else
+        {
+            StartCoroutine(DeathRoutine());
+            return;
+        }
         Debug.Log($"피격! HP: {currentHp}/{maxHp}");
         if (knockback.sqrMagnitude > 0.01f)
         {

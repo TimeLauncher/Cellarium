@@ -211,6 +211,7 @@ public class FloaterGerm : MonsterBase
         }
 
         rb.linearVelocity = Vector2.zero;
+
     }
 
     protected override void OnDeath()

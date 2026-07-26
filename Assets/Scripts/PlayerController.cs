@@ -253,7 +253,10 @@ private RuntimeAnimatorController cloneAnimatorController;
         // 지면 감지 — groundCheck가 비어있으면 콜라이더 발밑을 기준점으로 사용 (중앙에서 재면 거의 항상 false가 됨)
         Vector3 checkPos = groundCheck != null ? groundCheck.position
             : (col != null ? new Vector3(col.bounds.center.x, col.bounds.min.y, transform.position.z) : transform.position);
-        isGrounded = CheckGrounded(checkPos);
+        bool overlapGrounded = CheckGrounded(checkPos);
+        bool contactGrounded = HasGroundContact();
+
+        isGrounded = overlapGrounded || contactGrounded;
         if (!wasGrounded && isGrounded)
         {
             jumpsLeft = maxJumps;
@@ -1252,6 +1255,41 @@ private RuntimeAnimatorController cloneAnimatorController;
 
             return true;
         }
+        return false;
+    }
+    bool HasGroundContact()
+    {
+        if (bodyColliders == null)
+            return false;
+
+        ContactPoint2D[] contacts = new ContactPoint2D[16];
+
+        foreach (Collider2D bodyCollider in bodyColliders)
+        {
+            if (bodyCollider == null || !bodyCollider.enabled)
+                continue;
+
+            int count = bodyCollider.GetContacts(contacts);
+
+            for (int i = 0; i < count; i++)
+            {
+                ContactPoint2D contact = contacts[i];
+
+                if (contact.collider == null)
+                    continue;
+
+                if (contact.collider.isTrigger)
+                    continue;
+
+                if (!IsGroundCandidate(contact.collider.gameObject))
+                    continue;
+
+                // 플레이어를 아래에서 받치는 면
+                if (contact.normal.y > 0.5f)
+                    return true;
+            }
+        }
+
         return false;
     }
 

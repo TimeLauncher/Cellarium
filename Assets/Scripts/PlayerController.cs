@@ -696,10 +696,9 @@ public class PlayerController : MonoBehaviour
          }*/
         if (ScreenFadeManager.Instance != null)
         {
-            yield return ScreenFadeManager.Instance.FadeOut();
+            yield return ScreenFadeManager.Instance.FadeOutAndRespawn();
+            yield break;
         }
-
-        // 검은 화면이 완성된 상태에서 씬 재로드
         if (RespawnManager.Instance != null)
         {
             RespawnManager.Instance.Respawn();

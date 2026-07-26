@@ -379,7 +379,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -409, y: 10}
+  m_AnchoredPosition: {x: -417.063, y: 10}
   m_SizeDelta: {x: 46.931, y: 53.722}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &126948707
@@ -1790,7 +1790,7 @@ MonoBehaviour:
   - {fileID: 78009800}
   - {fileID: 166248144}
   arrow: {fileID: 126948706}
-  arrowOffset: {x: 120, y: 0}
+  arrowOffset: {x: 200, y: 0}
 --- !u!4 &1246910077
 Transform:
   m_ObjectHideFlags: 0
@@ -2246,7 +2246,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1526485192}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: c7547094e429ecc408982ca27c441994, type: 3}
   m_Name: 

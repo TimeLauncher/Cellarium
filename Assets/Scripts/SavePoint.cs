@@ -16,8 +16,24 @@ public class SavePoint : MonoBehaviour
     public Color activatedColor = Color.white; // activatedSprite가 없을 때 대체로 입힐 색
     public bool IsActivated { get; private set; }
 
+    [Header("사용법 안내 이미지")]
+    [Tooltip("가까이 가면 위에 뜨는 작은 안내 이미지 (E키 안내 등). 비우면 안내를 안 만든다")]
+    public Sprite usageHintSprite;
+    [Tooltip("이 거리 안에 들어오면 안내가 페이드 인 된다")]
+    public float hintShowRange = 3f;
+    public Vector3 hintOffset = new Vector3(0f, 1.5f, 0f);
+    [Tooltip("안내 이미지 크기 (1이면 원본 크기)")]
+    public float hintScale = 0.5f;
+    [Tooltip("세이브를 찍은 뒤에는 안내를 감춘다")]
+    public bool hideHintAfterActivate = true;
+
+    [Tooltip("부활 후에도 '이미 활성화됨'을 기억할 때 쓰는 식별자. 비우면 계층 경로로 자동 생성된다")]
+    public string persistentId = "";
+
     private bool playerInRange;
     private SpriteRenderer spr;
+    private WorldTooltip hint;
+    private string id;
 
     void Awake()
     {
@@ -27,6 +43,33 @@ public class SavePoint : MonoBehaviour
         spr = GetComponentInChildren<SpriteRenderer>();
         if (spr != null && inactiveSprite != null)
             spr.sprite = inactiveSprite; // 기본 스프라이트 지정 시 초기화
+
+        BuildHint();
+
+        // 이미 찍어둔 세이브포인트면 활성 이미지로 시작한다
+        id = WorldState.MakeId(this, persistentId);
+        if (WorldState.Has(WorldCategory.SavePoint, id))
+            ApplyActivatedLook();
+    }
+
+    // 안내 이미지를 자식으로 자동 생성한다 (Door의 표시등 자동 생성과 같은 방식).
+    // 세이브포인트마다 손으로 오브젝트를 만들지 않아도 되게.
+    void BuildHint()
+    {
+        if (usageHintSprite == null) return;
+
+        GameObject go = new GameObject("UsageHint");
+        go.transform.SetParent(transform, false);
+        go.transform.localScale = Vector3.one * hintScale;
+
+        SpriteRenderer hintSpr = go.AddComponent<SpriteRenderer>();
+        hintSpr.sprite = usageHintSprite;
+
+        hint = go.AddComponent<WorldTooltip>();
+        hint.showMode = WorldTooltip.ShowMode.PlayerNear;
+        hint.showRange = hintShowRange;
+        hint.followTarget = transform; // 세이브포인트를 기준으로 위치를 잡는다
+        hint.offset = hintOffset;
     }
 
     void Update()
@@ -47,12 +90,8 @@ public class SavePoint : MonoBehaviour
         // 활성화되면 이미지 교체 (한 번만, 이후 계속 활성 이미지 유지)
         if (!IsActivated)
         {
-            IsActivated = true;
-            if (spr != null)
-            {
-                if (activatedSprite != null) spr.sprite = activatedSprite;
-                else spr.color = activatedColor;
-            }
+            ApplyActivatedLook();
+            WorldState.Record(WorldCategory.SavePoint, id);
         }
 
         if (PlayerManager.Instance != null)
@@ -66,6 +105,20 @@ public class SavePoint : MonoBehaviour
         }
 
         Debug.Log("세이브 포인트 활성화!");
+    }
+
+    void ApplyActivatedLook()
+    {
+        IsActivated = true;
+
+        if (spr != null)
+        {
+            if (activatedSprite != null) spr.sprite = activatedSprite;
+            else spr.color = activatedColor;
+        }
+
+        if (hideHintAfterActivate && hint != null)
+            hint.gameObject.SetActive(false);
     }
 
     void OnTriggerEnter2D(Collider2D other)

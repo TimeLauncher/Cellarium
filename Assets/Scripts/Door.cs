@@ -69,6 +69,10 @@ public class Door : MonoBehaviour
     private SpriteRenderer spr;
     private int lastActiveCount = -1;
 
+    [Tooltip("부활 후에도 '이미 열림'을 기억할 때 쓰는 식별자. 비우면 계층 경로로 자동 생성된다")]
+    public string persistentId = "";
+    private string persistId;
+
     void Awake()
     {
         col = GetComponent<Collider2D>();
@@ -86,6 +90,23 @@ public class Door : MonoBehaviour
         EnsureIndicators();
 
         RefreshIndicators(); // 시작 시 표시등 초기화 (전부 꺼짐)
+
+        // 이미 열어둔 문이면 리로드된 씬에서도 열린 채로 시작한다 (슬라이드 연출 없이 결과 상태만)
+        persistId = WorldState.MakeId(this, persistentId);
+        if (WorldState.Has(WorldCategory.Door, persistId))
+            ApplyOpenedInstantly();
+    }
+
+    // 부활 복원용 — Open()과 달리 애니메이션 없이 최종 상태로 바로 맞춘다
+    void ApplyOpenedInstantly()
+    {
+        isOpen = true;
+        if (col != null) col.enabled = false;
+
+        if (openSlideDistance != 0f && openSlideDir.sqrMagnitude > 0.0001f)
+            transform.position += (Vector3)(openSlideDir.normalized * openSlideDistance);
+
+        RefreshIndicators();
     }
 
     void Update()
@@ -275,6 +296,7 @@ public class Door : MonoBehaviour
         isOpen = true;
         if (col != null) col.enabled = false; // 열리는 즉시 통과 가능
         RefreshIndicators();                  // 열린 뒤에도 표시등은 켜진 상태로 남김
+        WorldState.Record(WorldCategory.Door, persistId);
         Debug.Log($"[{name}] 문 개방!");
 
         // 사라지지 않고 위로 슬라이드 (스프라이트가 있고 이동값이 유효할 때)

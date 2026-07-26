@@ -278,6 +278,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::SpikeHazard
   damage: 50
   knockbackForce: 15
+  knockbackUpRatio: 0.5
+  knockbackAlwaysUp: 1
 --- !u!61 &143637897
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -494,6 +496,7 @@ MonoBehaviour:
   tintDoorByProgress: 0
   closedColor: {r: 1, g: 1, b: 1, a: 1}
   readyColor: {r: 0, g: 1, b: 1, a: 1}
+  persistentId: 
 --- !u!212 &180905333
 SpriteRenderer:
   serializedVersion: 2
@@ -1087,6 +1090,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::SpikeHazard
   damage: 50
   knockbackForce: 15
+  knockbackUpRatio: 0.5
+  knockbackAlwaysUp: 1
 --- !u!61 &528335674
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -1192,6 +1197,101 @@ SpriteRenderer:
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
   m_SpriteSortPoint: 0
+--- !u!1 &529528782
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 529528785}
+  - component: {fileID: 529528784}
+  - component: {fileID: 529528783}
+  m_Layer: 0
+  m_Name: leftgate
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &529528783
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 529528782}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7b130d5378b0d5d45aa9370c94f9919f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::AreaPortal
+  targetScene: Heart A01
+  targetEntryId: from_A02
+  requireKeyPress: 0
+  interactKey: 101
+--- !u!61 &529528784
+BoxCollider2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 529528782}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_ForceSendLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ForceReceiveLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ContactCaptureLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_CallbackLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_IsTrigger: 1
+  m_UsedByEffector: 0
+  m_CompositeOperation: 0
+  m_CompositeOrder: 0
+  m_Offset: {x: -0.2488575, y: 1.5286884}
+  m_SpriteTilingProperty:
+    border: {x: 0, y: 0, z: 0, w: 0}
+    pivot: {x: 0, y: 0}
+    oldSize: {x: 0, y: 0}
+    newSize: {x: 0, y: 0}
+    adaptiveTilingThreshold: 0
+    drawMode: 0
+    adaptiveTiling: 0
+  m_AutoTiling: 0
+  m_Size: {x: 2.1376305, y: 5.1950073}
+  m_EdgeRadius: 0
+--- !u!4 &529528785
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 529528782}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -56.050003, y: -26.009998, z: 0}
+  m_LocalScale: {x: 0.7375, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &590296088
 GameObject:
   m_ObjectHideFlags: 0
@@ -1540,6 +1640,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::SpikeHazard
   damage: 50
   knockbackForce: 15
+  knockbackUpRatio: 0.5
+  knockbackAlwaysUp: 1
 --- !u!61 &797217795
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -1678,6 +1780,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::DarkCellResidue
   abilityDescription: "\uBD84\uC5F4 / \uBD84\uC5F4 \uD68C\uC218 / \uBD84\uC5F4\uCCB4
     \uC870\uC885"
+  persistentId: 
 --- !u!61 &812665560
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -1845,6 +1948,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellChunk
   cellAmount: 100
+  persistentId: 
 --- !u!58 &825547309
 CircleCollider2D:
   m_ObjectHideFlags: 0
@@ -2255,7 +2359,7 @@ Transform:
   m_GameObject: {fileID: 866211444}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -41.00752, y: -23, z: -12.6605}
+  m_LocalPosition: {x: -41.00769, y: -23, z: -12.6605}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -3241,6 +3345,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellChunk
   cellAmount: 100
+  persistentId: 
 --- !u!58 &1277683499
 CircleCollider2D:
   m_ObjectHideFlags: 0
@@ -15182,6 +15287,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::SpikeHazard
   damage: 50
   knockbackForce: 15
+  knockbackUpRatio: 0.5
+  knockbackAlwaysUp: 1
 --- !u!61 &1813014874
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -15321,6 +15428,12 @@ MonoBehaviour:
   activatedSprite: {fileID: -3888386918112690902, guid: 57810e584ecb63a43ac3bb45e77b8a01, type: 3}
   inactiveSprite: {fileID: -5342488822600831433, guid: c20353b6d212adc46853a704e394ca5d, type: 3}
   activatedColor: {r: 1, g: 1, b: 1, a: 1}
+  usageHintSprite: {fileID: -4059347035253421813, guid: 67eba8e4db72b45408447efa91ff2ba0, type: 3}
+  hintShowRange: 3
+  hintOffset: {x: 0, y: 3, z: 0}
+  hintScale: 0.5
+  hideHintAfterActivate: 1
+  persistentId: 
 --- !u!61 &1895529377
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -15590,7 +15703,10 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 256
   playerPrefab: {fileID: 1965552590}
+  fissionMotionLock: 0.4
   fissionHoldDuration: 0.5
+  cloneScaleRatio: 0.75
+  fissionSpawnMargin: 0.15
   consumeRange: 5
   monsterMask:
     serializedVersion: 2
@@ -15607,6 +15723,7 @@ MonoBehaviour:
     m_Bits: 256
   maxHp: 200
   knockbackDuration: 0.25
+  knockbackKeepsArc: 1
   invincibleDuration: 0.5
   maxFissionGauge: 100
   fissionGaugeRecoverRate: 10
@@ -15614,6 +15731,13 @@ MonoBehaviour:
   fissionDashCost: 100
   deathMotionDuration: 3
   defaultRespawnPosition: {x: 0, y: 0, z: 0}
+  returnStartSpeed: 6
+  returnMaxSpeed: 22
+  returnAcceleration: 45
+  returnArriveDistance: 0.35
+  returnTimeout: 4
+  returnTriggerName: Return
+  shrinkWhileReturning: 1
   isControlled: 1
   isClone: 0
   forceSortingOrder: 1
@@ -15752,7 +15876,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: -50.9, y: -26.2, z: -2.6605}
-  m_LocalScale: {x: 0.7207, y: 0.7207, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 0}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 456611511}
@@ -15807,6 +15931,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::SpikeHazard
   damage: 50
   knockbackForce: 15
+  knockbackUpRatio: 0.5
+  knockbackAlwaysUp: 1
 --- !u!61 &1973165756
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -16020,7 +16146,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 2.581065, y: 2.581065, z: 1}
+  m_LocalScale: {x: 2.581037, y: 2.581037, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
@@ -50499,7 +50625,7 @@ MonoBehaviour:
   cellCurrency: 100
   darkCellCurrency: 100
   fissionUnlocked: 0
-  cinemachineCamera: {fileID: 0}
+  cinemachineCamera: {fileID: 2088609510}
 --- !u!4 &2011844709
 Transform:
   m_ObjectHideFlags: 0
@@ -50898,6 +51024,51 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &2126205470
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2126205472}
+  - component: {fileID: 2126205471}
+  m_Layer: 0
+  m_Name: left SceneEntryPoint
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &2126205471
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2126205470}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 64ed01a5877d9184d9011c262e7f73f0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SceneEntryPoint
+  entryId: from_A01
+--- !u!4 &2126205472
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2126205470}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -53.61, y: -26.14, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &2129202686
 GameObject:
   m_ObjectHideFlags: 0
@@ -51009,6 +51180,7 @@ MonoBehaviour:
   tintDoorByProgress: 0
   closedColor: {r: 1, g: 1, b: 1, a: 1}
   readyColor: {r: 0, g: 1, b: 1, a: 1}
+  persistentId: 
 --- !u!212 &2129202689
 SpriteRenderer:
   serializedVersion: 2
@@ -51108,3 +51280,5 @@ SceneRoots:
   - {fileID: 1642977289}
   - {fileID: 2095464150}
   - {fileID: 1524631270}
+  - {fileID: 529528785}
+  - {fileID: 2126205472}

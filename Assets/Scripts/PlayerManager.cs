@@ -112,16 +112,21 @@ public class PlayerManager : MonoBehaviour
     {
         if (!allPlayers.Contains(player))
         {
-            // 분열체끼리만 충돌 무시, 분열체↔본체는 충돌 허용
-            Collider2D newCol = player.GetComponent<Collider2D>();
-            if (newCol != null && player.isClone)
+            // 분열체끼리만 충돌 무시, 분열체↔본체는 충돌 허용.
+            // ★ 콜라이더를 전부 돌아야 한다 — GetComponent<Collider2D>()는 피격용 트리거
+            //   BoxCollider2D를 먼저 집어오는데, 실제로 서로 밀치는 건 몸통 CircleCollider2D다.
+            Collider2D[] newCols = player.GetComponents<Collider2D>();
+            if (newCols.Length > 0 && player.isClone)
             {
                 foreach (var other in allPlayers)
                 {
-                    if (!other.isClone) continue;
-                    Collider2D otherCol = other.GetComponent<Collider2D>();
-                    if (otherCol != null)
-                        Physics2D.IgnoreCollision(newCol, otherCol, true);
+                    if (other == null || !other.isClone) continue;
+                    foreach (Collider2D otherCol in other.GetComponents<Collider2D>())
+                    {
+                        if (otherCol == null) continue;
+                        foreach (Collider2D newCol in newCols)
+                            if (newCol != null) Physics2D.IgnoreCollision(newCol, otherCol, true);
+                    }
                 }
 
                 // 조직 그물망은 분열체만 통과 가능 (본체는 항상 막힘)

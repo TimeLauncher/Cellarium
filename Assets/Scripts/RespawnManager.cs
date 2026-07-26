@@ -55,6 +55,10 @@ public class RespawnManager : MonoBehaviour
         checkpointScene = SceneManager.GetActiveScene().name;
         checkpointPos = pos;
 
+        // 열린 문·먹은 코인 등 맵 상태도 같은 시점으로 스냅샷을 떠둔다
+        if (WorldState.Instance != null)
+            WorldState.Instance.CaptureCheckpoint();
+
         PlayerManager m = PlayerManager.Instance;
         if (m != null)
         {
@@ -82,6 +86,11 @@ public class RespawnManager : MonoBehaviour
 
         // 문으로 이동하다 죽은 경우 등, 남아 있는 도착 지점 예약이 부활 위치를 덮지 않도록 지운다
         SceneEntryPoint.ClearEntry();
+
+        // ★ 반드시 LoadScene 이전. 새 씬 오브젝트의 Awake가 sceneLoaded 콜백보다 먼저 돌기 때문에,
+        //   로드 후에 정리하면 문·코인이 낡은 상태를 읽고 시작한다.
+        if (WorldState.Instance != null)
+            WorldState.Instance.ApplyRespawnPolicy();
 
         string scene;
         if (hasCheckpoint)
@@ -120,7 +129,10 @@ public class RespawnManager : MonoBehaviour
             m.cellCurrency = savedCell;
             m.darkCellCurrency = savedDarkCell;
             m.maxFissionCount = savedMaxFission;
-            m.fissionUnlocked = savedFissionUnlocked;
+
+            // 다크셀 잔재가 '먹은 것'으로 남아 있는데 해금만 되돌리면 맵에 잔재가 없어
+            // 능력을 영영 못 얻는 소프트락이 된다. 잔재가 사라진 상태면 해금도 유지한다.
+            m.fissionUnlocked = savedFissionUnlocked || WorldState.AnyDarkCellConsumed();
         }
 
         // 플레이어 위치는 등록(Start)이 끝난 뒤 한 프레임 후 적용

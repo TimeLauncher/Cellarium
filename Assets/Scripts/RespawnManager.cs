@@ -16,7 +16,17 @@ public class RespawnManager : MonoBehaviour
     int savedCell, savedDarkCell, savedMaxFission;
     bool savedFissionUnlocked;
 
+    // 세이브포인트를 한 번도 안 찍었을 때 돌아갈 지점 (DefaultRespawnPoint 마커가 등록해준다)
+    bool hasDefaultRespawn;
+    string defaultScene;
+    Vector3 defaultPos;
+
     bool pendingRespawn;
+    bool respawnUsedDefault; // 이번 부활이 '기본 지점' 부활인지 (체크포인트 부활과 위치 적용이 다르다)
+
+    // 부활로 인한 씬 리로드가 진행 중인지. GameProgress가 이때는 진행상황을 덮어쓰지 않도록 참조한다
+    // (부활은 '체크포인트 시점으로 되돌리기'라서, 죽기 직전 상태를 이어붙이면 안 된다)
+    public bool RespawnInProgress { get; private set; }
 
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
     static void Bootstrap()
@@ -55,11 +65,45 @@ public class RespawnManager : MonoBehaviour
         }
     }
 
-    // 사망 시 호출 — 체크포인트(없으면 현재) 씬을 리로드. 리로드로 모든 배치 오브젝트가 초기 상태로 돌아간다.
+    // DefaultRespawnPoint 마커가 Awake에서 호출 — 세이브 없을 때 돌아갈 지점 등록
+    public void SetDefaultRespawn(string scene, Vector3 pos)
+    {
+        hasDefaultRespawn = true;
+        defaultScene = scene;
+        defaultPos = pos;
+    }
+
+    // 사망 시 호출 — 체크포인트(없으면 기본 지점, 그것도 없으면 현재) 씬을 리로드.
+    // 리로드로 모든 배치 오브젝트가 초기 상태로 돌아간다.
     public void Respawn()
     {
         pendingRespawn = true;
-        string scene = hasCheckpoint ? checkpointScene : SceneManager.GetActiveScene().name;
+        RespawnInProgress = true;
+
+        // 문으로 이동하다 죽은 경우 등, 남아 있는 도착 지점 예약이 부활 위치를 덮지 않도록 지운다
+        SceneEntryPoint.ClearEntry();
+
+        string scene;
+        if (hasCheckpoint)
+        {
+            respawnUsedDefault = false;
+            scene = checkpointScene;
+        }
+        else if (hasDefaultRespawn)
+        {
+            // 세이브포인트를 한 번도 안 찍었으면 게임 시작 지점(보통 A00)으로 되돌린다.
+            // 죽은 그 자리에서 다시 시작하면 사실상 페널티가 없다.
+            respawnUsedDefault = true;
+            scene = defaultScene;
+        }
+        else
+        {
+            respawnUsedDefault = false;
+            scene = SceneManager.GetActiveScene().name;
+            Debug.LogWarning("[RespawnManager] 세이브포인트도 DefaultRespawnPoint도 없어 현재 씬 그 자리에서 부활합니다. " +
+                             "A00에 DefaultRespawnPoint를 배치하세요.");
+        }
+
         SceneManager.LoadScene(scene);
     }
 
@@ -92,6 +136,11 @@ public class RespawnManager : MonoBehaviour
 
         PlayerController main = m.allPlayers[0];
         if (hasCheckpoint) main.transform.position = checkpointPos;
+        else if (respawnUsedDefault) main.transform.position = defaultPos;
         main.RestoreFromConsume(main.maxHp, main.maxFissionGauge); // 체력/분열 게이지 완전 회복
+
+        // 부활 복원이 끝난 뒤에야 진행상황 저장을 재개시킨다
+        RespawnInProgress = false;
+        if (GameProgress.Instance != null) GameProgress.Instance.CaptureNow();
     }
 }

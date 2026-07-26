@@ -1584,7 +1584,7 @@ MonoBehaviour:
   - {fileID: 852763041}
   - {fileID: 923739005}
   arrow: {fileID: 1623100199}
-  arrowOffset: {x: -700, y: 0}
+  arrowOffset: {x: -70, y: 0}
 --- !u!4 &1181935842
 Transform:
   m_ObjectHideFlags: 0

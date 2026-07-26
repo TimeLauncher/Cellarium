@@ -1228,10 +1228,12 @@ private RuntimeAnimatorController cloneAnimatorController;
         return obj.GetComponent<MonsterBase>() == null; // 몬스터 위는 지면으로 치지 않음
     }
 
+    // 지면 접촉 판정 여유값. 감지점이 지면 표면에 딱 붙거나 살짝 파묻혔을 때
+    // 최근접점 차이가 0 근처로 나오는데, 그걸 벽으로 오인하지 않게 하는 폭이다.
+    const float GroundContactEpsilon = 0.05f;
+
     bool CheckGrounded(Vector3 checkPos)
     {
-        float feetY = col != null ? col.bounds.min.y : transform.position.y;
-
         Collider2D[] hits = Physics2D.OverlapCircleAll(checkPos, groundCheckRadius);
         foreach (var h in hits)
         {
@@ -1239,8 +1241,13 @@ private RuntimeAnimatorController cloneAnimatorController;
             if (h.transform == transform || h.transform.IsChildOf(transform)) continue;
             if (!IsGroundCandidate(h.gameObject)) continue;
 
-            // 옆에 서 있는 벽을 지면으로 오인하지 않도록, 발밑보다 위로 솟아있는 면은 제외
-            //if (h.bounds.max.y > feetY + groundCheckRadius) continue;
+            // 옆에 붙은 벽을 지면으로 오인하지 않도록, 실제로 닿는 지점이 발밑인지 본다.
+            // ★ bounds로 거르면 안 된다(예전 검사를 주석 처리해둔 이유) — 타일맵은 콜라이더 하나가
+            //   맵 전체를 덮어서 bounds.max.y가 항상 발보다 위다. 그러면 진짜 지면까지 전부 걸러진다.
+            //   ClosestPoint는 합성 콜라이더에서도 실제 표면의 최근접점을 주므로 타일맵에서도 맞다.
+            Vector2 delta = h.ClosestPoint(checkPos) - (Vector2)checkPos;
+            if (delta.y > GroundContactEpsilon) continue;                              // 발보다 위 → 천장/벽
+            if (Mathf.Abs(delta.x) > Mathf.Abs(delta.y) + GroundContactEpsilon) continue; // 옆쪽 → 벽
 
             return true;
         }

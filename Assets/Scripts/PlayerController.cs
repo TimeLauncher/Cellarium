@@ -689,10 +689,21 @@ public class PlayerController : MonoBehaviour
 
         // 부활: 체크포인트 씬을 리로드해 몬스터/버튼/문 등 배치 오브젝트를 전부 초기 상태로 되돌린다.
         // (플레이어 위치/재화/해금은 RespawnManager가 마지막 세이브포인트 스냅샷으로 복원)
+        /* if (RespawnManager.Instance != null)
+         {
+             RespawnManager.Instance.Respawn();
+             yield break; // 씬이 리로드되므로 이 오브젝트는 사라진다
+         }*/
+        if (ScreenFadeManager.Instance != null)
+        {
+            yield return ScreenFadeManager.Instance.FadeOut();
+        }
+
+        // 검은 화면이 완성된 상태에서 씬 재로드
         if (RespawnManager.Instance != null)
         {
             RespawnManager.Instance.Respawn();
-            yield break; // 씬이 리로드되므로 이 오브젝트는 사라진다
+            yield break;
         }
 
         // (폴백) RespawnManager가 없으면 예전처럼 제자리에서 부활 — 위치: 세이브포인트 or 기본 부활 지점

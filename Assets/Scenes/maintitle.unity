@@ -1455,7 +1455,7 @@ MonoBehaviour:
   stopMusicScenes:
   - 
   - HeartA00
-  volume: 0.5
+  volume: 0.3
   crossfadeDuration: 1
   loop: 1
 --- !u!4 &1105395225

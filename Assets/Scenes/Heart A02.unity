@@ -2360,7 +2360,7 @@ Transform:
   m_GameObject: {fileID: 866211444}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -41.00769, y: -23, z: -12.6605}
+  m_LocalPosition: {x: -40.98887, y: -23, z: -12.6605}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -15802,7 +15802,7 @@ MonoBehaviour:
   fissionHoldDuration: 0.5
   cloneScaleRatio: 0.75
   fissionSpawnMargin: 0.15
-  cloneAnimatorController: {fileID: 0}
+  cloneAnimatorController: {fileID: 9100000, guid: f50eddeee2fe6a440b8456713bee1ff6, type: 2}
   consumeRange: 5
   monsterMask:
     serializedVersion: 2
@@ -15832,7 +15832,7 @@ MonoBehaviour:
   returnAcceleration: 45
   returnArriveDistance: 0.35
   returnTimeout: 4
-  returnTriggerName: Return
+  returnTriggerName: ReturnReady
   shrinkWhileReturning: 1
   isControlled: 1
   isClone: 0
@@ -16242,7 +16242,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 2.581037, y: 2.581037, z: 1}
+  m_LocalScale: {x: 2.5840745, y: 2.5840745, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}

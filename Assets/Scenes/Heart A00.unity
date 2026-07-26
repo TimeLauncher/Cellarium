@@ -3293,7 +3293,7 @@ MonoBehaviour:
   fissionHoldDuration: 0.5
   cloneScaleRatio: 0.75
   fissionSpawnMargin: 0.15
-  cloneAnimatorController: {fileID: 0}
+  cloneAnimatorController: {fileID: 9100000, guid: f50eddeee2fe6a440b8456713bee1ff6, type: 2}
   consumeRange: 5
   monsterMask:
     serializedVersion: 2
@@ -3323,7 +3323,7 @@ MonoBehaviour:
   returnAcceleration: 45
   returnArriveDistance: 0.35
   returnTimeout: 4
-  returnTriggerName: Return
+  returnTriggerName: ReturnReady
   shrinkWhileReturning: 1
   isControlled: 1
   isClone: 0

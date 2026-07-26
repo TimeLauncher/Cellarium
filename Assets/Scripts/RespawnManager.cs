@@ -69,6 +69,27 @@ public class RespawnManager : MonoBehaviour
         }
     }
 
+    // 타이틀로 나가거나 새 게임을 시작할 때 호출 (GameSession) — 찍어둔 체크포인트를 버린다.
+    // 이걸 안 하면 새 게임을 시작해도 이전 판의 세이브 지점으로 부활한다.
+    public void ClearCheckpoint()
+    {
+        hasCheckpoint = false;
+        checkpointScene = null;
+        checkpointPos = Vector3.zero;
+        savedCell = savedDarkCell = savedMaxFission = 0;
+        savedFissionUnlocked = false;
+
+        // 기본 부활 지점도 함께 버린다 — A00의 DefaultRespawnPoint가 씬 로드 때 다시 등록해준다.
+        // (남겨두면 이전 판에서 등록된 다른 씬 좌표를 물고 갈 수 있다)
+        hasDefaultRespawn = false;
+        defaultScene = null;
+        defaultPos = Vector3.zero;
+
+        pendingRespawn = false;
+        respawnUsedDefault = false;
+        RespawnInProgress = false;
+    }
+
     // DefaultRespawnPoint 마커가 Awake에서 호출 — 세이브 없을 때 돌아갈 지점 등록
     public void SetDefaultRespawn(string scene, Vector3 pos)
     {

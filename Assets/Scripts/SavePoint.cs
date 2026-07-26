@@ -8,6 +8,14 @@ public class SavePoint : MonoBehaviour
     public static Vector3 LastSavePosition { get; private set; }
     public static bool HasSave { get; private set; }
 
+    // static이라 씬을 바꿔도 남는다 — 타이틀로 나갈 때 GameSession이 비워준다.
+    // 안 비우면 새 게임을 시작해도 이전 판의 세이브 위치로 부활한다.
+    public static void ClearSave()
+    {
+        HasSave = false;
+        LastSavePosition = Vector3.zero;
+    }
+
     [Header("활성화 이미지 교체")]
     [Tooltip("활성화되면 이 스프라이트로 바뀐다 (비우면 아래 색으로 대체)")]
     public Sprite activatedSprite;

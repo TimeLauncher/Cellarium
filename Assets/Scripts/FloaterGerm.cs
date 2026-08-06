@@ -242,7 +242,8 @@ public class FloaterGerm : MonsterBase
         foreach (var hit in hits)
         {
             PlayerController pc = hit.GetComponent<PlayerController>();
-            if (pc != null) pc.TakeDamage(selfDestructDamage);
+            // 자폭은 공격 판정 — 대시 중이어도 맞는다
+            if (pc != null) pc.TakeDamage(selfDestructDamage, default, 0f, DamageSource.Attack);
         }
         Destroy(gameObject);
     }

@@ -22,7 +22,17 @@
       "Bash(python /tmp/ctrl2.py \"Assets/Sprites/monster/일반균_모션/일반균_대기/generalGerm.controller\" \"Assets/Sprites/monster/분쇄균_모션/분쇄_idle/CrushGerm.controller\")",
       "Bash(python /tmp/ctrl2.py \"Assets/Sprites/monster/일반비행균_모션/idle/Flyinggerm.controller\" \"Assets/Sprites/monster/부유균_모션/Floatergerm.controller\" \"Assets/Sprites/monster/부유산포균_모션/mom_float_idle/BigFloatergerm.controller\")",
       "Bash(python /tmp/ctrl3.py \"Assets/Sprites/monster/일반비행균_모션/idle/Flyinggerm.controller\" \"Assets/Sprites/monster/부유균_모션/Floatergerm.controller\" \"Assets/Sprites/monster/분쇄균_모션/분쇄_idle/CrushGerm.controller\" \"Assets/Sprites/monster/일반균_모션/일반균_대기/generalGerm.controller\" \"Assets/Sprites/monster/부유산포균_모션/mom_float_idle/BigFloatergerm.controller\")",
-      "Bash(python /tmp/clip.py)"
+      "Bash(python /tmp/clip.py)",
+      "Bash(git rev-list *)",
+      "Bash(git checkout *)",
+      "Bash(git switch *)",
+      "Bash(git stash *)",
+      "Bash(git reset *)",
+      "Bash(python -c \"import json,io; json.load\\(io.open\\('.claude/settings.local.json',encoding='utf-8'\\)\\); print\\('JSON OK'\\)\")",
+      "Bash(mkdir -p build_check)",
+      "Bash(\"F:/Unity/Editor/6000.3.5f2/Editor/Data/NetCoreRuntime/dotnet.exe\" \"F:/Unity/Editor/6000.3.5f2/Editor/Data/DotNetSdkRoslyn/csc.dll\" \"@build_check/rsp.txt\")",
+      "Bash(awk '/^--- !u!4 &1656173083$/,/m_LocalEulerAnglesHint/' Assets/Scenes/SampleScene.unity)",
+      "Bash(python)"
     ]
   }
 }

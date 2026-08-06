@@ -182,7 +182,8 @@ public class MonsterBase : MonoBehaviour, IConsumable
         PlayerController pc = hit.GetComponent<PlayerController>();
         if (pc == null) return;
 
-        pc.TakeDamage(attackDamage, KnockbackVector(pc.transform.position), stunDuration);
+        // 몸통에 겹쳐서 주는 피해 — 대시로 들이받는 동안은 이것만 면역된다
+        pc.TakeDamage(attackDamage, KnockbackVector(pc.transform.position), stunDuration, DamageSource.Contact);
     }
 
     // 플레이어에게 줄 넉백 속도. 좌우 방향은 몬스터→플레이어 기준으로 잡고,
@@ -531,7 +532,8 @@ public class MonsterBase : MonoBehaviour, IConsumable
                 if (Mathf.Abs(relX) > 0.05f && Mathf.Sign(relX) != facingDir) continue;
             }
 
-            pc.TakeDamage(HitboxDamage, KnockbackVector(pc.transform.position), stunDuration);
+            // 공격 히트박스 — 접촉이 아니라 공격이므로 대시 중에도 그대로 맞는다
+            pc.TakeDamage(HitboxDamage, KnockbackVector(pc.transform.position), stunDuration, DamageSource.Attack);
             hitPlayerThisAttack = true; // 중복 타격은 이 플래그로 막는다.
             // 여기서 DisableHitbox()를 부르면 켜진 같은 프레임에 꺼져서 판정 표시가 안 보이므로 끄지 않는다.
             break;

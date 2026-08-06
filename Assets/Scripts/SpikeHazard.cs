@@ -31,6 +31,7 @@ public class SpikeHazard : MonoBehaviour
         dir += Vector2.up * (up * knockbackUpRatio);
         if (dir.sqrMagnitude < 0.001f) dir = Vector2.up;
 
-        pc.TakeDamage(damage, dir.normalized * knockbackForce, 0f);
+        // 지형 피해 — 몬스터 접촉이 아니므로 대시 중에도 찔린다
+        pc.TakeDamage(damage, dir.normalized * knockbackForce, 0f, DamageSource.Environment);
     }
 }

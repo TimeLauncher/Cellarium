@@ -177,6 +177,18 @@ private RuntimeAnimatorController cloneAnimatorController;
     public bool IsReturning => isReturning;
     public float CurrentFissionGauge => currentFissionGauge;
     public float MaxFissionGauge => maxFissionGauge;
+
+    // 맵에 나와 있는 분열체 수 (본체 제외)
+    public int CloneCount =>
+        PlayerManager.Instance == null ? 0 : Mathf.Max(0, PlayerManager.Instance.allPlayers.Count - 1);
+
+    // 지금 회복으로 도달할 수 있는 분열 게이지 상한.
+    //
+    // ★ 기획: "분열 가능 횟수 소모 1당 게이지 100 회복 불가" — 분열체가 살아 있는 동안 그 100은 잠긴다.
+    //   (Bug Report '분열 이후 섭취 시 분열 게이지 버그' = 섭취가 이 잠금을 무시하고 꽉 채우던 문제)
+    //   예전 코드는 자동회복만 '분열체가 있으면 아예 중단'으로 근사하고, 섭취는 그냥 최대치까지 채웠다.
+    //   이제 자동회복·섭취가 같은 상한을 공유한다. 분열체를 회수하면 상한이 도로 올라간다.
+    public float FissionGaugeCap => Mathf.Max(0f, maxFissionGauge - CloneCount * fissionCost);
     // 분열 모션 진행도 (0→1). 홀드 차징이 없어졌으므로 이제 '모션이 도는 동안'을 나타낸다.
     // FissionChargeIndicator가 이 값을 쓰는데, 즉시 발동이라 차지 게이지로서의 의미는 사라졌다.
     public float FissionHoldProgress =>
@@ -290,13 +302,11 @@ private RuntimeAnimatorController cloneAnimatorController;
             }
         }
 
-        // 분열 게이지 자동 회복 (본체만, 분열체가 맵에 있으면 회복 안 됨)
-        if (!isClone)
-        {
-            bool hasClones = PlayerManager.Instance != null && PlayerManager.Instance.allPlayers.Count > 1;
-            if (!hasClones)
-                currentFissionGauge = Mathf.Min(maxFissionGauge, currentFissionGauge + fissionGaugeRecoverRate * Time.deltaTime);
-        }
+        // 분열 게이지 자동 회복 (본체만). 분열체 1개당 100씩 잠기므로 FissionGaugeCap까지만 찬다.
+        // 이미 상한을 넘겨 들고 있는 경우(분열 직후 등)엔 깎지 않고 그대로 둔다 — 회복만 막는 규칙이다.
+        if (!isClone && currentFissionGauge < FissionGaugeCap)
+            currentFissionGauge = Mathf.Min(FissionGaugeCap,
+                currentFissionGauge + fissionGaugeRecoverRate * Time.deltaTime);
         // 조종 여부와 상관없이 애니메이션 상태는 계속 갱신
         if (animator != null)
         {
@@ -312,12 +322,14 @@ private RuntimeAnimatorController cloneAnimatorController;
             animator.SetBool("isDashing", isNormalDashing);
         }
 
-        if (!isControlled)
+        // 조종 대상이 아니거나, 대화·연출로 조작이 잠겨 있으면 입력 처리를 통째로 건너뛴다.
+        // 위쪽 애니메이터 갱신은 이미 끝났고 FixedUpdate의 중력도 계속 돌기 때문에,
+        // 잠긴 채로 공중에 있으면 정상적으로 착지한다 (moveX=0이라 좌우로만 멈춘다).
+        if (!isControlled || PlayerInputLock.IsLocked)
         {
             moveX = 0f;
             return;
         }
-        if (!isControlled) return;
 
         if (isStunned)
         {
@@ -554,14 +566,17 @@ private RuntimeAnimatorController cloneAnimatorController;
 
     void TryDashOrEat()
     {
-        if (normalDashCooldownTimer > 0f) return;
-
+        // ★ 쿨다운 검사를 여기서 하면 안 된다 (기획서 (8) '대시 사용 후 대시 쿨타임 동안 섭취가
+        //   사용되지 않는 문제'). 좌클릭 하나로 섭취와 대시를 겸하는 구조라, 함수 앞에서 막으면
+        //   섭취 판정까지 같이 죽는다. 섭취는 대시 쿨타임의 영향을 받지 않는다.
         Transform target = GetMouseTarget();
         if (target != null)
         {
             StartConsumeAnimation(target.gameObject);
             return;
         }
+
+        if (normalDashCooldownTimer > 0f) return;
 
         TryNormalDash();
     }
@@ -638,7 +653,11 @@ private RuntimeAnimatorController cloneAnimatorController;
     public void RestoreFromConsume(float hpAmount, float gaugeAmount)
     {
         currentHp = Mathf.Min(maxHp, currentHp + hpAmount);
-        currentFissionGauge = Mathf.Min(maxFissionGauge, currentFissionGauge + gaugeAmount);
+
+        // 분열체가 나와 있으면 그 수 × 100은 잠겨 있어서 섭취로도 못 채운다 (자동회복과 같은 상한).
+        // 이미 상한 위에 있으면 그대로 유지 — 섭취했다고 오히려 깎이면 안 된다.
+        currentFissionGauge = Mathf.Max(currentFissionGauge,
+            Mathf.Min(FissionGaugeCap, currentFissionGauge + gaugeAmount));
     }
 
     // 씬 이동 후 이전 씬의 상태를 그대로 이어받을 때 사용 (GameProgress).
@@ -653,7 +672,8 @@ private RuntimeAnimatorController cloneAnimatorController;
         currentFissionGauge = Mathf.Clamp(value, 0f, maxFissionGauge);
     }
 
-    public void TakeDamage(float amount, Vector2 knockback = default, float stunTime = 0f)
+    public void TakeDamage(float amount, Vector2 knockback = default, float stunTime = 0f,
+                           DamageSource source = DamageSource.Attack)
     {
         // 사망 모션 중엔 더 이상 피격되지 않음
         if (isDead) return;
@@ -661,8 +681,12 @@ private RuntimeAnimatorController cloneAnimatorController;
         // 회수 비행 중엔 장애물·몬스터를 전부 무시하고 지나가므로 피격도 받지 않는다
         if (isReturning) return;
 
-        // 대시로 몬스터에 박는 동안은 공격 행동이므로 접촉 데미지를 받지 않는다
-        if (isInvincible || dashInvincibleTimer > 0f) return;
+        // 피격 후 무적 프레임은 출처와 무관하게 모든 피해를 막는다
+        if (isInvincible) return;
+
+        // 대시로 몬스터에 박는 동안은 공격 행동이므로 '몸통 접촉' 피해만 받지 않는다.
+        // 공격 히트박스·투사체·자폭은 대시 중에도 그대로 맞는다 (기획서 Bug Report 3번).
+        if (source == DamageSource.Contact && dashInvincibleTimer > 0f) return;
 
         // 분열체는 피격 시 사망 (QA (4). 추후 1회 무효화 등 추가 예정)
         // 그 자리에서 사라지지 않고 본체까지 날아와 흡수된다 — 도착 시 Destroy,

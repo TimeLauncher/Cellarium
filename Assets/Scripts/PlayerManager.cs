@@ -74,6 +74,9 @@ public class PlayerManager : MonoBehaviour
 
     void Update()
     {
+        // 대화·연출 중엔 조종 전환/회수도 막는다 (PlayerController와 같은 잠금을 공유)
+        if (PlayerInputLock.IsLocked) return;
+
         // 분열체 조종 전환(숫자키)/분열 회수(R)도 다크셀 잔재로 능력을 해금하기 전까진 잠긴다
         if (!fissionUnlocked) return;
 

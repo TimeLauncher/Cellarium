@@ -32,7 +32,11 @@
       "Bash(mkdir -p build_check)",
       "Bash(\"F:/Unity/Editor/6000.3.5f2/Editor/Data/NetCoreRuntime/dotnet.exe\" \"F:/Unity/Editor/6000.3.5f2/Editor/Data/DotNetSdkRoslyn/csc.dll\" \"@build_check/rsp.txt\")",
       "Bash(awk '/^--- !u!4 &1656173083$/,/m_LocalEulerAnglesHint/' Assets/Scenes/SampleScene.unity)",
-      "Bash(python)"
+      "Bash(python)",
+      "Bash(awk '/EditorClassIdentifier: Assembly-CSharp::NpcInteractable/,/interactKey/' Assets/Scenes/SampleScene.unity)",
+      "Bash(awk '/^--- !u!61 &900000012/,/m_Size/' Assets/Scenes/SampleScene.unity)",
+      "PowerShell($csproj = \"C:\\\\Users\\\\jkh57\\\\cellarium\\\\Assembly-CSharp.csproj\"; Write-Output \"csproj exists: $\\(Test-Path $csproj\\)\"; $dotnet = \"F:/Unity/Editor/6000.3.5f2/Editor/Data/NetCoreRuntime/dotnet.exe\"; $csc = \"F:/Unity/Editor/6000.3.5f2/Editor/Data/DotNetSdkRoslyn/csc.dll\"; Write-Output \"dotnet exists: $\\(Test-Path $dotnet\\)\"; Write-Output \"csc exists: $\\(Test-Path $csc\\)\")",
+      "PowerShell(git *)"
     ]
   }
 }

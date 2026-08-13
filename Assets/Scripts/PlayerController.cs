@@ -67,6 +67,9 @@ private RuntimeAnimatorController cloneAnimatorController;
     [Header("섭취")]
     public float consumeRange = 2f;
     public LayerMask monsterMask;
+    [Tooltip("마우스 커서 판정의 여유 반경. 커서가 대상에 정확히 안 올라가도 이 반경 안이면 섭취로 친다 " +
+             "(기획서 (8) 섭취 편의). 0이면 예전처럼 픽셀 단위 정확도가 필요하다")]
+    public float consumePickRadius = 0.6f;
     public float consumeMoveSpeed = 15f; // 섭취 대상 위치로 러지하는 속도
 
     [Header("벽타기")]
@@ -165,6 +168,10 @@ private RuntimeAnimatorController cloneAnimatorController;
     private float knockbackTimer;
     private float dashInvincibleTimer;
     private Color baseColor = Color.white;
+
+    // 연출로 강제 이동하는 방향(-1/0/1). EventTriggerZone의 '끌려가는 연출'이 매 프레임 넣어준다.
+    // 조작이 잠긴 동안에도 이 값만은 이동 입력으로 쓴다.
+    private float scriptedMoveX;
 
     // 분열 능력이 해금됐는지 (A02에서 획득 전까지 잠김). 매니저가 없으면 개발 편의상 허용
     bool FissionUnlocked => PlayerManager.Instance == null || PlayerManager.Instance.fissionUnlocked;
@@ -304,9 +311,13 @@ private RuntimeAnimatorController cloneAnimatorController;
 
         // 분열 게이지 자동 회복 (본체만). 분열체 1개당 100씩 잠기므로 FissionGaugeCap까지만 찬다.
         // 이미 상한을 넘겨 들고 있는 경우(분열 직후 등)엔 깎지 않고 그대로 둔다 — 회복만 막는 규칙이다.
+        // 분열게이지 회복 영역(FissionRechargeZone) 안에 있으면 그 배수만큼 빨리 찬다.
         if (!isClone && currentFissionGauge < FissionGaugeCap)
+        {
+            float recoverRate = fissionGaugeRecoverRate * FissionRechargeZone.MultiplierAt(transform.position);
             currentFissionGauge = Mathf.Min(FissionGaugeCap,
-                currentFissionGauge + fissionGaugeRecoverRate * Time.deltaTime);
+                currentFissionGauge + recoverRate * Time.deltaTime);
+        }
         // 조종 여부와 상관없이 애니메이션 상태는 계속 갱신
         if (animator != null)
         {
@@ -327,9 +338,17 @@ private RuntimeAnimatorController cloneAnimatorController;
         // 잠긴 채로 공중에 있으면 정상적으로 착지한다 (moveX=0이라 좌우로만 멈춘다).
         if (!isControlled || PlayerInputLock.IsLocked)
         {
-            moveX = 0f;
+            // 연출로 강제 이동 중이면(EventTriggerZone) 그 방향으로 계속 걷는다.
+            // 여기서 0으로 두면 FixedUpdate가 매 프레임 속도를 지워서 아예 못 움직인다.
+            moveX = isControlled ? scriptedMoveX : 0f;
+
+            if (spr != null && Mathf.Abs(moveX) > 0.01f)
+                spr.flipX = moveX < 0f;
+
             return;
         }
+
+        scriptedMoveX = 0f; // 조작이 풀리면 연출 이동은 남기지 않는다
 
         if (isStunned)
         {
@@ -636,17 +655,40 @@ private RuntimeAnimatorController cloneAnimatorController;
         return world;
     }
 
-    // 마우스 커서 위치의 monsterMask 콜라이더 반환 (범위 밖이거나 섭취 불가면 null)
+    // 마우스 커서가 가리키는 섭취 대상 반환 (사정거리 밖이거나 섭취 불가면 null)
     Transform GetMouseTarget()
     {
-        Collider2D hit = Physics2D.OverlapPoint(GetMouseWorld(), monsterMask);
-        if (hit == null) return null;
-        if (Vector2.Distance(transform.position, hit.transform.position) > consumeRange) return null;
+        Vector2 mouse = GetMouseWorld();
 
-        IConsumable consumable = hit.GetComponent<IConsumable>();
-        if (consumable == null || !consumable.IsConsumable) return null;
+        // ★ 예전엔 OverlapPoint(점 판정)였다 — 커서가 픽셀 단위로 정확히 대상 위에 있어야만 섭취가 되고,
+        //   조금만 빗나가면 그대로 대시가 나가 시체에 몸을 처박았다. 기획서 (8) '섭취 편의'가
+        //   없애려던 문제가 이것이라 여유 반경을 두고 찾는다.
+        Collider2D[] hits = Physics2D.OverlapCircleAll(mouse, Mathf.Max(0.01f, consumePickRadius), monsterMask);
+        if (hits == null || hits.Length == 0) return null;
 
-        return hit.transform;
+        Transform best = null;
+        float bestDistance = float.MaxValue;
+
+        foreach (Collider2D hit in hits)
+        {
+            if (hit == null) continue;
+
+            // ★ GetComponentInParent인 이유: 기획서 (8)의 '섭취 전용 원형 콜라이더'는
+            //   본체 콜라이더 구성을 건드리지 않으려고 자식 오브젝트에 붙는다(ConsumeIndicator).
+            //   자식이 잡혔을 때도 주인(몬스터/회복셀)을 찾아 올라가야 한다.
+            IConsumable consumable = hit.GetComponentInParent<IConsumable>();
+            if (consumable == null || !consumable.IsConsumable) continue;
+
+            // 거리는 자식 콜라이더가 아니라 주인 위치 기준으로 잰다
+            Transform ownerTransform = ((Component)consumable).transform;
+            if (Vector2.Distance(transform.position, ownerTransform.position) > consumeRange) continue;
+
+            // 커서에 가장 가까운 대상을 고른다 (여러 마리가 겹쳐 있을 때)
+            float d = Vector2.Distance(mouse, ownerTransform.position);
+            if (d < bestDistance) { bestDistance = d; best = ownerTransform; }
+        }
+
+        return best;
     }
 
     // 섭취로 얻는 회복량 적용 (몬스터/회복셀 등 IConsumable.OnConsumed에서 호출)
@@ -670,6 +712,19 @@ private RuntimeAnimatorController cloneAnimatorController;
     public void SetFissionGauge(float value)
     {
         currentFissionGauge = Mathf.Clamp(value, 0f, maxFissionGauge);
+    }
+
+    // 연출용 강제 이동 (EventTriggerZone의 '끌려가는 연출').
+    // 위치를 직접 옮기면 Rigidbody와 싸워서 지형을 뚫거나 떨리므로, 평소 이동 입력 자리에 넣는다.
+    // 매 프레임 호출할 것 — 조작 잠금이 풀리는 순간 자동으로 0이 된다.
+    public void SetScriptedMove(float dirX)
+    {
+        scriptedMoveX = Mathf.Clamp(dirX, -1f, 1f);
+    }
+
+    public void ClearScriptedMove()
+    {
+        scriptedMoveX = 0f;
     }
 
     public void TakeDamage(float amount, Vector2 knockback = default, float stunTime = 0f,
@@ -942,6 +997,13 @@ private RuntimeAnimatorController cloneAnimatorController;
         {
             spr.flipX = dashDir.x < 0f;
         }
+
+        // 기획서 기타 메모 '대시 시전 방향으로 모션 재생 되도록 수정'.
+        // 좌우 반전은 위에서 끝났고, 위/아래 대각선까지 다른 클립을 쓰려면 애니메이터가
+        // 대시 방향을 알아야 한다. 파라미터가 없는 컨트롤러에 넣으면 경고가 나므로
+        // 실제로 있는 경우에만 넣는다 (모션이 나오면 이 두 값으로 전이 조건을 걸면 됨).
+        if (HasAnimatorParameter("dashDirX")) animator.SetFloat("dashDirX", dashDir.x);
+        if (HasAnimatorParameter("dashDirY")) animator.SetFloat("dashDirY", dashDir.y);
 
         float originalGravity = rb.gravityScale;
         rb.gravityScale = 0f;

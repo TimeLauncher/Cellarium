@@ -61,6 +61,23 @@ public class MonsterBase : MonoBehaviour, IConsumable
     [Header("섭취 대기 시간")]
     public float consumableLifetime = 5f; // 섭취 가능 상태로 이 시간 동안 방치되면 자동 소멸
 
+    [Tooltip("기획서 (8) 섭취 편의: 섭취 가능 상태가 되면 사정거리 원을 표시하고, " +
+             "마우스로 집기 쉬운 섭취 전용 원형 콜라이더를 자동으로 붙인다")]
+    public bool showConsumeIndicator = true;
+
+    [Header("셀 드랍 (기획서 (4))")]
+    // 기획서: "몬스터 처치 시 정해진 수치만큼의 셀을 드랍 / 몬스터별로 생성되는 셀의 양을 조절 가능하도록 구성"
+    // 기획자에게 몬스터 7종별 수치를 받기 전이라 기본은 0(드랍 없음)으로 두고,
+    // 인스펙터 슬라이더로 몬스터마다 바로 넣어볼 수 있게 했다.
+    [Tooltip("처치 시 떨어뜨리는 셀 총량. 0이면 드랍하지 않는다")]
+    [Range(0, 100)] public int cellDropTotal = 0;
+
+    [Tooltip("총량을 몇 덩어리로 나눠 뿌릴지. 덩어리 하나당 셀 = 총량 ÷ 개수 (나머지는 앞쪽 덩어리에 1씩 붙는다)")]
+    [Range(1, 10)] public int cellDropCount = 3;
+
+    [Tooltip("떨어뜨릴 셀 프리팹. 비우면 임시 셀(노란 동그라미)을 런타임에 만든다")]
+    public GameObject cellChunkPrefab;
+
     protected float currentHp;
     protected float attackCooldownTimer;
     protected bool isAttacking;
@@ -125,6 +142,12 @@ public class MonsterBase : MonoBehaviour, IConsumable
             if (showHitbox && hitboxView == null)
                 hitboxView = attackHitbox.gameObject.AddComponent<HitboxVisualizer>();
         }
+
+        // 기획서 (8): 섭취 사정거리 원 + 섭취 전용 콜라이더 + 커서 링 (인스펙터 작업 불필요).
+        // ★ 반드시 bodyCollider를 잡은 뒤에 붙일 것 — ConsumeIndicator가 콜라이더를 하나 더 만든다.
+        //   (자식에 만들긴 하지만, 순서를 지켜야 나중에 방식이 바뀌어도 안전하다)
+        if (showConsumeIndicator && GetComponent<ConsumeIndicator>() == null)
+            gameObject.AddComponent<ConsumeIndicator>();
 
         if (spr != null) baseColor = spr.color; // 인스펙터에서 구분용으로 지정한 색 보존
     }
@@ -547,8 +570,61 @@ public class MonsterBase : MonoBehaviour, IConsumable
         if (IsDead)
         {
             if (rb != null) rb.linearVelocity = Vector2.zero;
+
+            // ★ OnDeath 안이 아니라 여기서 부른다 — FloaterGerm처럼 OnDeath를 override하면서
+            //   base를 안 부르는 타입이 있어서, OnDeath에 넣으면 그 몬스터만 조용히 안 떨군다.
+            DropCells();
             OnDeath();
         }
+    }
+
+    // 처치 시 셀 드랍 (기획서 (4)).
+    // "셀의 드랍은 몬스터의 피격 범위 내에서 무작위로 생성" → 몸통 콜라이더 범위 안에 흩뿌린다.
+    protected virtual void DropCells()
+    {
+        // TODO(임시): 셀 드랍 확인용 로그. 동작 확인되면 이 줄과 CellChunk의 로그를 지울 것
+        Debug.Log($"[셀 드랍] {name}: cellDropTotal={cellDropTotal}, cellDropCount={cellDropCount}", this);
+
+        if (cellDropTotal <= 0 || cellDropCount <= 0) return;
+
+        Bounds area = bodyCollider != null
+            ? bodyCollider.bounds
+            : new Bounds(transform.position, Vector3.one);
+
+        int perChunk = cellDropTotal / cellDropCount;
+        int remainder = cellDropTotal - perChunk * cellDropCount; // 나머지는 앞쪽 덩어리에 1씩 얹는다
+
+        for (int i = 0; i < cellDropCount; i++)
+        {
+            int amount = perChunk + (i < remainder ? 1 : 0);
+            if (amount <= 0) continue; // 총량이 개수보다 적으면 뒤쪽 덩어리는 안 만든다
+
+            Vector3 pos = new Vector3(
+                Random.Range(area.min.x, area.max.x),
+                Random.Range(area.min.y, area.max.y),
+                transform.position.z);
+
+            SpawnCellChunk(pos, amount);
+        }
+    }
+
+    void SpawnCellChunk(Vector3 position, int amount)
+    {
+        if (cellChunkPrefab == null)
+        {
+            // 몬스터의 정렬 레이어를 물려줘야 맵/배경 뒤에 숨지 않는다
+            CellChunk.SpawnRuntime(position, amount, spr);
+            return;
+        }
+
+        // 드랍분은 '이미 먹음' 기록을 남기지 않는다 (CellChunk.NextIsRuntimeDrop 주석 참고)
+        CellChunk.NextIsRuntimeDrop = true;
+        GameObject go = Instantiate(cellChunkPrefab, position, Quaternion.identity);
+        CellChunk.NextIsRuntimeDrop = false; // 프리팹이 비활성이라 Awake가 안 돈 경우 대비
+
+        CellChunk chunk = go.GetComponent<CellChunk>();
+        if (chunk != null) chunk.cellAmount = amount;
+        else Debug.LogWarning($"[{name}] Cell Chunk Prefab에 CellChunk 컴포넌트가 없습니다.", this);
     }
 
     // 사망(체력 0) 시점 훅 — 자폭 등 특수 사망 처리가 필요한 타입에서 override

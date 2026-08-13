@@ -12,12 +12,12 @@ public class PauseMenu : MonoBehaviour
     [SerializeField] private GameObject quitConfirmPanel;
 
     [Header("메인 메뉴 씬")]
-    [SerializeField] private string mainMenuSceneName = "maintitle";
     [Header("종료 확인 선택")]
     [SerializeField] private QuitConfirmSelector quitConfirmSelector;
+    [SerializeField] private GameObject settingsPanel;
 
     private bool isQuitConfirmOpen;
-
+    private bool isSettingsOpen;
     private void Start()
     {
         IsPaused = false;
@@ -39,18 +39,23 @@ public class PauseMenu : MonoBehaviour
     private void Update()
     {
         if (!Input.GetKeyDown(KeyCode.Escape))
-        {
             return;
-        }
 
-        // 종료 확인창이 열려 있으면 ESC로 확인창만 닫기
+        // 종료 확인창 → ESC → 옵션 메뉴
         if (isQuitConfirmOpen)
         {
             CloseQuitConfirm();
             return;
         }
 
-        // 종료 확인창이 아니면 일시정지 메뉴 열기/닫기
+        // 설정창 → ESC → 옵션 메뉴
+        if (isSettingsOpen)
+        {
+            CloseSettings();
+            return;
+        }
+
+        // 일반 게임 ↔ 옵션 메뉴
         TogglePauseMenu();
     }
 
@@ -86,14 +91,12 @@ public class PauseMenu : MonoBehaviour
     public void ResumeGame()
     {
         IsPaused = false;
+        isSettingsOpen = false;
         isQuitConfirmOpen = false;
 
         optionPanel.SetActive(false);
-
-        if (quitConfirmPanel != null)
-        {
-            quitConfirmPanel.SetActive(false);
-        }
+        settingsPanel.SetActive(false);
+        quitConfirmPanel.SetActive(false);
 
         Time.timeScale = 1f;
     }
@@ -143,5 +146,20 @@ public class PauseMenu : MonoBehaviour
         // 일시정지 상태에서 씬이 종료될 때 timeScale이 0으로 남는 것 방지
         Time.timeScale = 1f;
         IsPaused = false;
+    }
+    public void OpenSettings()
+    {
+        isSettingsOpen = true;
+
+        optionPanel.SetActive(false);
+        settingsPanel.SetActive(true);
+    }
+
+    public void CloseSettings()
+    {
+        isSettingsOpen = false;
+
+        settingsPanel.SetActive(false);
+        optionPanel.SetActive(true);
     }
 }

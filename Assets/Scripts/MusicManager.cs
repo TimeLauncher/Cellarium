@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Audio;
 
 // 배경음악 재생 담당. DontDestroyOnLoad 싱글턴이라 씬을 넘어가도 살아남는다.
 //
@@ -34,8 +35,11 @@ public class MusicManager : MonoBehaviour
     [Tooltip("이 목록에 있는 씬으로 들어가면 재생 중인 BGM을 멈춘다. sceneTracks보다 먼저 검사한다")]
     public string[] stopMusicScenes = { "maintitle", "SaveSelectScene" };
 
+
+
     [Header("설정")]
     [Range(0f, 1f)] public float volume = 0.5f;
+    [SerializeField] private AudioMixerGroup outputMixerGroup;
     [Tooltip("곡이 바뀔 때 서서히 갈아타는 시간 (0이면 즉시 전환)")]
     public float crossfadeDuration = 1f;
     public bool loop = true;
@@ -60,6 +64,7 @@ public class MusicManager : MonoBehaviour
         DontDestroyOnLoad(gameObject);
 
         source = gameObject.AddComponent<AudioSource>();
+        source.outputAudioMixerGroup = outputMixerGroup;
         source.loop = loop;
         source.playOnAwake = false;
         source.volume = volume;

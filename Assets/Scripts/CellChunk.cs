@@ -48,9 +48,6 @@ public class CellChunk : MonoBehaviour
         if (PlayerManager.Instance != null)
             PlayerManager.Instance.AddCell(cellAmount);
 
-        // TODO(임시): 셀 드랍 확인용 로그. 동작 확인되면 이 줄과 MonsterBase.DropCells의 로그를 지울 것
-        Debug.Log($"[셀 획득] +{cellAmount} (보유 {(PlayerManager.Instance != null ? PlayerManager.Instance.cellCurrency : 0)})");
-
         if (!isRuntimeDrop) WorldState.Record(WorldCategory.Pickup, id);
         Destroy(gameObject);
     }

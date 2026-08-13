@@ -67,8 +67,8 @@ private RuntimeAnimatorController cloneAnimatorController;
     [Header("섭취")]
     public float consumeRange = 2f;
     public LayerMask monsterMask;
-    [Tooltip("마우스 커서 판정의 여유 반경. 커서가 대상에 정확히 안 올라가도 이 반경 안이면 섭취로 친다 " +
-             "(기획서 (8) 섭취 편의). 0이면 예전처럼 픽셀 단위 정확도가 필요하다")]
+    [Tooltip("마우스 커서 판정의 여유 반경. 커서가 대상에 정확히 안 올라가도 이 반경 안이면 섭취로 친다. " +
+             "0이면 픽셀 단위로 정확히 눌러야 하고, 빗나가면 대시가 나간다")]
     public float consumePickRadius = 0.6f;
     public float consumeMoveSpeed = 15f; // 섭취 대상 위치로 러지하는 속도
 

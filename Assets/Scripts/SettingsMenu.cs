@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 // 설정 화면 (기획서 (7) '설정 기능').
@@ -291,7 +292,7 @@ public class SettingsMenu : MonoBehaviour
         for (int i = 0; i < options.Count; i++)
         {
             Option o = options[i];
-            if (o.valueText != null) o.valueText.text = "◀  " + o.value() + "  ▶";
+            if (o.valueText != null) o.valueText.text = o.value(); // ◀ ▶ 는 이제 실제 버튼이라 글자로 안 그린다
             if (o.labelText != null)
                 o.labelText.color = (i == cursor) ? new Color(1f, 0.85f, 0.35f) : Color.white;
         }
@@ -319,6 +320,11 @@ public class SettingsMenu : MonoBehaviour
         scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
         scaler.referenceResolution = new Vector2(1920f, 1080f);
 
+        // ★ 이게 없으면 버튼을 아무리 만들어도 클릭이 전혀 안 먹는다.
+        //   Canvas는 그리기만 하고, 마우스 판정은 GraphicRaycaster가 한다.
+        canvasGo.AddComponent<GraphicRaycaster>();
+        EnsureEventSystem();
+
         settingsPanel = new GameObject("Panel");
         settingsPanel.transform.SetParent(canvasGo.transform, false);
         Image bg = settingsPanel.AddComponent<Image>();
@@ -335,22 +341,80 @@ public class SettingsMenu : MonoBehaviour
                   new Vector2(0f, -30f), new Vector2(860f, 60f)).text = "설정";
 
         float y = -120f;
-        foreach (Option o in options)
+        for (int i = 0; i < options.Count; i++)
         {
+            Option o = options[i];
+            int row = i; // 람다가 잡을 값 (foreach 변수 캡처 사고 방지)
+
             o.labelText = BuildText(settingsPanel.transform, font, o.label + "Label", 30, TextAnchor.MiddleLeft,
-                                    new Vector2(-200f, y), new Vector2(320f, 46f));
+                                    new Vector2(-250f, y), new Vector2(320f, 46f));
             o.labelText.text = o.label;
 
+            // ◀ ▶ 를 글자로만 그려두면 눌러도 아무 일이 없다 — 실제 버튼으로 만든다
+            BuildButton(settingsPanel.transform, font, o.label + "Prev", "◀",
+                        new Vector2(60f, y), new Vector2(56f, 46f),
+                        () => { cursor = row; o.prev?.Invoke(); Refresh(); });
+
             o.valueText = BuildText(settingsPanel.transform, font, o.label + "Value", 30, TextAnchor.MiddleCenter,
-                                    new Vector2(200f, y), new Vector2(420f, 46f));
+                                    new Vector2(230f, y), new Vector2(280f, 46f));
+
+            BuildButton(settingsPanel.transform, font, o.label + "Next", "▶",
+                        new Vector2(400f, y), new Vector2(56f, 46f),
+                        () => { cursor = row; o.next?.Invoke(); Refresh(); });
+
             y -= 60f;
         }
 
         BuildText(settingsPanel.transform, font, "Help", 22, TextAnchor.MiddleCenter,
                   new Vector2(0f, -500f), new Vector2(860f, 40f)).text =
-            "W/S 항목 이동    A/D 값 변경    ESC 닫기 (자동 저장)";
+            "마우스로 ◀ ▶ 클릭    또는  W/S 항목 이동 · A/D 값 변경    ESC 닫기 (자동 저장)";
 
         settingsPanel.SetActive(false);
+    }
+
+    // 클릭 가능한 ◀ ▶ 버튼. Button은 판정을 받을 Graphic이 있어야 해서 옅은 Image를 깔고 그 위에 글자를 얹는다.
+    Button BuildButton(Transform parent, Font font, string goName, string caption,
+                       Vector2 anchoredPos, Vector2 size, UnityEngine.Events.UnityAction onClick)
+    {
+        GameObject go = new GameObject(goName);
+        go.transform.SetParent(parent, false);
+
+        Image bg = go.AddComponent<Image>();
+        bg.color = new Color(1f, 1f, 1f, 0.14f);
+
+        RectTransform rt = go.GetComponent<RectTransform>();
+        rt.anchorMin = new Vector2(0.5f, 1f);
+        rt.anchorMax = new Vector2(0.5f, 1f);
+        rt.pivot = new Vector2(0.5f, 1f);
+        rt.anchoredPosition = anchoredPos;
+        rt.sizeDelta = size;
+
+        Text t = BuildText(go.transform, font, "Text", 30, TextAnchor.MiddleCenter, Vector2.zero, size);
+        t.text = caption;
+
+        // 버튼 안에서는 글자를 꽉 채워 가운데 정렬 (BuildText 기본은 위쪽 기준이라 어긋난다)
+        RectTransform trt = t.GetComponent<RectTransform>();
+        trt.anchorMin = Vector2.zero;
+        trt.anchorMax = Vector2.one;
+        trt.pivot = new Vector2(0.5f, 0.5f);
+        trt.offsetMin = Vector2.zero;
+        trt.offsetMax = Vector2.zero;
+
+        Button b = go.AddComponent<Button>();
+        b.targetGraphic = bg;
+        b.onClick.AddListener(onClick);
+        return b;
+    }
+
+    // UI 클릭은 씬에 EventSystem이 있어야 동작한다. 없는 씬(자동 생성 UI만 쓰는 경우)을 대비해 만들어둔다.
+    static void EnsureEventSystem()
+    {
+        if (EventSystem.current != null) return;
+        if (FindFirstObjectByType<EventSystem>() != null) return;
+
+        GameObject go = new GameObject("EventSystem (auto)");
+        go.AddComponent<EventSystem>();
+        go.AddComponent<StandaloneInputModule>();
     }
 
     Text BuildText(Transform parent, Font font, string goName, int size, TextAnchor anchor,

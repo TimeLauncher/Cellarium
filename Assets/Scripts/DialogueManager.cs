@@ -25,7 +25,7 @@ public class DialogueManager : MonoBehaviour
     public Text jobText;
     public Text nameText;
     public Text bodyText;
-    [Tooltip("기획서 ④: 지정키 입력이 가능한 상태일 때만 대화 UI 하단에 표시되는 아이콘")]
+    [Tooltip("지정키 입력이 가능한 상태일 때만 대화 UI 하단에 표시되는 아이콘")]
     public GameObject continueIcon;
 
     [Header("타이핑 연출")]
@@ -35,7 +35,7 @@ public class DialogueManager : MonoBehaviour
     public bool useUnscaledTime = true;
 
     [Header("지정키")]
-    [Tooltip("기획서: 스페이스 바, E, 마우스 좌클릭. 필요하면 여기서 추가/변경")]
+    [Tooltip("대화를 넘기는 키. 필요하면 여기서 추가/변경")]
     public KeyCode[] advanceKeys = { KeyCode.Space, KeyCode.E, KeyCode.Return };
     public bool advanceOnLeftClick = true;
 

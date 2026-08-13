@@ -61,19 +61,19 @@ public class MonsterBase : MonoBehaviour, IConsumable
     [Header("섭취 대기 시간")]
     public float consumableLifetime = 5f; // 섭취 가능 상태로 이 시간 동안 방치되면 자동 소멸
 
-    [Tooltip("기획서 (8) 섭취 편의: 섭취 가능 상태가 되면 사정거리 원을 표시하고, " +
+    [Tooltip("섭취 가능 상태가 되면 사정거리 원을 표시하고, " +
              "마우스로 집기 쉬운 섭취 전용 원형 콜라이더를 자동으로 붙인다")]
     public bool showConsumeIndicator = true;
 
-    [Header("셀 드랍 (기획서 (4))")]
-    // 기획서: "몬스터 처치 시 정해진 수치만큼의 셀을 드랍 / 몬스터별로 생성되는 셀의 양을 조절 가능하도록 구성"
-    // 기획자에게 몬스터 7종별 수치를 받기 전이라 기본은 0(드랍 없음)으로 두고,
-    // 인스펙터 슬라이더로 몬스터마다 바로 넣어볼 수 있게 했다.
-    [Tooltip("처치 시 떨어뜨리는 셀 총량. 0이면 드랍하지 않는다")]
-    [Range(0, 100)] public int cellDropTotal = 0;
+    [Header("셀 드랍")]
+    // 기본값은 전 몬스터 공통(총량 10 ÷ 5개 = 개당 2)이라 씬에 넣지 않고 여기 둔다.
+    // 씬마다 박아두면 몬스터를 새로 놓을 때마다 빠뜨리고, 씬 저장 사고로 날아가기도 한다.
+    // 몬스터별로 다르게 하고 싶으면 그 몬스터 인스펙터에서만 값을 바꾸면 된다.
+    [Tooltip("처치 시 떨어뜨리는 셀 총량. 0이면 드랍하지 않는다 (10 = 개당 2 × 5개)")]
+    [Range(0, 100)] public int cellDropTotal = 10;
 
     [Tooltip("총량을 몇 덩어리로 나눠 뿌릴지. 덩어리 하나당 셀 = 총량 ÷ 개수 (나머지는 앞쪽 덩어리에 1씩 붙는다)")]
-    [Range(1, 10)] public int cellDropCount = 3;
+    [Range(1, 10)] public int cellDropCount = 5;
 
     [Tooltip("떨어뜨릴 셀 프리팹. 비우면 임시 셀(노란 동그라미)을 런타임에 만든다")]
     public GameObject cellChunkPrefab;
@@ -578,13 +578,9 @@ public class MonsterBase : MonoBehaviour, IConsumable
         }
     }
 
-    // 처치 시 셀 드랍 (기획서 (4)).
-    // "셀의 드랍은 몬스터의 피격 범위 내에서 무작위로 생성" → 몸통 콜라이더 범위 안에 흩뿌린다.
+    // 처치 시 셀 드랍. 몸통(피격) 콜라이더 범위 안에 무작위로 흩뿌린다.
     protected virtual void DropCells()
     {
-        // TODO(임시): 셀 드랍 확인용 로그. 동작 확인되면 이 줄과 CellChunk의 로그를 지울 것
-        Debug.Log($"[셀 드랍] {name}: cellDropTotal={cellDropTotal}, cellDropCount={cellDropCount}", this);
-
         if (cellDropTotal <= 0 || cellDropCount <= 0) return;
 
         Bounds area = bodyCollider != null

@@ -79,7 +79,7 @@ public class EventTriggerZone : MonoBehaviour
     public bool clonesCanTrigger = false;
 
     [Header("연출 중")]
-    [Tooltip("연출이 끝날 때까지 PC 조작을 막는다 (기획서 '강제로')")]
+    [Tooltip("연출이 끝날 때까지 PC 조작을 막는다")]
     public bool lockInput = true;
 
     [Header("게임 화면 표시 (확인용)")]

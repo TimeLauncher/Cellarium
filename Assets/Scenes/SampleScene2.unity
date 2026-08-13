@@ -1107,8 +1107,6 @@ MonoBehaviour:
   attackActiveTime: 0.3
   consumableLifetime: 5
   showConsumeIndicator: 1
-  cellDropTotal: 0
-  cellDropCount: 3
   cellChunkPrefab: {fileID: 0}
   engageRange: 8
   projectilePrefab: {fileID: 4789779386128304187, guid: 54d88cc04de8449498db2f6aff1d7dee, type: 3}
@@ -3093,8 +3091,6 @@ MonoBehaviour:
   attackActiveTime: 0.3
   consumableLifetime: 5
   showConsumeIndicator: 1
-  cellDropTotal: 0
-  cellDropCount: 3
   cellChunkPrefab: {fileID: 0}
   surfaceNormal: {x: 1, y: 0}
   stickRayDistance: 1
@@ -3900,8 +3896,6 @@ MonoBehaviour:
   attackActiveTime: 0.3
   consumableLifetime: 5
   showConsumeIndicator: 1
-  cellDropTotal: 0
-  cellDropCount: 3
   cellChunkPrefab: {fileID: 0}
   engageRange: 8
   projectilePrefab: {fileID: 4789779386128304187, guid: 54d88cc04de8449498db2f6aff1d7dee, type: 3}
@@ -6074,8 +6068,6 @@ MonoBehaviour:
   attackActiveTime: 0.3
   consumableLifetime: 5
   showConsumeIndicator: 1
-  cellDropTotal: 0
-  cellDropCount: 3
   cellChunkPrefab: {fileID: 0}
 --- !u!1 &1060490050
 GameObject:
@@ -7516,8 +7508,6 @@ MonoBehaviour:
   attackActiveTime: 0.3
   consumableLifetime: 5
   showConsumeIndicator: 1
-  cellDropTotal: 0
-  cellDropCount: 3
   cellChunkPrefab: {fileID: 0}
   dashWindup: 0.5
   dashSpeed: 13
@@ -8135,8 +8125,6 @@ MonoBehaviour:
   attackActiveTime: 0.3
   consumableLifetime: 5
   showConsumeIndicator: 1
-  cellDropTotal: 0
-  cellDropCount: 3
   cellChunkPrefab: {fileID: 0}
   chaseSpeed: 2.6
   diveAttackRange: 4
@@ -9455,8 +9443,6 @@ MonoBehaviour:
   attackActiveTime: 0.3
   consumableLifetime: 5
   showConsumeIndicator: 1
-  cellDropTotal: 0
-  cellDropCount: 3
   cellChunkPrefab: {fileID: 0}
   surfaceNormal: {x: 0, y: 1}
   stickRayDistance: 1

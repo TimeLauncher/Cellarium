@@ -8099,7 +8099,7 @@ MonoBehaviour:
   volume: 0.5
   outputMixerGroup: {fileID: 24300002, guid: fb304e921207a2c4aa6b7a64160fd8fe, type: 2}
   crossfadeDuration: 1
-  loop: 1
+  loop: 0
 --- !u!4 &1620241754
 Transform:
   m_ObjectHideFlags: 0

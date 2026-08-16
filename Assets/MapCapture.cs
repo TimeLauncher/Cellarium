@@ -1,6 +1,6 @@
 using UnityEngine;
 using System.IO;
-
+using UnityEngine.SceneManagement;
 public class MapCapture : MonoBehaviour
 {
     public Camera captureCamera;
@@ -38,7 +38,8 @@ public class MapCapture : MonoBehaviour
         if (!Directory.Exists(folderPath))
             Directory.CreateDirectory(folderPath);
 
-        string filePath = Path.Combine(folderPath, "Heart_A01.png");
+        string sceneName = SceneManager.GetActiveScene().name;
+        string filePath = Path.Combine(folderPath, sceneName + ".png");
 
         File.WriteAllBytes(filePath, bytes);
 

@@ -41954,7 +41954,7 @@ GameObject:
   - component: {fileID: 1316173662}
   - component: {fileID: 1316173665}
   - component: {fileID: 1316173664}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: map
   m_TagString: Untagged
   m_Icon: {fileID: 0}

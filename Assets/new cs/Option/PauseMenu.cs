@@ -15,12 +15,16 @@ public class PauseMenu : MonoBehaviour
     [Header("종료 확인 선택")]
     [SerializeField] private QuitConfirmSelector quitConfirmSelector;
     [SerializeField] private GameObject settingsPanel;
+    [SerializeField] private GameObject mapPanel;
+    private bool isMapOpen;
+    public static bool IsMapOpen { get; private set; }
 
     private bool isQuitConfirmOpen;
     private bool isSettingsOpen;
     private void Start()
     {
         IsPaused = false;
+        IsMapOpen = false;
         isQuitConfirmOpen = false;
 
         Time.timeScale = 1f;
@@ -38,6 +42,17 @@ public class PauseMenu : MonoBehaviour
 
     private void Update()
     {
+        if (Input.GetKeyDown(KeyCode.M))
+        {
+            Debug.Log("M키 입력됨");
+
+            if (!IsPaused && !isSettingsOpen && !isQuitConfirmOpen)
+            {
+                ToggleMap();
+            }
+
+            return;
+        }
         if (!Input.GetKeyDown(KeyCode.Escape))
             return;
 
@@ -143,9 +158,10 @@ public class PauseMenu : MonoBehaviour
 
     private void OnDestroy()
     {
-        // 일시정지 상태에서 씬이 종료될 때 timeScale이 0으로 남는 것 방지
         Time.timeScale = 1f;
+
         IsPaused = false;
+        IsMapOpen = false;
     }
     public void OpenSettings()
     {
@@ -161,5 +177,34 @@ public class PauseMenu : MonoBehaviour
 
         settingsPanel.SetActive(false);
         optionPanel.SetActive(true);
+    }
+    public void ToggleMap()
+    {
+        if (IsMapOpen)
+            CloseMap();
+        else
+            OpenMap();
+    }
+
+    public void OpenMap()
+    {
+        // 옵션 메뉴가 이미 열려 있으면 지도는 열지 않음
+        if (IsPaused)
+            return;
+
+        IsMapOpen = true;
+
+        mapPanel.SetActive(true);
+
+        Time.timeScale = 0f;
+    }
+
+    public void CloseMap()
+    {
+        IsMapOpen = false;
+
+        mapPanel.SetActive(false);
+
+        Time.timeScale = 1f;
     }
 }

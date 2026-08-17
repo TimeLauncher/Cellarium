@@ -240,7 +240,8 @@ private RuntimeAnimatorController cloneAnimatorController;
 
     void Update()
     {
-        if (PauseMenu.IsPaused)return;
+        if (PauseMenu.IsPaused || PauseMenu.IsMapOpen)
+            return;
         if (isDead) return; // 사망 모션 중엔 입력·물리 판정 모두 정지
         if (isReturning) return; // 회수 비행 중엔 ReturnRoutine이 위치를 직접 옮긴다
 

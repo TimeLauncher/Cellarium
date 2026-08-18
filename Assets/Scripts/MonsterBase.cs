@@ -93,10 +93,6 @@ public class MonsterBase : MonoBehaviour, IConsumable
     [Tooltip("떨어뜨릴 셀 프리팹. 비우면 임시 셀(노란 동그라미)을 런타임에 만든다")]
     public GameObject cellChunkPrefab;
 
-    [Tooltip("섭취할 수 없는 타입(자폭형 등)만 처치 즉시 떨어뜨린다. " +
-             "끄면 그런 몬스터는 셀을 아예 안 준다")]
-    public bool dropOnDeathIfNotConsumable = true;
-
     [Tooltip("떨어진 셀이 이 시간 동안은 획득되지 않는다. 0이면 섭취한 자리에서 즉시 흡수돼 셀이 보이지 않는다")]
     public float cellPickupDelay = 0.45f;
 
@@ -303,9 +299,11 @@ public class MonsterBase : MonoBehaviour, IConsumable
         return CastSurface(origin, Vector2.down, ledgeCheckDepth, out _);
     }
 
-    // 섭취 가능 상태로 방치되어 시간 초과된 경우 — 기본은 그냥 소멸
+    // 섭취 가능 상태로 방치되어 시간 초과된 경우 — 시체가 스스로 정리된다.
+    // 안 먹었어도 셀은 나온다 (먹어야만 주면 놓친 몬스터의 보상이 통째로 증발한다).
     protected virtual void OnConsumableTimeout()
     {
+        DropCells();
         Destroy(gameObject);
     }
 
@@ -612,12 +610,11 @@ public class MonsterBase : MonoBehaviour, IConsumable
         {
             if (rb != null) rb.linearVelocity = Vector2.zero;
 
-            // ★ 셀 드랍은 사망이 아니라 섭취(OnConsumed) 시점으로 옮겼다.
-            //   여기서 떨구는 건 애초에 섭취가 불가능한 타입(자폭형 등)뿐이다 —
-            //   그런 몬스터는 OnConsumed가 영원히 안 불려서 셀을 아예 못 주기 때문.
-            if (!IsConsumable && dropOnDeathIfNotConsumable)
-                DropCells();
-
+            // ★ 여기서는 셀을 떨구지 않는다. 드랍 시점은 세 가지다:
+            //     ① 섭취했을 때            → OnConsumed()
+            //     ② 안 먹고 시체가 사라질 때 → OnConsumableTimeout()
+            //     ③ 자폭형이 터졌을 때      → FloaterGerm.Detonate()
+            //   즉 '죽는 것'이 아니라 '시체가 정리되는 것'이 조건이다.
             OnDeath();
         }
     }

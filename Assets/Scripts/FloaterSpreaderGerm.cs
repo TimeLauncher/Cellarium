@@ -69,6 +69,10 @@ public class FloaterSpreaderGerm : FloaterGerm
             }
         }
 
+        // ★ 이 Detonate는 base를 부르지 않으므로 셀 드랍도 여기 따로 넣어야 한다
+        //   (FloaterGerm.Detonate에만 넣으면 엘리트인 이쪽만 조용히 안 떨군다)
+        DropCells();
+
         Destroy(gameObject);
     }
 }

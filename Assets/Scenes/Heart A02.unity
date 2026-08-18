@@ -56490,7 +56490,7 @@ MonoBehaviour:
   jumpBuffer: 0.12
   maxJumps: 1
   allowAirJump: 0
-  coyoteTime: 0.1
+  coyoteTime: 0.25
   fallMultiplier: 3
   lowJumpMultiplier: 5.5
   ascendMultiplier: 2

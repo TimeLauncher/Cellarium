@@ -18,8 +18,10 @@ public class PlayerController : MonoBehaviour
     //   이제 발판을 떠나면 coyoteTime 안에서만 점프를 받아준다.
     [Tooltip("켜면 공중에서도 maxJumps만큼 점프할 수 있다(이단점프). 끄면 지면/코요테 시간 안에서만 점프된다")]
     public bool allowAirJump = false;
-    [Tooltip("발판을 떠난 직후 이 시간까지는 점프 입력을 받아준다. 0으로 두면 완전히 지면에서만 점프된다")]
-    public float coyoteTime = 0.1f;
+    // 흔히 '코요테 점프(coyote time)'라 부르는 것. 발판 끝에서 살짝 늦게 눌러도 점프가 나가야
+    // 조작이 답답하지 않다. 0으로 두면 완전히 지면에서만 점프된다.
+    [Tooltip("발판을 떠난 직후 이 시간까지는 점프 입력을 받아준다 (코요테 점프). 0.2~0.3 권장")]
+    public float coyoteTime = 0.25f;
     public float fallMultiplier = 3f;
     public float lowJumpMultiplier = 2f;
     public float ascendMultiplier = 1f;

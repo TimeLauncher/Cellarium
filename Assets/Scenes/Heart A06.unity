@@ -130,7 +130,7 @@ GameObject:
   - component: {fileID: 122052662}
   - component: {fileID: 122052664}
   - component: {fileID: 122052663}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: map
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -27890,7 +27890,7 @@ GameObject:
   m_Component:
   - component: {fileID: 227652546}
   - component: {fileID: 227652547}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: HeartVill_SmallHouse4
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -27971,6 +27971,102 @@ SpriteRenderer:
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
   m_SpriteSortPoint: 0
+--- !u!1 &229734642
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 229734644}
+  - component: {fileID: 229734643}
+  - component: {fileID: 229734645}
+  m_Layer: 0
+  m_Name: Mapline
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!60 &229734643
+PolygonCollider2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 229734642}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_ForceSendLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ForceReceiveLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ContactCaptureLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_CallbackLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_IsTrigger: 1
+  m_UsedByEffector: 0
+  m_CompositeOperation: 0
+  m_CompositeOrder: 0
+  m_Offset: {x: 0, y: 0}
+  m_SpriteTilingProperty:
+    border: {x: 0, y: 0, z: 0, w: 0}
+    pivot: {x: 0, y: 0}
+    oldSize: {x: 0, y: 0}
+    newSize: {x: 0, y: 0}
+    adaptiveTilingThreshold: 0
+    drawMode: 0
+    adaptiveTiling: 0
+  m_AutoTiling: 0
+  m_Points:
+    m_Paths:
+    - - {x: 74, y: 33}
+      - {x: -73, y: 33}
+      - {x: -73, y: -35}
+      - {x: 74, y: -35}
+  m_UseDelaunayMesh: 1
+--- !u!4 &229734644
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 229734642}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &229734645
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 229734642}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cf583b2322cb7524ab0593f1e94a1b13, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::MapCameraBounds
 --- !u!1 &564579941
 GameObject:
   m_ObjectHideFlags: 0
@@ -28117,7 +28213,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 672308360}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: HeartVill_House
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -28194,6 +28290,143 @@ Transform:
   - {fileID: 1335864009}
   - {fileID: 122052662}
   - {fileID: 1739835314}
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &817846708
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 817846712}
+  - component: {fileID: 817846711}
+  - component: {fileID: 817846710}
+  - component: {fileID: 817846709}
+  m_Layer: 8
+  m_Name: Camera
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &817846709
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 817846708}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a79441f348de89743a2939f4d699eac1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.RenderPipelines.Universal.Runtime::UnityEngine.Rendering.Universal.UniversalAdditionalCameraData
+  m_RenderShadows: 1
+  m_RequiresDepthTextureOption: 2
+  m_RequiresOpaqueTextureOption: 2
+  m_CameraType: 0
+  m_Cameras: []
+  m_RendererIndex: -1
+  m_VolumeLayerMask:
+    serializedVersion: 2
+    m_Bits: 1
+  m_VolumeTrigger: {fileID: 0}
+  m_VolumeFrameworkUpdateModeOption: 2
+  m_RenderPostProcessing: 0
+  m_Antialiasing: 0
+  m_AntialiasingQuality: 2
+  m_StopNaN: 0
+  m_Dithering: 0
+  m_ClearDepth: 1
+  m_AllowXRRendering: 1
+  m_AllowHDROutput: 1
+  m_UseScreenCoordOverride: 0
+  m_ScreenSizeOverride: {x: 0, y: 0, z: 0, w: 0}
+  m_ScreenCoordScaleBias: {x: 0, y: 0, z: 0, w: 0}
+  m_RequiresDepthTexture: 0
+  m_RequiresColorTexture: 0
+  m_TaaSettings:
+    m_Quality: 3
+    m_FrameInfluence: 0.1
+    m_JitterScale: 1
+    m_MipBias: 0
+    m_VarianceClampScale: 0.9
+    m_ContrastAdaptiveSharpening: 0
+  m_Version: 2
+--- !u!81 &817846710
+AudioListener:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 817846708}
+  m_Enabled: 1
+--- !u!20 &817846711
+Camera:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 817846708}
+  m_Enabled: 1
+  serializedVersion: 2
+  m_ClearFlags: 2
+  m_BackGroundColor: {r: 0.19215687, g: 0.3019608, b: 0.4745098, a: 0}
+  m_projectionMatrixMode: 1
+  m_GateFitMode: 2
+  m_FOVAxisMode: 0
+  m_Iso: 200
+  m_ShutterSpeed: 0.005
+  m_Aperture: 16
+  m_FocusDistance: 10
+  m_FocalLength: 50
+  m_BladeCount: 5
+  m_Curvature: {x: 2, y: 11}
+  m_BarrelClipping: 0.25
+  m_Anamorphism: 0
+  m_SensorSize: {x: 36, y: 24}
+  m_LensShift: {x: 0, y: 0}
+  m_NormalizedViewPortRect:
+    serializedVersion: 2
+    x: 0
+    y: 0
+    width: 1
+    height: 1
+  near clip plane: 0.3
+  far clip plane: 1000
+  field of view: 60
+  orthographic: 1
+  orthographic size: 38.5
+  m_Depth: 0
+  m_CullingMask:
+    serializedVersion: 2
+    m_Bits: 320
+  m_RenderingPath: -1
+  m_TargetTexture: {fileID: 8400000, guid: 9e5f97ffd5916d14bb4dc2fdab8952c2, type: 2}
+  m_TargetDisplay: 0
+  m_TargetEye: 3
+  m_HDR: 1
+  m_AllowMSAA: 1
+  m_AllowDynamicResolution: 0
+  m_ForceIntoRT: 0
+  m_OcclusionCulling: 1
+  m_StereoConvergence: 10
+  m_StereoSeparation: 0.022
+--- !u!4 &817846712
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 817846708}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: -0.5, z: -102.82953}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &985353196
@@ -28289,7 +28522,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1089307147}
   - component: {fileID: 1089307148}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: HeartVill_MiddleHouse2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -28380,7 +28613,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1334403050}
   - component: {fileID: 1334403051}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: HeartVill_SmallHouse3
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -28472,7 +28705,7 @@ GameObject:
   - component: {fileID: 1335864009}
   - component: {fileID: 1335864011}
   - component: {fileID: 1335864010}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: outline
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -49006,7 +49239,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1552434282}
   - component: {fileID: 1552434283}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: HeartVill_BigHouse2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -49097,7 +49330,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1591225715}
   - component: {fileID: 1591225716}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: HeartVill_MiddleHouse1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -49188,7 +49421,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1666742721}
   - component: {fileID: 1666742722}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: HeartVill_SmallHouse2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -49269,6 +49502,52 @@ SpriteRenderer:
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
   m_SpriteSortPoint: 0
+--- !u!1 &1700352950
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1700352952}
+  - component: {fileID: 1700352951}
+  m_Layer: 0
+  m_Name: MapCaptureManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1700352951
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1700352950}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c1c972b4b290d054e921feec8ed0d6f7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::MapCapture
+  captureCamera: {fileID: 817846711}
+  renderTexture: {fileID: 8400000, guid: 9e5f97ffd5916d14bb4dc2fdab8952c2, type: 2}
+--- !u!4 &1700352952
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1700352950}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 6.72204, y: -9.80043, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1739835313
 GameObject:
   m_ObjectHideFlags: 0
@@ -51528,7 +51807,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2049255416}
   - component: {fileID: 2049255417}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: HeartVill_BigHouse1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -51619,7 +51898,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2091372478}
   - component: {fileID: 2091372479}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: HeartVill_MiddleHouse3
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -51710,7 +51989,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2096397157}
   - component: {fileID: 2096397158}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: HeartVill_SmallHouse1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -51801,7 +52080,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2096873601}
   - component: {fileID: 2096873602}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: HeartVill_OxygenCarrierHouse
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -51888,5 +52167,8 @@ SceneRoots:
   m_Roots:
   - {fileID: 564579944}
   - {fileID: 985353198}
+  - {fileID: 229734644}
   - {fileID: 721935243}
   - {fileID: 672308360}
+  - {fileID: 1700352952}
+  - {fileID: 817846712}

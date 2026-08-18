@@ -15,12 +15,27 @@ public class PauseMenu : MonoBehaviour
     [Header("종료 확인 선택")]
     [SerializeField] private QuitConfirmSelector quitConfirmSelector;
     [SerializeField] private GameObject settingsPanel;
+
+    [Header("지도")]
     [SerializeField] private GameObject mapPanel;
+    [SerializeField] private MapController mapController;
     private bool isMapOpen;
     public static bool IsMapOpen { get; private set; }
+    private static PauseMenu instance;
 
     private bool isQuitConfirmOpen;
     private bool isSettingsOpen;
+    private void Awake()
+    {
+        if (instance != null && instance != this)
+        {
+            Destroy(gameObject);
+            return;
+        }
+
+        instance = this;
+        DontDestroyOnLoad(gameObject);
+    }
     private void Start()
     {
         IsPaused = false;
@@ -188,15 +203,19 @@ public class PauseMenu : MonoBehaviour
 
     public void OpenMap()
     {
-        // 옵션 메뉴가 이미 열려 있으면 지도는 열지 않음
         if (IsPaused)
             return;
 
         IsMapOpen = true;
 
-        mapPanel.SetActive(true);
+        if (mapPanel != null)
+        {
+            mapPanel.SetActive(true);
+        }
 
         Time.timeScale = 0f;
+
+        StartCoroutine(CenterMapNextFrame());
     }
 
     public void CloseMap()
@@ -206,5 +225,14 @@ public class PauseMenu : MonoBehaviour
         mapPanel.SetActive(false);
 
         Time.timeScale = 1f;
+    }
+    private System.Collections.IEnumerator CenterMapNextFrame()
+    {
+        yield return null;
+
+        if (mapController != null)
+        {
+            mapController.CenterOnPlayer();
+        }
     }
 }

@@ -11,6 +11,17 @@ public class PlayerController : MonoBehaviour
     public float jumpPower = 10f;
     public float jumpBuffer = 0.12f;
     public int maxJumps =1;
+
+    // ★ 예전엔 "착지하면 jumpsLeft를 채우고, jumpsLeft가 남아 있으면 점프" 였다.
+    //   그래서 점프를 안 쓰고 발판에서 걸어 나가거나, 대시로 공중에 뜨거나, 그냥 떨어지는 중에도
+    //   jumpsLeft가 1로 남아 있어 공중에서 한 번 더 뛸 수 있었다.
+    //   이제 발판을 떠나면 coyoteTime 안에서만 점프를 받아준다.
+    [Tooltip("켜면 공중에서도 maxJumps만큼 점프할 수 있다(이단점프). 끄면 지면/코요테 시간 안에서만 점프된다")]
+    public bool allowAirJump = false;
+    // 흔히 '코요테 점프(coyote time)'라 부르는 것. 발판 끝에서 살짝 늦게 눌러도 점프가 나가야
+    // 조작이 답답하지 않다. 0으로 두면 완전히 지면에서만 점프된다.
+    [Tooltip("발판을 떠난 직후 이 시간까지는 점프 입력을 받아준다 (코요테 점프). 0.2~0.3 권장")]
+    public float coyoteTime = 0.25f;
     public float fallMultiplier = 3f;
     public float lowJumpMultiplier = 2f;
     public float ascendMultiplier = 1f;
@@ -38,6 +49,19 @@ public class PlayerController : MonoBehaviour
     public float dashKnockbackSpeed = 7f;
     public float dashKnockbackUpRatio = 0.6f; // 넉백에 섞는 위쪽 성분 비율 — 클수록 포물선이 높아짐
     public float dashInvincibleTime = 0.4f;   // 대시로 박은 뒤 튕겨나오는 동안 접촉 데미지 면역
+
+    // 기획서 기타 메모 '대시 시전 방향으로 모션 재생'.
+    // 좌우 반전만으로는 위/아래 대각선 대시가 표현되지 않는데, 방향별 대시 클립은 아직 없다.
+    // 클립이 나오기 전까지는 스프라이트를 대시 방향으로 기울여서 방향을 보여준다.
+    [Tooltip("대시하는 동안 스프라이트를 대시 방향으로 기울인다. 방향별 대시 클립이 생기면 꺼도 된다")]
+    public bool rotateOnDash = true;
+    [Range(0f, 90f)]
+    [Tooltip("기울일 수 있는 최대 각도. 90이면 마우스 방향을 그대로 본다")]
+    public float dashRotationMaxAngle = 70f;
+    [Tooltip("스프라이트가 든 자식 오브젝트를 넣으면 그것만 회전시킨다(콜라이더에 영향 0). " +
+             "비워두면 몸통 콜라이더가 원형일 때만 본체를 회전시킨다 — 사각 콜라이더를 돌리면 " +
+             "지면/벽 판정이 어긋나고 지형에 끼는 사고가 나기 때문")]
+    public Transform dashVisualRoot;
     public float dashMonsterKnockback = 8f;   // 대시로 맞은 몬스터가 밀려나는 힘 (몬스터별 knockbackResistance로 배율 조절, 0이면 안 밀림)
 
     [Header("분열 대시 (우클릭 홀드→뗌)")]
@@ -67,6 +91,9 @@ private RuntimeAnimatorController cloneAnimatorController;
     [Header("섭취")]
     public float consumeRange = 2f;
     public LayerMask monsterMask;
+    [Tooltip("마우스 커서 판정의 여유 반경. 커서가 대상에 정확히 안 올라가도 이 반경 안이면 섭취로 친다. " +
+             "0이면 픽셀 단위로 정확히 눌러야 하고, 빗나가면 대시가 나간다")]
+    public float consumePickRadius = 0.6f;
     public float consumeMoveSpeed = 15f; // 섭취 대상 위치로 러지하는 속도
 
     [Header("벽타기")]
@@ -105,7 +132,16 @@ private RuntimeAnimatorController cloneAnimatorController;
     public float returnTimeout = 4f;                       // 본체가 사라지는 등 도달 실패 시 강제 종료
     [Tooltip("회수 중 재생할 Animator 트리거 이름. 컨트롤러에 해당 파라미터가 없으면 조용히 무시된다")]
     public string returnTriggerName = "ReturnReady";
-    public bool shrinkWhileReturning = false;               // 본체에 가까워질수록 작아지는 흡수 연출
+    public bool shrinkWhileReturning = true;                // 본체에 가까워질수록 작아지는 흡수 연출
+
+    // ★ 예전엔 크기가 그냥 (남은거리 / 출발거리)였다 — 도착할수록 0에 수렴해서, 특히 멀리서
+    //   회수하면 날아오는 내내 점처럼 작아 회수 연출 자체가 안 보였다. 아래 두 값으로 조절한다.
+    [Range(0f, 1f)]
+    [Tooltip("작아지는 정도. 0이면 크기 그대로, 1이면 도착 시 Return Min Scale까지 줄어든다")]
+    public float returnShrinkStrength = 1f;
+    [Range(0.05f, 1f)]
+    [Tooltip("아무리 줄어도 이 배율 아래로는 안 작아진다. 낮출수록 도착할 때 더 작아진다")]
+    public float returnMinScale = 0.4f;
 
     [Header("제어")]
     public bool isControlled = false;
@@ -124,6 +160,15 @@ private RuntimeAnimatorController cloneAnimatorController;
     public Color hitFlashColor = new Color(1f, 0.3f, 0.3f, 1f);
     public float invincibleBlinkInterval = 0.08f;
 
+    [Header("피격 이펙트")]
+    [Tooltip("맞은 자리에 터지는 이펙트. Prefab을 비워두면 임시 스파크가 런타임에 만들어진다")]
+    public HitEffect.Settings hitEffect = new HitEffect.Settings
+    {
+        scale = 1.1f,
+        lifetime = 0.32f,
+        fallbackColor = new Color(1f, 0.35f, 0.35f, 1f),
+    };
+
 
     [HideInInspector] public float thrownTimer = 0f;
 
@@ -135,6 +180,7 @@ private RuntimeAnimatorController cloneAnimatorController;
     private bool isGrounded;
     private bool wasGrounded;
     private float jumpBufferTimer;
+    private float coyoteTimer;
     private int jumpsLeft;
     private bool isSlamming;
 
@@ -166,6 +212,10 @@ private RuntimeAnimatorController cloneAnimatorController;
     private float dashInvincibleTimer;
     private Color baseColor = Color.white;
 
+    // 연출로 강제 이동하는 방향(-1/0/1). EventTriggerZone의 '끌려가는 연출'이 매 프레임 넣어준다.
+    // 조작이 잠긴 동안에도 이 값만은 이동 입력으로 쓴다.
+    private float scriptedMoveX;
+
     // 분열 능력이 해금됐는지 (A02에서 획득 전까지 잠김). 매니저가 없으면 개발 편의상 허용
     bool FissionUnlocked => PlayerManager.Instance == null || PlayerManager.Instance.fissionUnlocked;
 
@@ -177,6 +227,18 @@ private RuntimeAnimatorController cloneAnimatorController;
     public bool IsReturning => isReturning;
     public float CurrentFissionGauge => currentFissionGauge;
     public float MaxFissionGauge => maxFissionGauge;
+
+    // 맵에 나와 있는 분열체 수 (본체 제외)
+    public int CloneCount =>
+        PlayerManager.Instance == null ? 0 : Mathf.Max(0, PlayerManager.Instance.allPlayers.Count - 1);
+
+    // 지금 회복으로 도달할 수 있는 분열 게이지 상한.
+    //
+    // ★ 기획: "분열 가능 횟수 소모 1당 게이지 100 회복 불가" — 분열체가 살아 있는 동안 그 100은 잠긴다.
+    //   (Bug Report '분열 이후 섭취 시 분열 게이지 버그' = 섭취가 이 잠금을 무시하고 꽉 채우던 문제)
+    //   예전 코드는 자동회복만 '분열체가 있으면 아예 중단'으로 근사하고, 섭취는 그냥 최대치까지 채웠다.
+    //   이제 자동회복·섭취가 같은 상한을 공유한다. 분열체를 회수하면 상한이 도로 올라간다.
+    public float FissionGaugeCap => Mathf.Max(0f, maxFissionGauge - CloneCount * fissionCost);
     // 분열 모션 진행도 (0→1). 홀드 차징이 없어졌으므로 이제 '모션이 도는 동안'을 나타낸다.
     // FissionChargeIndicator가 이 값을 쓰는데, 즉시 발동이라 차지 게이지로서의 의미는 사라졌다.
     public float FissionHoldProgress =>
@@ -198,6 +260,7 @@ private RuntimeAnimatorController cloneAnimatorController;
     private OneWayPlatformTile currentOneWayPlatform;
 
     private PlayerController returnBodyTarget;
+    private Vector3 returnBaseScale = Vector3.one; // 회수 시작 시점(준비 애니메이션 전)의 원래 크기
     void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
@@ -266,6 +329,11 @@ private RuntimeAnimatorController cloneAnimatorController;
         }
         wasGrounded = isGrounded;
 
+        // 지면에 닿아 있는 동안은 계속 채워지고, 떠나는 순간부터 줄어든다.
+        // 이 값이 0이 되면 (allowAirJump가 꺼져 있는 한) 더 이상 점프할 수 없다.
+        if (isGrounded) coyoteTimer = coyoteTime;
+        else if (coyoteTimer > 0f) coyoteTimer -= Time.deltaTime;
+
         // 벽 감지 (레이어 무관 — 맵이 wall/ground로 나뉘어 있지 않아 기하학적으로 판정)
         // 슬라이딩·벽점프가 둘 다 꺼져 있으면 벽에 붙는 판정 자체를 하지 않는다 (레이캐스트도 아낌)
         if (!allowWallSlide && !allowWallJump)
@@ -291,12 +359,14 @@ private RuntimeAnimatorController cloneAnimatorController;
             }
         }
 
-        // 분열 게이지 자동 회복 (본체만, 분열체가 맵에 있으면 회복 안 됨)
-        if (!isClone)
+        // 분열 게이지 자동 회복 (본체만). 분열체 1개당 100씩 잠기므로 FissionGaugeCap까지만 찬다.
+        // 이미 상한을 넘겨 들고 있는 경우(분열 직후 등)엔 깎지 않고 그대로 둔다 — 회복만 막는 규칙이다.
+        // 분열게이지 회복 영역(FissionRechargeZone) 안에 있으면 그 배수만큼 빨리 찬다.
+        if (!isClone && currentFissionGauge < FissionGaugeCap)
         {
-            bool hasClones = PlayerManager.Instance != null && PlayerManager.Instance.allPlayers.Count > 1;
-            if (!hasClones)
-                currentFissionGauge = Mathf.Min(maxFissionGauge, currentFissionGauge + fissionGaugeRecoverRate * Time.deltaTime);
+            float recoverRate = fissionGaugeRecoverRate * FissionRechargeZone.MultiplierAt(transform.position);
+            currentFissionGauge = Mathf.Min(FissionGaugeCap,
+                currentFissionGauge + recoverRate * Time.deltaTime);
         }
         // 조종 여부와 상관없이 애니메이션 상태는 계속 갱신
         if (animator != null)
@@ -313,12 +383,22 @@ private RuntimeAnimatorController cloneAnimatorController;
             animator.SetBool("isDashing", isNormalDashing);
         }
 
-        if (!isControlled)
+        // 조종 대상이 아니거나, 대화·연출로 조작이 잠겨 있으면 입력 처리를 통째로 건너뛴다.
+        // 위쪽 애니메이터 갱신은 이미 끝났고 FixedUpdate의 중력도 계속 돌기 때문에,
+        // 잠긴 채로 공중에 있으면 정상적으로 착지한다 (moveX=0이라 좌우로만 멈춘다).
+        if (!isControlled || PlayerInputLock.IsLocked)
         {
-            moveX = 0f;
+            // 연출로 강제 이동 중이면(EventTriggerZone) 그 방향으로 계속 걷는다.
+            // 여기서 0으로 두면 FixedUpdate가 매 프레임 속도를 지워서 아예 못 움직인다.
+            moveX = isControlled ? scriptedMoveX : 0f;
+
+            if (spr != null && Mathf.Abs(moveX) > 0.01f)
+                spr.flipX = moveX < 0f;
+
             return;
         }
-        if (!isControlled) return;
+
+        scriptedMoveX = 0f; // 조작이 풀리면 연출 이동은 남기지 않는다
 
         if (isStunned)
         {
@@ -415,13 +495,17 @@ private RuntimeAnimatorController cloneAnimatorController;
                 jumpsLeft = maxJumps - 1;
                 lastWallJumpDir = wallDir;
                 wallJumpTimer = 0.25f;
+                coyoteTimer = 0f;
                 if (animator != null) animator.Play("jumpstart", 0, 0f);
                 jumpBufferTimer = 0f;
             }
-            else if (jumpsLeft > 0 && !isSlamming)
+            // 공중 점프 차단: 지면에 있거나 방금 떠난 직후(코요테)에만 점프가 나간다.
+            // allowAirJump를 켜면 예전처럼 jumpsLeft만 보고 공중에서도 뛴다.
+            else if (jumpsLeft > 0 && !isSlamming && (allowAirJump || isGrounded || coyoteTimer > 0f))
             {
                 rb.linearVelocity = new Vector2(rb.linearVelocity.x, jumpPower);
                 jumpsLeft--;
+                coyoteTimer = 0f; // 한 번 뛰면 코요테 시간은 소진 — 뜨자마자 또 뛰는 것 방지
                 if (animator != null) animator.Play("jumpstart", 0, 0f);
                 jumpBufferTimer = 0f;
             }
@@ -555,14 +639,17 @@ private RuntimeAnimatorController cloneAnimatorController;
 
     void TryDashOrEat()
     {
-        if (normalDashCooldownTimer > 0f) return;
-
+        // ★ 쿨다운 검사를 여기서 하면 안 된다 (기획서 (8) '대시 사용 후 대시 쿨타임 동안 섭취가
+        //   사용되지 않는 문제'). 좌클릭 하나로 섭취와 대시를 겸하는 구조라, 함수 앞에서 막으면
+        //   섭취 판정까지 같이 죽는다. 섭취는 대시 쿨타임의 영향을 받지 않는다.
         Transform target = GetMouseTarget();
         if (target != null)
         {
             StartConsumeAnimation(target.gameObject);
             return;
         }
+
+        if (normalDashCooldownTimer > 0f) return;
 
         TryNormalDash();
     }
@@ -622,24 +709,51 @@ private RuntimeAnimatorController cloneAnimatorController;
         return world;
     }
 
-    // 마우스 커서 위치의 monsterMask 콜라이더 반환 (범위 밖이거나 섭취 불가면 null)
+    // 마우스 커서가 가리키는 섭취 대상 반환 (사정거리 밖이거나 섭취 불가면 null)
     Transform GetMouseTarget()
     {
-        Collider2D hit = Physics2D.OverlapPoint(GetMouseWorld(), monsterMask);
-        if (hit == null) return null;
-        if (Vector2.Distance(transform.position, hit.transform.position) > consumeRange) return null;
+        Vector2 mouse = GetMouseWorld();
 
-        IConsumable consumable = hit.GetComponent<IConsumable>();
-        if (consumable == null || !consumable.IsConsumable) return null;
+        // ★ 예전엔 OverlapPoint(점 판정)였다 — 커서가 픽셀 단위로 정확히 대상 위에 있어야만 섭취가 되고,
+        //   조금만 빗나가면 그대로 대시가 나가 시체에 몸을 처박았다. 기획서 (8) '섭취 편의'가
+        //   없애려던 문제가 이것이라 여유 반경을 두고 찾는다.
+        Collider2D[] hits = Physics2D.OverlapCircleAll(mouse, Mathf.Max(0.01f, consumePickRadius), monsterMask);
+        if (hits == null || hits.Length == 0) return null;
 
-        return hit.transform;
+        Transform best = null;
+        float bestDistance = float.MaxValue;
+
+        foreach (Collider2D hit in hits)
+        {
+            if (hit == null) continue;
+
+            // ★ GetComponentInParent인 이유: 기획서 (8)의 '섭취 전용 원형 콜라이더'는
+            //   본체 콜라이더 구성을 건드리지 않으려고 자식 오브젝트에 붙는다(ConsumeIndicator).
+            //   자식이 잡혔을 때도 주인(몬스터/회복셀)을 찾아 올라가야 한다.
+            IConsumable consumable = hit.GetComponentInParent<IConsumable>();
+            if (consumable == null || !consumable.IsConsumable) continue;
+
+            // 거리는 자식 콜라이더가 아니라 주인 위치 기준으로 잰다
+            Transform ownerTransform = ((Component)consumable).transform;
+            if (Vector2.Distance(transform.position, ownerTransform.position) > consumeRange) continue;
+
+            // 커서에 가장 가까운 대상을 고른다 (여러 마리가 겹쳐 있을 때)
+            float d = Vector2.Distance(mouse, ownerTransform.position);
+            if (d < bestDistance) { bestDistance = d; best = ownerTransform; }
+        }
+
+        return best;
     }
 
     // 섭취로 얻는 회복량 적용 (몬스터/회복셀 등 IConsumable.OnConsumed에서 호출)
     public void RestoreFromConsume(float hpAmount, float gaugeAmount)
     {
         currentHp = Mathf.Min(maxHp, currentHp + hpAmount);
-        currentFissionGauge = Mathf.Min(maxFissionGauge, currentFissionGauge + gaugeAmount);
+
+        // 분열체가 나와 있으면 그 수 × 100은 잠겨 있어서 섭취로도 못 채운다 (자동회복과 같은 상한).
+        // 이미 상한 위에 있으면 그대로 유지 — 섭취했다고 오히려 깎이면 안 된다.
+        currentFissionGauge = Mathf.Max(currentFissionGauge,
+            Mathf.Min(FissionGaugeCap, currentFissionGauge + gaugeAmount));
     }
 
     // 씬 이동 후 이전 씬의 상태를 그대로 이어받을 때 사용 (GameProgress).
@@ -654,7 +768,21 @@ private RuntimeAnimatorController cloneAnimatorController;
         currentFissionGauge = Mathf.Clamp(value, 0f, maxFissionGauge);
     }
 
-    public void TakeDamage(float amount, Vector2 knockback = default, float stunTime = 0f)
+    // 연출용 강제 이동 (EventTriggerZone의 '끌려가는 연출').
+    // 위치를 직접 옮기면 Rigidbody와 싸워서 지형을 뚫거나 떨리므로, 평소 이동 입력 자리에 넣는다.
+    // 매 프레임 호출할 것 — 조작 잠금이 풀리는 순간 자동으로 0이 된다.
+    public void SetScriptedMove(float dirX)
+    {
+        scriptedMoveX = Mathf.Clamp(dirX, -1f, 1f);
+    }
+
+    public void ClearScriptedMove()
+    {
+        scriptedMoveX = 0f;
+    }
+
+    public void TakeDamage(float amount, Vector2 knockback = default, float stunTime = 0f,
+                           DamageSource source = DamageSource.Attack)
     {
         // 사망 모션 중엔 더 이상 피격되지 않음
         if (isDead) return;
@@ -662,8 +790,12 @@ private RuntimeAnimatorController cloneAnimatorController;
         // 회수 비행 중엔 장애물·몬스터를 전부 무시하고 지나가므로 피격도 받지 않는다
         if (isReturning) return;
 
-        // 대시로 몬스터에 박는 동안은 공격 행동이므로 접촉 데미지를 받지 않는다
-        if (isInvincible || dashInvincibleTimer > 0f) return;
+        // 피격 후 무적 프레임은 출처와 무관하게 모든 피해를 막는다
+        if (isInvincible) return;
+
+        // 대시로 몬스터에 박는 동안은 공격 행동이므로 '몸통 접촉' 피해만 받지 않는다.
+        // 공격 히트박스·투사체·자폭은 대시 중에도 그대로 맞는다 (기획서 Bug Report 3번).
+        if (source == DamageSource.Contact && dashInvincibleTimer > 0f) return;
 
         // 분열체는 피격 시 사망 (QA (4). 추후 1회 무효화 등 추가 예정)
         // 그 자리에서 사라지지 않고 본체까지 날아와 흡수된다 — 도착 시 Destroy,
@@ -676,6 +808,12 @@ private RuntimeAnimatorController cloneAnimatorController;
         }
 
         currentHp = Mathf.Max(0f, currentHp - amount);
+
+        // 맞은 자리에 이펙트. 넉백 방향이 곧 '공격이 밀어낸 방향'이라 그대로 쓴다.
+        HitEffect.Play(hitEffect,
+                       col != null ? col.bounds.center : transform.position,
+                       knockback.sqrMagnitude > 0.01f ? knockback.normalized : Vector2.zero,
+                       spr);
 
         if (currentHp > 0f)
         {
@@ -783,6 +921,11 @@ private RuntimeAnimatorController cloneAnimatorController;
         isControlled = false;
         returnBodyTarget = body;
 
+        // ★ 준비 애니메이션(ReturnReady)이 크기를 줄이는 클립이면, 비행이 시작될 때 읽는
+        //   localScale은 이미 작아진 값이다. 그걸 기준으로 또 줄이면 점처럼 사라진다.
+        //   애니메이션이 돌기 전의 원래 크기를 여기서 잡아둔다.
+        returnBaseScale = transform.localScale;
+
         // 회수 시작과 동시에 조종 목록에서 제외
         if (PlayerManager.Instance != null)
             PlayerManager.Instance.UnregisterPlayer(this);
@@ -843,7 +986,6 @@ private RuntimeAnimatorController cloneAnimatorController;
     {
         float speed = returnStartSpeed;
         float elapsed = 0f;
-        Vector3 startScale = transform.localScale;
         float startDistance = Mathf.Max(0.01f, Vector2.Distance(transform.position, body.transform.position));
 
         while (elapsed < returnTimeout)
@@ -861,7 +1003,13 @@ private RuntimeAnimatorController cloneAnimatorController;
                 spr.flipX = target.x < transform.position.x; // flipX = 왼쪽을 봄 (SpawnFissionClone과 같은 규칙)
 
             if (shrinkWhileReturning)
-                transform.localScale = startScale * Mathf.Clamp01(distance / startDistance);
+            {
+                // t: 1=출발 지점, 0=본체 도착. 최소 배율 아래로는 내려가지 않고,
+                // Strength로 "얼마나 작아질지" 자체를 0~100%로 조절한다.
+                float t = Mathf.Clamp01(distance / startDistance);
+                float shrink = Mathf.Lerp(returnMinScale, 1f, t);
+                transform.localScale = returnBaseScale * Mathf.Lerp(1f, shrink, returnShrinkStrength);
+            }
 
             elapsed += Time.deltaTime;
             yield return null;
@@ -920,6 +1068,15 @@ private RuntimeAnimatorController cloneAnimatorController;
             spr.flipX = dashDir.x < 0f;
         }
 
+        // 기획서 기타 메모 '대시 시전 방향으로 모션 재생 되도록 수정'.
+        // 좌우 반전은 위에서 끝났고, 위/아래 대각선까지 다른 클립을 쓰려면 애니메이터가
+        // 대시 방향을 알아야 한다. 파라미터가 없는 컨트롤러에 넣으면 경고가 나므로
+        // 실제로 있는 경우에만 넣는다 (모션이 나오면 이 두 값으로 전이 조건을 걸면 됨).
+        if (HasAnimatorParameter("dashDirX")) animator.SetFloat("dashDirX", dashDir.x);
+        if (HasAnimatorParameter("dashDirY")) animator.SetFloat("dashDirY", dashDir.y);
+
+        ApplyDashRotation(dashDir);
+
         float originalGravity = rb.gravityScale;
         rb.gravityScale = 0f;
 
@@ -938,14 +1095,13 @@ private RuntimeAnimatorController cloneAnimatorController;
             float castRadius = col != null ? col.bounds.extents.x : 0.3f;
             float castDist = vel.magnitude * Time.deltaTime;
             RaycastHit2D[] hits = Physics2D.CircleCastAll(transform.position, castRadius, vel.normalized, castDist, monsterMask);
-            Debug.Log($"[대시] castRadius={castRadius:F2} castDist={castDist:F2} monsterMask={monsterMask.value} hits={hits.Length}");
             foreach (var hit in hits)
             {
                 MonsterBase monster = hit.collider.GetComponent<MonsterBase>();
                 if (monster != null && !hitMonsters.Contains(monster))
                 {
                     hitMonsters.Add(monster);
-                    monster.TakeDamage(dashAttackDamage);
+                    monster.TakeDamage(dashAttackDamage, dashDir); // 이펙트가 대시 진행 방향으로 뻗도록 방향도 넘긴다
 
                     // 맞은 몬스터도 대시 진행 방향으로 밀어낸다 (몬스터별 knockbackResistance로 조절, 0이면 안 밀림)
                     Vector2 monsterKnockDir = ((Vector2)(monster.transform.position - transform.position)).normalized;
@@ -972,7 +1128,42 @@ private RuntimeAnimatorController cloneAnimatorController;
             rb.linearVelocity = new Vector2(rb.linearVelocity.x * dashExitPreserve, 0f);
         }
 
+        ClearDashRotation();
         isNormalDashing = false;
+    }
+
+    // 대시 방향으로 스프라이트를 기울인다.
+    // 좌우는 이미 flipX가 처리했으므로 여기서는 위/아래 기울기만 만든다 —
+    // 왼쪽을 볼 땐 스프라이트가 뒤집혀 있어서 같은 각도를 반대 부호로 넣어야 같은 쪽으로 기운다.
+    void ApplyDashRotation(Vector2 dashDir)
+    {
+        Transform pivot = GetDashPivot();
+        if (pivot == null) return;
+
+        float tilt = Mathf.Atan2(dashDir.y, Mathf.Abs(dashDir.x)) * Mathf.Rad2Deg;
+        tilt = Mathf.Clamp(tilt, -dashRotationMaxAngle, dashRotationMaxAngle);
+
+        if (spr != null && spr.flipX) tilt = -tilt;
+
+        pivot.localRotation = Quaternion.Euler(0f, 0f, tilt);
+    }
+
+    void ClearDashRotation()
+    {
+        Transform pivot = GetDashPivot();
+        if (pivot != null) pivot.localRotation = Quaternion.identity;
+    }
+
+    // 회전시켜도 안전한 대상만 돌려준다.
+    // ★ 본체를 돌리면 콜라이더까지 같이 돈다. 원형 콜라이더는 돌아도 모양이 그대로라 무해하지만,
+    //   사각 콜라이더는 bounds가 커지면서 지면/벽 판정이 어긋나고 지형에 끼는 사고가 난다.
+    //   그래서 사각인 경우엔 dashVisualRoot를 따로 지정했을 때만 회전시킨다.
+    Transform GetDashPivot()
+    {
+        if (!rotateOnDash) return null;
+        if (dashVisualRoot != null) return dashVisualRoot;
+        if (col is CircleCollider2D) return transform;
+        return null;
     }
 
     IEnumerator ConsumeRoutine(GameObject target)

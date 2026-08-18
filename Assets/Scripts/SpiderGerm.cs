@@ -175,7 +175,8 @@ public class SpiderGerm : MonsterBase
             PlayerController pc = hit.GetComponent<PlayerController>();
             if (pc != null)
             {
-                pc.TakeDamage(pounceDamage, KnockbackVector(hit.transform.position), stunDuration);
+                // 덮치기는 공격 판정 — 대시 접촉 무적으로 못 막는다
+                pc.TakeDamage(pounceDamage, KnockbackVector(hit.transform.position), stunDuration, DamageSource.Attack);
             }
         }
 

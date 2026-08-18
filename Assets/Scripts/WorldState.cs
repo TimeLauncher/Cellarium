@@ -21,6 +21,7 @@ public enum WorldCategory
     Pickup,     // 셀 덩어리 등 주워 먹는 재화
     DarkCell,   // 다크셀 잔재 (능력 해금)
     SavePoint,  // 세이브포인트 활성화 여부
+    Event,      // 이미 본 연출/이벤트 트리거 (EventTriggerZone)
 }
 
 public enum PersistMode
@@ -42,6 +43,10 @@ public class WorldState : MonoBehaviour
         { WorldCategory.Pickup,    PersistMode.RestoreToCheckpoint },
         { WorldCategory.DarkCell,  PersistMode.RestoreToCheckpoint },
         { WorldCategory.SavePoint, PersistMode.AlwaysPersist },
+
+        // 강제 연출은 한 번 봤으면 다시 안 보는 편이 낫다.
+        // 세이브 전으로 되돌리고 싶으면 WorldStateSettings에서 RestoreToCheckpoint로 바꿀 것.
+        { WorldCategory.Event,     PersistMode.AlwaysPersist },
     };
 
     readonly Dictionary<WorldCategory, HashSet<string>> live = NewTable();       // 지금 진행 중인 상태

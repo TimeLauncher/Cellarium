@@ -9,12 +9,42 @@ public class CellChunk : MonoBehaviour
     [Tooltip("부활 후에도 '이미 먹음'을 기억할 때 쓰는 식별자. 비우면 계층 경로로 자동 생성된다")]
     public string persistentId = "";
 
+    [Header("드랍 연출 (몬스터가 떨군 셀에만 쓰임)")]
+    // ★ 섭취 직후 몬스터 자리에 셀을 만들면 플레이어가 이미 그 자리에 겹쳐 있어서
+    //   생기는 즉시 흡수된다 — "셀이 나왔다"는 게 화면에 전혀 안 보인다.
+    //   그래서 잠깐 튀어나오는 동안은 못 먹게 막는다.
+    [Tooltip("생성 후 이 시간 동안은 접촉해도 획득되지 않는다. 씬에 손으로 놓은 덩어리는 0으로 둘 것")]
+    public float pickupDelay = 0f;
+
+    [Tooltip("튀어나오는 연출에 쓰는 중력 (Launch로 던져졌을 때만)")]
+    public float popGravity = 14f;
+
+    float aliveTimer;
+    Vector2 popVelocity;
+    bool popping;
+    float popFloorY;
+
+    // ★ 몬스터가 죽으면서 떨군 셀(기획서 (4))은 '이미 먹었는지'를 기억하면 안 된다.
+    //   씬에 손으로 놓은 덩어리와 달리, 부활로 씬이 리로드되면 몬스터도 되살아나 다시 떨구기 때문에
+    //   기록해두면 두 번째부터는 생기자마자 스스로 사라져버린다.
+    //   Awake보다 먼저 값을 넣을 방법이 없어서(Instantiate가 Awake를 즉시 부른다)
+    //   생성 직전에 이 플래그를 세우고 Awake가 바로 소비한다.
+    public static bool NextIsRuntimeDrop;
+
     string id;
+    bool isRuntimeDrop;
 
     void Awake()
     {
         Collider2D col = GetComponent<Collider2D>();
         if (col != null) col.isTrigger = true;
+
+        if (NextIsRuntimeDrop)
+        {
+            NextIsRuntimeDrop = false;
+            isRuntimeDrop = true;
+            return; // 몬스터 드랍분은 WorldState를 쓰지 않는다
+        }
 
         // 이미 먹은 덩어리는 리로드된 씬에서 되살아나지 않게 즉시 치운다
         id = WorldState.MakeId(this, persistentId);
@@ -25,15 +55,123 @@ public class CellChunk : MonoBehaviour
         }
     }
 
-    void OnTriggerEnter2D(Collider2D other)
+    void Update()
     {
+        aliveTimer += Time.deltaTime;
+
+        if (!popping) return;
+
+        transform.position += (Vector3)(popVelocity * Time.deltaTime);
+        popVelocity.y -= popGravity * Time.deltaTime;
+
+        // 던져진 높이까지 도로 내려오면 연출 끝. 지형 충돌을 따로 보지 않아도
+        // 시작 높이에서 멈추므로 바닥을 뚫고 들어가지 않는다.
+        if (popVelocity.y < 0f && transform.position.y <= popFloorY)
+        {
+            Vector3 p = transform.position;
+            p.y = popFloorY;
+            transform.position = p;
+            popping = false;
+        }
+    }
+
+    // 몬스터가 떨굴 때 살짝 튀어나오는 연출. 프리팹에 Rigidbody2D가 있으면 그쪽을 쓴다.
+    public void Launch(Vector2 velocity)
+    {
+        Rigidbody2D body = GetComponent<Rigidbody2D>();
+        if (body != null && body.bodyType == RigidbodyType2D.Dynamic)
+        {
+            body.linearVelocity = velocity;
+            return;
+        }
+
+        popVelocity = velocity;
+        popFloorY = transform.position.y;
+        popping = true;
+    }
+
+    void OnTriggerEnter2D(Collider2D other) => TryPickup(other);
+
+    // ★ Enter만으로는 부족하다 — 획득 딜레이가 끝나는 시점엔 플레이어가 이미 겹쳐 있어서
+    //   더 이상 '진입'이 일어나지 않는다. 겹쳐 있는 동안 계속 확인해야 딜레이 후에 먹힌다.
+    void OnTriggerStay2D(Collider2D other) => TryPickup(other);
+
+    void TryPickup(Collider2D other)
+    {
+        if (aliveTimer < pickupDelay) return;
+
         PlayerController pc = other.GetComponent<PlayerController>();
         if (pc == null) return;
 
         if (PlayerManager.Instance != null)
             PlayerManager.Instance.AddCell(cellAmount);
 
-        WorldState.Record(WorldCategory.Pickup, id);
+        if (!isRuntimeDrop) WorldState.Record(WorldCategory.Pickup, id);
         Destroy(gameObject);
+    }
+
+    // 셀 스프라이트가 아직 없어서(에셋 미제작) 런타임에 임시 셀 덩어리를 만든다.
+    // HitboxVisualizer·ExplosionRangeIndicator와 같은 "에셋 없이 일단 보이게" 방식.
+    // 진짜 프리팹이 나오면 MonsterBase의 Cell Chunk Prefab 칸에 넣으면 이건 안 쓰인다.
+    // sortingRef: 떨군 몬스터의 SpriteRenderer. 정렬 레이어를 그대로 물려받아 몬스터가 보이는 곳이면
+    //   셀도 보이게 한다. ★ Sorting Layer가 다르면 Order in Layer는 완전히 무시되므로
+    //   (이 프로젝트엔 Default 말고 New Layer 1/2도 있다) Order만 높게 줘서는 안 된다.
+    public static CellChunk SpawnRuntime(Vector3 position, int amount, SpriteRenderer sortingRef = null,
+                                         float radius = 0.22f)
+    {
+        GameObject go = new GameObject("CellDrop");
+        go.transform.position = position;
+
+        SpriteRenderer sr = go.AddComponent<SpriteRenderer>();
+        sr.sprite = GetDropSprite();
+        sr.color = new Color(1f, 0.92f, 0.45f, 1f);
+
+        if (sortingRef != null)
+        {
+            sr.sortingLayerID = sortingRef.sortingLayerID;
+            sr.sortingOrder = sortingRef.sortingOrder + 1; // 시체보다 앞에
+        }
+        else
+        {
+            sr.sortingOrder = 50;
+        }
+
+        go.transform.localScale = Vector3.one * (radius * 2f);
+
+        CircleCollider2D col = go.AddComponent<CircleCollider2D>();
+        col.isTrigger = true;
+        col.radius = 0.5f; // 스프라이트가 지름 1유닛이라 스케일과 함께 실제 radius가 된다
+
+        NextIsRuntimeDrop = true;
+        CellChunk chunk = go.AddComponent<CellChunk>(); // AddComponent가 Awake를 즉시 부른다
+        NextIsRuntimeDrop = false;
+
+        chunk.cellAmount = amount;
+        return chunk;
+    }
+
+    static Sprite dropSprite;
+
+    static Sprite GetDropSprite()
+    {
+        if (dropSprite != null) return dropSprite;
+
+        const int size = 32;
+        Texture2D tex = new Texture2D(size, size) { wrapMode = TextureWrapMode.Clamp };
+        float r = size * 0.5f;
+        Vector2 center = new Vector2(r, r);
+
+        for (int y = 0; y < size; y++)
+            for (int x = 0; x < size; x++)
+            {
+                float d = Vector2.Distance(new Vector2(x + 0.5f, y + 0.5f), center);
+                // 가장자리를 살짝 부드럽게
+                float a = Mathf.Clamp01(r - d);
+                tex.SetPixel(x, y, new Color(1f, 1f, 1f, a));
+            }
+
+        tex.Apply();
+        dropSprite = Sprite.Create(tex, new Rect(0, 0, size, size), new Vector2(0.5f, 0.5f), size);
+        return dropSprite;
     }
 }

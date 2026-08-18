@@ -48,6 +48,10 @@ public class MusicManager : MonoBehaviour
     private AudioClip currentClip;
     private Coroutine fadeRoutine;
 
+    // 실제로 스피커에 나가는 크기 = 이 씬에 정해둔 곡 크기 × 설정의 '배경음' 볼륨.
+    // (설정의 '전체 볼륨'은 AudioListener에 따로 걸리므로 여기서 또 곱하지 않는다)
+    private float TargetVolume => volume * GameSettings.BgmVolume;
+
     void Awake()
     {
         if (Instance != null && Instance != this)
@@ -67,9 +71,10 @@ public class MusicManager : MonoBehaviour
         source.outputAudioMixerGroup = outputMixerGroup;
         source.loop = loop;
         source.playOnAwake = false;
-        source.volume = volume;
+        source.volume = TargetVolume;
         source.spatialBlend = 0f; // 2D — 카메라 위치와 무관하게 항상 같은 크기로 들린다
 
+        GameSettings.Changed += OnSettingsChanged;
         UnityEngine.SceneManagement.SceneManager.sceneLoaded += OnSceneLoaded;
         PlayForScene(UnityEngine.SceneManagement.SceneManager.GetActiveScene().name);
     }
@@ -77,7 +82,18 @@ public class MusicManager : MonoBehaviour
     void OnDestroy()
     {
         if (Instance == this)
+        {
+            GameSettings.Changed -= OnSettingsChanged;
             UnityEngine.SceneManagement.SceneManager.sceneLoaded -= OnSceneLoaded;
+        }
+    }
+
+    // 설정에서 배경음 볼륨을 바꾸면 곡을 끊지 않고 크기만 바로 반영한다.
+    // 페이드 중이면 손대지 않는다 — 코루틴이 매 프레임 볼륨을 덮어쓰고 있어서
+    // 여기서 끼어들면 페이드가 튄다 (끝날 때 TargetVolume으로 정리된다).
+    void OnSettingsChanged()
+    {
+        if (source != null && fadeRoutine == null) source.volume = TargetVolume;
     }
 
     void OnSceneLoaded(UnityEngine.SceneManagement.Scene scene, UnityEngine.SceneManagement.LoadSceneMode mode)
@@ -140,7 +156,7 @@ public class MusicManager : MonoBehaviour
         if (crossfadeDuration <= 0f)
         {
             source.clip = clip;
-            source.volume = volume;
+            source.volume = TargetVolume;
             source.Play();
             return;
         }
@@ -158,7 +174,7 @@ public class MusicManager : MonoBehaviour
     public void SetVolume(float v)
     {
         volume = Mathf.Clamp01(v);
-        if (fadeRoutine == null) source.volume = volume;
+        if (fadeRoutine == null) source.volume = TargetVolume;
     }
 
     IEnumerator CrossfadeTo(AudioClip clip)
@@ -184,11 +200,11 @@ public class MusicManager : MonoBehaviour
         // 새 곡 페이드 인
         for (float t = 0f; t < half; t += Time.unscaledDeltaTime)
         {
-            source.volume = Mathf.Lerp(0f, volume, t / half);
+            source.volume = Mathf.Lerp(0f, TargetVolume, t / half);
             yield return null;
         }
 
-        source.volume = volume;
+        source.volume = TargetVolume;
         fadeRoutine = null;
     }
 }

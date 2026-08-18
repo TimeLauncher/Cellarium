@@ -1,22 +1,39 @@
 using UnityEngine;
 
+// (ì£¼ì„ì´ ê¹¨ì§„ ì¸ì½”ë”©ìœ¼ë¡œ ì €ì¥ë¼ ìˆì–´ ì´ë²ˆì— UTF-8 í•œê¸€ë¡œ ë‹¤ì‹œ ì ì—ˆë‹¤. ë™ì‘ì€ ê·¸ëŒ€ë¡œë‹¤)
 public class CameraFollow : MonoBehaviour
 {
-    public float smoothSpeed = 0.125f; // µû¶ó°¡´Â ¼Óµµ (ºÎµå·´°Ô)
-    public Vector3 offset = new Vector3(0, 0, -10); // Ä«¸Ş¶ó °Å¸® À¯Áö
+    public float smoothSpeed = 0.125f;              // ë”°ë¼ê°€ëŠ” ì†ë„ (ì‘ì„ìˆ˜ë¡ ë¶€ë“œëŸ½ê²Œ)
+    public Vector3 offset = new Vector3(0, 0, -10); // ì¹´ë©”ë¼ ê±°ë¦¬ ì¡°ì •
 
     void LateUpdate()
     {
-        // ¸Å´ÏÀú°¡ ¾ø°Å³ª Á¶Á¾ ÁßÀÎ Ä³¸¯ÅÍ°¡ ¾øÀ¸¸é ¾Æ¹«°Íµµ ¾È ÇÔ
-        if (PlayerManager.Instance == null || PlayerManager.Instance.currentPlayer == null)
-            return;
+        if (!TryGetTarget(out Transform target)) return;
 
-        // ¸ñÇ¥ ÁöÁ¡ (ÇöÀç Á¶Á¾ ÁßÀÎ Ä³¸¯ÅÍ À§Ä¡ + ¿ÀÇÁ¼Â)
-        Transform target = PlayerManager.Instance.currentPlayer.transform;
+        // ëª©í‘œ ì§€ì  (ì§€ê¸ˆ ì¡°ì¢… ì¤‘ì¸ ìºë¦­í„° ìœ„ì¹˜ + ì˜¤í”„ì…‹)
         Vector3 desiredPosition = target.position + offset;
 
-        // ºÎµå·´°Ô ÀÌµ¿ (Lerp »ç¿ë)
-        Vector3 smoothedPosition = Vector3.Lerp(transform.position, desiredPosition, smoothSpeed);
-        transform.position = smoothedPosition;
+        // ë¶€ë“œëŸ½ê²Œ ì´ë™ (Lerp)
+        transform.position = Vector3.Lerp(transform.position, desiredPosition, smoothSpeed);
+    }
+
+    // ë³´ê°„ ì—†ì´ ì¦‰ì‹œ ëŒ€ìƒ ìœ„ë¡œ. ì”¬ì„ ë„˜ì–´ì˜¨ ì§í›„ ì¹´ë©”ë¼ê°€ ì˜› ìœ„ì¹˜ì—ì„œ ìŠ¤ë¥´ë¥µ ë”°ë¼ì˜¤ë©°
+    // í™”ë©´ì´ í”ë“¤ë ¤ ë³´ì´ëŠ” ê²ƒì„ ë§‰ëŠ”ë‹¤ (CameraSnapì´ í˜¸ì¶œ).
+    public void SnapToTarget()
+    {
+        if (!TryGetTarget(out Transform target)) return;
+        transform.position = target.position + offset;
+    }
+
+    // ë§¤ë‹ˆì €ê°€ ì—†ê±°ë‚˜ ì¡°ì¢… ì¤‘ì¸ ìºë¦­í„°ê°€ ì—†ìœ¼ë©´ ì•„ë¬´ê²ƒë„ ì•ˆ í•¨
+    bool TryGetTarget(out Transform target)
+    {
+        target = null;
+
+        if (PlayerManager.Instance == null || PlayerManager.Instance.currentPlayer == null)
+            return false;
+
+        target = PlayerManager.Instance.currentPlayer.transform;
+        return true;
     }
 }

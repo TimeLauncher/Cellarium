@@ -11,6 +11,15 @@ public class PlayerController : MonoBehaviour
     public float jumpPower = 10f;
     public float jumpBuffer = 0.12f;
     public int maxJumps =1;
+
+    // ★ 예전엔 "착지하면 jumpsLeft를 채우고, jumpsLeft가 남아 있으면 점프" 였다.
+    //   그래서 점프를 안 쓰고 발판에서 걸어 나가거나, 대시로 공중에 뜨거나, 그냥 떨어지는 중에도
+    //   jumpsLeft가 1로 남아 있어 공중에서 한 번 더 뛸 수 있었다.
+    //   이제 발판을 떠나면 coyoteTime 안에서만 점프를 받아준다.
+    [Tooltip("켜면 공중에서도 maxJumps만큼 점프할 수 있다(이단점프). 끄면 지면/코요테 시간 안에서만 점프된다")]
+    public bool allowAirJump = false;
+    [Tooltip("발판을 떠난 직후 이 시간까지는 점프 입력을 받아준다. 0으로 두면 완전히 지면에서만 점프된다")]
+    public float coyoteTime = 0.1f;
     public float fallMultiplier = 3f;
     public float lowJumpMultiplier = 2f;
     public float ascendMultiplier = 1f;
@@ -38,6 +47,19 @@ public class PlayerController : MonoBehaviour
     public float dashKnockbackSpeed = 7f;
     public float dashKnockbackUpRatio = 0.6f; // 넉백에 섞는 위쪽 성분 비율 — 클수록 포물선이 높아짐
     public float dashInvincibleTime = 0.4f;   // 대시로 박은 뒤 튕겨나오는 동안 접촉 데미지 면역
+
+    // 기획서 기타 메모 '대시 시전 방향으로 모션 재생'.
+    // 좌우 반전만으로는 위/아래 대각선 대시가 표현되지 않는데, 방향별 대시 클립은 아직 없다.
+    // 클립이 나오기 전까지는 스프라이트를 대시 방향으로 기울여서 방향을 보여준다.
+    [Tooltip("대시하는 동안 스프라이트를 대시 방향으로 기울인다. 방향별 대시 클립이 생기면 꺼도 된다")]
+    public bool rotateOnDash = true;
+    [Range(0f, 90f)]
+    [Tooltip("기울일 수 있는 최대 각도. 90이면 마우스 방향을 그대로 본다")]
+    public float dashRotationMaxAngle = 70f;
+    [Tooltip("스프라이트가 든 자식 오브젝트를 넣으면 그것만 회전시킨다(콜라이더에 영향 0). " +
+             "비워두면 몸통 콜라이더가 원형일 때만 본체를 회전시킨다 — 사각 콜라이더를 돌리면 " +
+             "지면/벽 판정이 어긋나고 지형에 끼는 사고가 나기 때문")]
+    public Transform dashVisualRoot;
     public float dashMonsterKnockback = 8f;   // 대시로 맞은 몬스터가 밀려나는 힘 (몬스터별 knockbackResistance로 배율 조절, 0이면 안 밀림)
 
     [Header("분열 대시 (우클릭 홀드→뗌)")]
@@ -108,7 +130,16 @@ private RuntimeAnimatorController cloneAnimatorController;
     public float returnTimeout = 4f;                       // 본체가 사라지는 등 도달 실패 시 강제 종료
     [Tooltip("회수 중 재생할 Animator 트리거 이름. 컨트롤러에 해당 파라미터가 없으면 조용히 무시된다")]
     public string returnTriggerName = "ReturnReady";
-    public bool shrinkWhileReturning = false;               // 본체에 가까워질수록 작아지는 흡수 연출
+    public bool shrinkWhileReturning = true;                // 본체에 가까워질수록 작아지는 흡수 연출
+
+    // ★ 예전엔 크기가 그냥 (남은거리 / 출발거리)였다 — 도착할수록 0에 수렴해서, 특히 멀리서
+    //   회수하면 날아오는 내내 점처럼 작아 회수 연출 자체가 안 보였다. 아래 두 값으로 조절한다.
+    [Range(0f, 1f)]
+    [Tooltip("작아지는 정도. 0이면 크기 그대로, 1이면 도착 시 Return Min Scale까지 줄어든다")]
+    public float returnShrinkStrength = 1f;
+    [Range(0.05f, 1f)]
+    [Tooltip("아무리 줄어도 이 배율 아래로는 안 작아진다. 낮출수록 도착할 때 더 작아진다")]
+    public float returnMinScale = 0.4f;
 
     [Header("제어")]
     public bool isControlled = false;
@@ -127,6 +158,15 @@ private RuntimeAnimatorController cloneAnimatorController;
     public Color hitFlashColor = new Color(1f, 0.3f, 0.3f, 1f);
     public float invincibleBlinkInterval = 0.08f;
 
+    [Header("피격 이펙트")]
+    [Tooltip("맞은 자리에 터지는 이펙트. Prefab을 비워두면 임시 스파크가 런타임에 만들어진다")]
+    public HitEffect.Settings hitEffect = new HitEffect.Settings
+    {
+        scale = 1.1f,
+        lifetime = 0.32f,
+        fallbackColor = new Color(1f, 0.35f, 0.35f, 1f),
+    };
+
 
     [HideInInspector] public float thrownTimer = 0f;
 
@@ -138,6 +178,7 @@ private RuntimeAnimatorController cloneAnimatorController;
     private bool isGrounded;
     private bool wasGrounded;
     private float jumpBufferTimer;
+    private float coyoteTimer;
     private int jumpsLeft;
     private bool isSlamming;
 
@@ -217,6 +258,7 @@ private RuntimeAnimatorController cloneAnimatorController;
     private OneWayPlatformTile currentOneWayPlatform;
 
     private PlayerController returnBodyTarget;
+    private Vector3 returnBaseScale = Vector3.one; // 회수 시작 시점(준비 애니메이션 전)의 원래 크기
     void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
@@ -283,6 +325,11 @@ private RuntimeAnimatorController cloneAnimatorController;
             airDashLeft = maxAirDash;
         }
         wasGrounded = isGrounded;
+
+        // 지면에 닿아 있는 동안은 계속 채워지고, 떠나는 순간부터 줄어든다.
+        // 이 값이 0이 되면 (allowAirJump가 꺼져 있는 한) 더 이상 점프할 수 없다.
+        if (isGrounded) coyoteTimer = coyoteTime;
+        else if (coyoteTimer > 0f) coyoteTimer -= Time.deltaTime;
 
         // 벽 감지 (레이어 무관 — 맵이 wall/ground로 나뉘어 있지 않아 기하학적으로 판정)
         // 슬라이딩·벽점프가 둘 다 꺼져 있으면 벽에 붙는 판정 자체를 하지 않는다 (레이캐스트도 아낌)
@@ -445,13 +492,17 @@ private RuntimeAnimatorController cloneAnimatorController;
                 jumpsLeft = maxJumps - 1;
                 lastWallJumpDir = wallDir;
                 wallJumpTimer = 0.25f;
+                coyoteTimer = 0f;
                 if (animator != null) animator.Play("jumpstart", 0, 0f);
                 jumpBufferTimer = 0f;
             }
-            else if (jumpsLeft > 0 && !isSlamming)
+            // 공중 점프 차단: 지면에 있거나 방금 떠난 직후(코요테)에만 점프가 나간다.
+            // allowAirJump를 켜면 예전처럼 jumpsLeft만 보고 공중에서도 뛴다.
+            else if (jumpsLeft > 0 && !isSlamming && (allowAirJump || isGrounded || coyoteTimer > 0f))
             {
                 rb.linearVelocity = new Vector2(rb.linearVelocity.x, jumpPower);
                 jumpsLeft--;
+                coyoteTimer = 0f; // 한 번 뛰면 코요테 시간은 소진 — 뜨자마자 또 뛰는 것 방지
                 if (animator != null) animator.Play("jumpstart", 0, 0f);
                 jumpBufferTimer = 0f;
             }
@@ -755,6 +806,12 @@ private RuntimeAnimatorController cloneAnimatorController;
 
         currentHp = Mathf.Max(0f, currentHp - amount);
 
+        // 맞은 자리에 이펙트. 넉백 방향이 곧 '공격이 밀어낸 방향'이라 그대로 쓴다.
+        HitEffect.Play(hitEffect,
+                       col != null ? col.bounds.center : transform.position,
+                       knockback.sqrMagnitude > 0.01f ? knockback.normalized : Vector2.zero,
+                       spr);
+
         if (currentHp > 0f)
         {
             if (animator != null)
@@ -861,6 +918,11 @@ private RuntimeAnimatorController cloneAnimatorController;
         isControlled = false;
         returnBodyTarget = body;
 
+        // ★ 준비 애니메이션(ReturnReady)이 크기를 줄이는 클립이면, 비행이 시작될 때 읽는
+        //   localScale은 이미 작아진 값이다. 그걸 기준으로 또 줄이면 점처럼 사라진다.
+        //   애니메이션이 돌기 전의 원래 크기를 여기서 잡아둔다.
+        returnBaseScale = transform.localScale;
+
         // 회수 시작과 동시에 조종 목록에서 제외
         if (PlayerManager.Instance != null)
             PlayerManager.Instance.UnregisterPlayer(this);
@@ -921,7 +983,6 @@ private RuntimeAnimatorController cloneAnimatorController;
     {
         float speed = returnStartSpeed;
         float elapsed = 0f;
-        Vector3 startScale = transform.localScale;
         float startDistance = Mathf.Max(0.01f, Vector2.Distance(transform.position, body.transform.position));
 
         while (elapsed < returnTimeout)
@@ -939,7 +1000,13 @@ private RuntimeAnimatorController cloneAnimatorController;
                 spr.flipX = target.x < transform.position.x; // flipX = 왼쪽을 봄 (SpawnFissionClone과 같은 규칙)
 
             if (shrinkWhileReturning)
-                transform.localScale = startScale * Mathf.Clamp01(distance / startDistance);
+            {
+                // t: 1=출발 지점, 0=본체 도착. 최소 배율 아래로는 내려가지 않고,
+                // Strength로 "얼마나 작아질지" 자체를 0~100%로 조절한다.
+                float t = Mathf.Clamp01(distance / startDistance);
+                float shrink = Mathf.Lerp(returnMinScale, 1f, t);
+                transform.localScale = returnBaseScale * Mathf.Lerp(1f, shrink, returnShrinkStrength);
+            }
 
             elapsed += Time.deltaTime;
             yield return null;
@@ -1005,6 +1072,8 @@ private RuntimeAnimatorController cloneAnimatorController;
         if (HasAnimatorParameter("dashDirX")) animator.SetFloat("dashDirX", dashDir.x);
         if (HasAnimatorParameter("dashDirY")) animator.SetFloat("dashDirY", dashDir.y);
 
+        ApplyDashRotation(dashDir);
+
         float originalGravity = rb.gravityScale;
         rb.gravityScale = 0f;
 
@@ -1023,14 +1092,13 @@ private RuntimeAnimatorController cloneAnimatorController;
             float castRadius = col != null ? col.bounds.extents.x : 0.3f;
             float castDist = vel.magnitude * Time.deltaTime;
             RaycastHit2D[] hits = Physics2D.CircleCastAll(transform.position, castRadius, vel.normalized, castDist, monsterMask);
-            Debug.Log($"[대시] castRadius={castRadius:F2} castDist={castDist:F2} monsterMask={monsterMask.value} hits={hits.Length}");
             foreach (var hit in hits)
             {
                 MonsterBase monster = hit.collider.GetComponent<MonsterBase>();
                 if (monster != null && !hitMonsters.Contains(monster))
                 {
                     hitMonsters.Add(monster);
-                    monster.TakeDamage(dashAttackDamage);
+                    monster.TakeDamage(dashAttackDamage, dashDir); // 이펙트가 대시 진행 방향으로 뻗도록 방향도 넘긴다
 
                     // 맞은 몬스터도 대시 진행 방향으로 밀어낸다 (몬스터별 knockbackResistance로 조절, 0이면 안 밀림)
                     Vector2 monsterKnockDir = ((Vector2)(monster.transform.position - transform.position)).normalized;
@@ -1057,7 +1125,42 @@ private RuntimeAnimatorController cloneAnimatorController;
             rb.linearVelocity = new Vector2(rb.linearVelocity.x * dashExitPreserve, 0f);
         }
 
+        ClearDashRotation();
         isNormalDashing = false;
+    }
+
+    // 대시 방향으로 스프라이트를 기울인다.
+    // 좌우는 이미 flipX가 처리했으므로 여기서는 위/아래 기울기만 만든다 —
+    // 왼쪽을 볼 땐 스프라이트가 뒤집혀 있어서 같은 각도를 반대 부호로 넣어야 같은 쪽으로 기운다.
+    void ApplyDashRotation(Vector2 dashDir)
+    {
+        Transform pivot = GetDashPivot();
+        if (pivot == null) return;
+
+        float tilt = Mathf.Atan2(dashDir.y, Mathf.Abs(dashDir.x)) * Mathf.Rad2Deg;
+        tilt = Mathf.Clamp(tilt, -dashRotationMaxAngle, dashRotationMaxAngle);
+
+        if (spr != null && spr.flipX) tilt = -tilt;
+
+        pivot.localRotation = Quaternion.Euler(0f, 0f, tilt);
+    }
+
+    void ClearDashRotation()
+    {
+        Transform pivot = GetDashPivot();
+        if (pivot != null) pivot.localRotation = Quaternion.identity;
+    }
+
+    // 회전시켜도 안전한 대상만 돌려준다.
+    // ★ 본체를 돌리면 콜라이더까지 같이 돈다. 원형 콜라이더는 돌아도 모양이 그대로라 무해하지만,
+    //   사각 콜라이더는 bounds가 커지면서 지면/벽 판정이 어긋나고 지형에 끼는 사고가 난다.
+    //   그래서 사각인 경우엔 dashVisualRoot를 따로 지정했을 때만 회전시킨다.
+    Transform GetDashPivot()
+    {
+        if (!rotateOnDash) return null;
+        if (dashVisualRoot != null) return dashVisualRoot;
+        if (col is CircleCollider2D) return transform;
+        return null;
     }
 
     IEnumerator ConsumeRoutine(GameObject target)

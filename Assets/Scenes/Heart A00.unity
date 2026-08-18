@@ -3389,6 +3389,8 @@ MonoBehaviour:
   hardFissionCap: 0
   cellCurrency: 100
   darkCellCurrency: 100
+  cycleControlKey: 9
+  cycleIncludesMainBody: 1
   fissionUnlocked: 0
   cinemachineCamera: {fileID: 1557976633}
 --- !u!1 &1073827791
@@ -3424,6 +3426,7 @@ MonoBehaviour:
   pickups: 1
   darkCells: 1
   savePoints: 2
+  events: 2
 --- !u!4 &1073827793
 Transform:
   m_ObjectHideFlags: 0
@@ -3620,6 +3623,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SceneEntryPoint
   entryId: from_A01
+  walkInOnArrival: 1
+  walkInDistance: 1.8
+  walkInDirection: -1
+  walkInDelay: 0
+  walkInMaxDuration: 2.5
 --- !u!4 &1120054019
 Transform:
   m_ObjectHideFlags: 0
@@ -3831,6 +3839,8 @@ MonoBehaviour:
   jumpPower: 13.5
   jumpBuffer: 0.12
   maxJumps: 1
+  allowAirJump: 0
+  coyoteTime: 0.1
   fallMultiplier: 3
   lowJumpMultiplier: 5.5
   ascendMultiplier: 2
@@ -3849,6 +3859,9 @@ MonoBehaviour:
   dashKnockbackSpeed: 7
   dashKnockbackUpRatio: 0.6
   dashInvincibleTime: 0.2
+  rotateOnDash: 1
+  dashRotationMaxAngle: 70
+  dashVisualRoot: {fileID: 0}
   dashMonsterKnockback: 8
   fissionDashSpeed: 20
   fissionDashDuration: 0.2
@@ -3868,6 +3881,7 @@ MonoBehaviour:
   monsterMask:
     serializedVersion: 2
     m_Bits: 8
+  consumePickRadius: 0.6
   consumeMoveSpeed: 15
   wallCheckDistance: 0.15
   wallSlideSpeed: 1.5
@@ -3895,6 +3909,8 @@ MonoBehaviour:
   returnTimeout: 4
   returnTriggerName: ReturnReady
   shrinkWhileReturning: 1
+  returnShrinkStrength: 1
+  returnMinScale: 0.4
   isControlled: 1
   isClone: 0
   forceSortingOrder: 1
@@ -3902,6 +3918,15 @@ MonoBehaviour:
   uncontrolledAlpha: 0.5
   hitFlashColor: {r: 1, g: 0.3, b: 0.3, a: 1}
   invincibleBlinkInterval: 0.1
+  hitEffect:
+    prefab: {fileID: 0}
+    rotateToHitDirection: 0
+    scale: 1.1
+    lifetime: 0.32
+    fallbackColor: {r: 1, g: 0.35, b: 0.35, a: 1}
+    inheritSortingFromTarget: 1
+    sortingOrderOffset: 5
+    enabled: 1
   thrownTimer: 0
 --- !u!95 &1181797111
 Animator:

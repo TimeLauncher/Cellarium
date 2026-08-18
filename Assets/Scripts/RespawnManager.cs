@@ -172,6 +172,10 @@ public class RespawnManager : MonoBehaviour
         else if (respawnUsedDefault) main.transform.position = defaultPos;
         main.RestoreFromConsume(main.maxHp, main.maxFissionGauge); // 체력/분열 게이지 완전 회복
 
+        // 부활 위치로 옮긴 직후 카메라도 붙인다 — 안 하면 씬에 저장된 카메라 위치에서
+        // 부활 지점까지 스르륵 따라오면서 화면이 흔들린 것처럼 보인다 (씬 이동과 같은 문제)
+        CameraSnap.SnapNow();
+
         // 부활 복원이 끝난 뒤에야 진행상황 저장을 재개시킨다
         RespawnInProgress = false;
         if (GameProgress.Instance != null) GameProgress.Instance.CaptureNow();

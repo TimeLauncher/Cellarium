@@ -478,6 +478,25 @@ MonoBehaviour:
   attackWindup: 0.2
   attackActiveTime: 0.3
   consumableLifetime: 5
+  showConsumeIndicator: 1
+  hitEffect:
+    prefab: {fileID: 0}
+    rotateToHitDirection: 0
+    scale: 0.9
+    lifetime: 0.3
+    fallbackColor: {r: 1, g: 0.85, b: 0.35, a: 1}
+    inheritSortingFromTarget: 1
+    sortingOrderOffset: 5
+    enabled: 1
+  hitFlashColor: {r: 1, g: 0.45, b: 0.45, a: 1}
+  hitFlashDuration: 0.12
+  cellDropTotal: 10
+  cellDropCount: 5
+  cellChunkPrefab: {fileID: 0}
+  dropOnDeathIfNotConsumable: 1
+  cellPickupDelay: 0.45
+  cellPopUpSpeed: 4
+  cellPopSideSpeed: 2.5
 --- !u!61 &53186668
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -797,7 +816,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 2.5831614, y: 2.5831614, z: 1}
+  m_LocalScale: {x: 2.581037, y: 2.581037, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
@@ -1033,6 +1052,25 @@ MonoBehaviour:
   attackWindup: 0.2
   attackActiveTime: 0.3
   consumableLifetime: 5
+  showConsumeIndicator: 1
+  hitEffect:
+    prefab: {fileID: 0}
+    rotateToHitDirection: 0
+    scale: 0.9
+    lifetime: 0.3
+    fallbackColor: {r: 1, g: 0.85, b: 0.35, a: 1}
+    inheritSortingFromTarget: 1
+    sortingOrderOffset: 5
+    enabled: 1
+  hitFlashColor: {r: 1, g: 0.45, b: 0.45, a: 1}
+  hitFlashDuration: 0.12
+  cellDropTotal: 10
+  cellDropCount: 5
+  cellChunkPrefab: {fileID: 0}
+  dropOnDeathIfNotConsumable: 1
+  cellPickupDelay: 0.45
+  cellPopUpSpeed: 4
+  cellPopSideSpeed: 2.5
 --- !u!61 &119077430
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -1357,6 +1395,25 @@ MonoBehaviour:
   attackWindup: 0.2
   attackActiveTime: 0.3
   consumableLifetime: 0
+  showConsumeIndicator: 1
+  hitEffect:
+    prefab: {fileID: 0}
+    rotateToHitDirection: 0
+    scale: 0.9
+    lifetime: 0.3
+    fallbackColor: {r: 1, g: 0.85, b: 0.35, a: 1}
+    inheritSortingFromTarget: 1
+    sortingOrderOffset: 5
+    enabled: 1
+  hitFlashColor: {r: 1, g: 0.45, b: 0.45, a: 1}
+  hitFlashDuration: 0.12
+  cellDropTotal: 10
+  cellDropCount: 5
+  cellChunkPrefab: {fileID: 0}
+  dropOnDeathIfNotConsumable: 1
+  cellPickupDelay: 0.45
+  cellPopUpSpeed: 4
+  cellPopSideSpeed: 2.5
   engageRange: 8
   projectilePrefab: {fileID: 4789779386128304187, guid: 54d88cc04de8449498db2f6aff1d7dee, type: 3}
   firePoint: {fileID: 1633221628}
@@ -2002,6 +2059,25 @@ MonoBehaviour:
   attackWindup: 0.2
   attackActiveTime: 0.3
   consumableLifetime: 5
+  showConsumeIndicator: 1
+  hitEffect:
+    prefab: {fileID: 0}
+    rotateToHitDirection: 0
+    scale: 0.9
+    lifetime: 0.3
+    fallbackColor: {r: 1, g: 0.85, b: 0.35, a: 1}
+    inheritSortingFromTarget: 1
+    sortingOrderOffset: 5
+    enabled: 1
+  hitFlashColor: {r: 1, g: 0.45, b: 0.45, a: 1}
+  hitFlashDuration: 0.12
+  cellDropTotal: 10
+  cellDropCount: 5
+  cellChunkPrefab: {fileID: 0}
+  dropOnDeathIfNotConsumable: 1
+  cellPickupDelay: 0.45
+  cellPopUpSpeed: 4
+  cellPopSideSpeed: 2.5
   dashWindup: 0.5
   dashSpeed: 13
   dashMaxDuration: 3.5
@@ -37116,6 +37192,25 @@ MonoBehaviour:
   attackWindup: 0.2
   attackActiveTime: 0.3
   consumableLifetime: 5
+  showConsumeIndicator: 1
+  hitEffect:
+    prefab: {fileID: 0}
+    rotateToHitDirection: 0
+    scale: 0.9
+    lifetime: 0.3
+    fallbackColor: {r: 1, g: 0.85, b: 0.35, a: 1}
+    inheritSortingFromTarget: 1
+    sortingOrderOffset: 5
+    enabled: 1
+  hitFlashColor: {r: 1, g: 0.45, b: 0.45, a: 1}
+  hitFlashDuration: 0.12
+  cellDropTotal: 10
+  cellDropCount: 5
+  cellChunkPrefab: {fileID: 0}
+  dropOnDeathIfNotConsumable: 1
+  cellPickupDelay: 0.45
+  cellPopUpSpeed: 4
+  cellPopSideSpeed: 2.5
 --- !u!61 &547928896
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -37336,7 +37431,7 @@ Transform:
   m_GameObject: {fileID: 577478682}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -31.994528, y: -12, z: -12.6605}
+  m_LocalPosition: {x: -32.007694, y: -12, z: -12.6605}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -37753,7 +37848,7 @@ Transform:
   m_GameObject: {fileID: 663867929}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 86.6437, y: -18.83, z: 0}
+  m_LocalPosition: {x: 87.28, y: -18.86, z: 0}
   m_LocalScale: {x: 2.062466, y: 4.0000257, z: 0.3568}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -39149,6 +39244,25 @@ MonoBehaviour:
   attackWindup: 0.2
   attackActiveTime: 0.3
   consumableLifetime: 5
+  showConsumeIndicator: 1
+  hitEffect:
+    prefab: {fileID: 0}
+    rotateToHitDirection: 0
+    scale: 0.9
+    lifetime: 0.3
+    fallbackColor: {r: 1, g: 0.85, b: 0.35, a: 1}
+    inheritSortingFromTarget: 1
+    sortingOrderOffset: 5
+    enabled: 1
+  hitFlashColor: {r: 1, g: 0.45, b: 0.45, a: 1}
+  hitFlashDuration: 0.12
+  cellDropTotal: 10
+  cellDropCount: 5
+  cellChunkPrefab: {fileID: 0}
+  dropOnDeathIfNotConsumable: 1
+  cellPickupDelay: 0.45
+  cellPopUpSpeed: 4
+  cellPopSideSpeed: 2.5
   dashWindup: 0.5
   dashSpeed: 13
   dashMaxDuration: 3.5
@@ -39744,6 +39858,25 @@ MonoBehaviour:
   attackWindup: 0.2
   attackActiveTime: 0.3
   consumableLifetime: 5
+  showConsumeIndicator: 1
+  hitEffect:
+    prefab: {fileID: 0}
+    rotateToHitDirection: 0
+    scale: 0.9
+    lifetime: 0.3
+    fallbackColor: {r: 1, g: 0.85, b: 0.35, a: 1}
+    inheritSortingFromTarget: 1
+    sortingOrderOffset: 5
+    enabled: 1
+  hitFlashColor: {r: 1, g: 0.45, b: 0.45, a: 1}
+  hitFlashDuration: 0.12
+  cellDropTotal: 10
+  cellDropCount: 5
+  cellChunkPrefab: {fileID: 0}
+  dropOnDeathIfNotConsumable: 1
+  cellPickupDelay: 0.45
+  cellPopUpSpeed: 4
+  cellPopSideSpeed: 2.5
 --- !u!61 &1012796814
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -39964,6 +40097,8 @@ MonoBehaviour:
   hardFissionCap: 0
   cellCurrency: 0
   darkCellCurrency: 0
+  cycleControlKey: 9
+  cycleIncludesMainBody: 1
   fissionUnlocked: 0
   cinemachineCamera: {fileID: 1557976633}
 --- !u!1 &1069516417
@@ -40200,6 +40335,8 @@ MonoBehaviour:
   jumpPower: 13.5
   jumpBuffer: 0.12
   maxJumps: 1
+  allowAirJump: 0
+  coyoteTime: 0.1
   fallMultiplier: 3
   lowJumpMultiplier: 5.5
   ascendMultiplier: 2
@@ -40218,6 +40355,9 @@ MonoBehaviour:
   dashKnockbackSpeed: 7
   dashKnockbackUpRatio: 0.6
   dashInvincibleTime: 0.2
+  rotateOnDash: 1
+  dashRotationMaxAngle: 70
+  dashVisualRoot: {fileID: 0}
   dashMonsterKnockback: 8
   fissionDashSpeed: 20
   fissionDashDuration: 0.2
@@ -40237,6 +40377,7 @@ MonoBehaviour:
   monsterMask:
     serializedVersion: 2
     m_Bits: 8
+  consumePickRadius: 0.6
   consumeMoveSpeed: 15
   wallCheckDistance: 0.15
   wallSlideSpeed: 1.5
@@ -40264,6 +40405,8 @@ MonoBehaviour:
   returnTimeout: 4
   returnTriggerName: ReturnReady
   shrinkWhileReturning: 1
+  returnShrinkStrength: 1
+  returnMinScale: 0.4
   isControlled: 1
   isClone: 0
   forceSortingOrder: 1
@@ -40271,6 +40414,15 @@ MonoBehaviour:
   uncontrolledAlpha: 0.5
   hitFlashColor: {r: 1, g: 0.3, b: 0.3, a: 1}
   invincibleBlinkInterval: 0.08
+  hitEffect:
+    prefab: {fileID: 0}
+    rotateToHitDirection: 0
+    scale: 1.1
+    lifetime: 0.32
+    fallbackColor: {r: 1, g: 0.35, b: 0.35, a: 1}
+    inheritSortingFromTarget: 1
+    sortingOrderOffset: 5
+    enabled: 1
   thrownTimer: 0
 --- !u!95 &1083230939
 Animator:
@@ -40537,6 +40689,25 @@ MonoBehaviour:
   attackWindup: 0.2
   attackActiveTime: 0.3
   consumableLifetime: 5
+  showConsumeIndicator: 1
+  hitEffect:
+    prefab: {fileID: 0}
+    rotateToHitDirection: 0
+    scale: 0.9
+    lifetime: 0.3
+    fallbackColor: {r: 1, g: 0.85, b: 0.35, a: 1}
+    inheritSortingFromTarget: 1
+    sortingOrderOffset: 5
+    enabled: 1
+  hitFlashColor: {r: 1, g: 0.45, b: 0.45, a: 1}
+  hitFlashDuration: 0.12
+  cellDropTotal: 10
+  cellDropCount: 5
+  cellChunkPrefab: {fileID: 0}
+  dropOnDeathIfNotConsumable: 1
+  cellPickupDelay: 0.45
+  cellPopUpSpeed: 4
+  cellPopSideSpeed: 2.5
   dashWindup: 0.5
   dashSpeed: 13
   dashMaxDuration: 3.5
@@ -40900,6 +41071,25 @@ MonoBehaviour:
   attackWindup: 0.2
   attackActiveTime: 0.3
   consumableLifetime: 5
+  showConsumeIndicator: 1
+  hitEffect:
+    prefab: {fileID: 0}
+    rotateToHitDirection: 0
+    scale: 0.9
+    lifetime: 0.3
+    fallbackColor: {r: 1, g: 0.85, b: 0.35, a: 1}
+    inheritSortingFromTarget: 1
+    sortingOrderOffset: 5
+    enabled: 1
+  hitFlashColor: {r: 1, g: 0.45, b: 0.45, a: 1}
+  hitFlashDuration: 0.12
+  cellDropTotal: 10
+  cellDropCount: 5
+  cellChunkPrefab: {fileID: 0}
+  dropOnDeathIfNotConsumable: 1
+  cellPickupDelay: 0.45
+  cellPopUpSpeed: 4
+  cellPopSideSpeed: 2.5
 --- !u!61 &1162014134
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -97000,6 +97190,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::CellChunk
   cellAmount: 100
   persistentId: 
+  pickupDelay: 0
+  popGravity: 14
 --- !u!58 &1433264181
 CircleCollider2D:
   m_ObjectHideFlags: 0
@@ -97474,6 +97666,15 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SceneEntryPoint
   entryId: from_A00
+  walkInOnArrival: 1
+  walkInDistance: 1.8
+  walkInDirection: 1
+  waitForFadeIn: 1
+  walkStartScreenAlpha: 0.55
+  fadeWaitTimeout: 2
+  walkInSpeedRatio: 0.5
+  walkInDelay: 0
+  walkInMaxDuration: 2.5
 --- !u!4 &1462281454
 Transform:
   m_ObjectHideFlags: 0
@@ -97582,6 +97783,25 @@ MonoBehaviour:
   attackWindup: 0.2
   attackActiveTime: 0.3
   consumableLifetime: 5
+  showConsumeIndicator: 1
+  hitEffect:
+    prefab: {fileID: 0}
+    rotateToHitDirection: 0
+    scale: 0.9
+    lifetime: 0.3
+    fallbackColor: {r: 1, g: 0.85, b: 0.35, a: 1}
+    inheritSortingFromTarget: 1
+    sortingOrderOffset: 5
+    enabled: 1
+  hitFlashColor: {r: 1, g: 0.45, b: 0.45, a: 1}
+  hitFlashDuration: 0.12
+  cellDropTotal: 10
+  cellDropCount: 5
+  cellChunkPrefab: {fileID: 0}
+  dropOnDeathIfNotConsumable: 1
+  cellPickupDelay: 0.45
+  cellPopUpSpeed: 4
+  cellPopSideSpeed: 2.5
   chaseSpeed: 2.6
   diveAttackRange: 4
   diveSpeed: 14
@@ -98873,6 +99093,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::CellChunk
   cellAmount: 500
   persistentId: 
+  pickupDelay: 0
+  popGravity: 14
 --- !u!58 &1782002427
 CircleCollider2D:
   m_ObjectHideFlags: 0
@@ -99092,6 +99314,25 @@ MonoBehaviour:
   attackWindup: 0.2
   attackActiveTime: 0.3
   consumableLifetime: 5
+  showConsumeIndicator: 1
+  hitEffect:
+    prefab: {fileID: 0}
+    rotateToHitDirection: 0
+    scale: 0.9
+    lifetime: 0.3
+    fallbackColor: {r: 1, g: 0.85, b: 0.35, a: 1}
+    inheritSortingFromTarget: 1
+    sortingOrderOffset: 5
+    enabled: 1
+  hitFlashColor: {r: 1, g: 0.45, b: 0.45, a: 1}
+  hitFlashDuration: 0.12
+  cellDropTotal: 10
+  cellDropCount: 5
+  cellChunkPrefab: {fileID: 0}
+  dropOnDeathIfNotConsumable: 1
+  cellPickupDelay: 0.45
+  cellPopUpSpeed: 4
+  cellPopSideSpeed: 2.5
   dashWindup: 0.5
   dashSpeed: 13
   dashMaxDuration: 3.5
@@ -99293,6 +99534,15 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SceneEntryPoint
   entryId: from_A02
+  walkInOnArrival: 1
+  walkInDistance: 1.8
+  walkInDirection: -1
+  waitForFadeIn: 1
+  walkStartScreenAlpha: 0.55
+  fadeWaitTimeout: 2
+  walkInSpeedRatio: 0.5
+  walkInDelay: 0
+  walkInMaxDuration: 2.5
 --- !u!4 &1871766987
 Transform:
   m_ObjectHideFlags: 0
@@ -99341,6 +99591,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::CellChunk
   cellAmount: 100
   persistentId: 
+  pickupDelay: 0
+  popGravity: 14
 --- !u!58 &1876177824
 CircleCollider2D:
   m_ObjectHideFlags: 0
@@ -99692,6 +99944,25 @@ MonoBehaviour:
   attackWindup: 0.2
   attackActiveTime: 0.3
   consumableLifetime: 0
+  showConsumeIndicator: 1
+  hitEffect:
+    prefab: {fileID: 0}
+    rotateToHitDirection: 0
+    scale: 0.9
+    lifetime: 0.3
+    fallbackColor: {r: 1, g: 0.85, b: 0.35, a: 1}
+    inheritSortingFromTarget: 1
+    sortingOrderOffset: 5
+    enabled: 1
+  hitFlashColor: {r: 1, g: 0.45, b: 0.45, a: 1}
+  hitFlashDuration: 0.12
+  cellDropTotal: 10
+  cellDropCount: 5
+  cellChunkPrefab: {fileID: 0}
+  dropOnDeathIfNotConsumable: 1
+  cellPickupDelay: 0.45
+  cellPopUpSpeed: 4
+  cellPopSideSpeed: 2.5
   engageRange: 8
   projectilePrefab: {fileID: 4789779386128304187, guid: 54d88cc04de8449498db2f6aff1d7dee, type: 3}
   firePoint: {fileID: 1460484254}

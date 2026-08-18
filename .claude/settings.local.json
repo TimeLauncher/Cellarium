@@ -36,7 +36,11 @@
       "Bash(awk '/EditorClassIdentifier: Assembly-CSharp::NpcInteractable/,/interactKey/' Assets/Scenes/SampleScene.unity)",
       "Bash(awk '/^--- !u!61 &900000012/,/m_Size/' Assets/Scenes/SampleScene.unity)",
       "PowerShell($csproj = \"C:\\\\Users\\\\jkh57\\\\cellarium\\\\Assembly-CSharp.csproj\"; Write-Output \"csproj exists: $\\(Test-Path $csproj\\)\"; $dotnet = \"F:/Unity/Editor/6000.3.5f2/Editor/Data/NetCoreRuntime/dotnet.exe\"; $csc = \"F:/Unity/Editor/6000.3.5f2/Editor/Data/DotNetSdkRoslyn/csc.dll\"; Write-Output \"dotnet exists: $\\(Test-Path $dotnet\\)\"; Write-Output \"csc exists: $\\(Test-Path $csc\\)\")",
-      "PowerShell(git *)"
+      "PowerShell(git *)",
+      "PowerShell(git merge-base origin/Effect HEAD | ForEach-Object { git log --oneline -1 $_ })",
+      "Bash(F:/Unity/Editor/6000.3.5f2/Editor/Data/NetCoreRuntime/dotnet.exe F:/Unity/Editor/6000.3.5f2/Editor/Data/DotNetSdkRoslyn/csc.dll @__TRACKED_VAR__/rsp.txt)",
+      "Bash(echo \"EXIT=$?\")",
+      "Bash(awk 'NR>=318 && NR<=5098' \"Assets/Scenes/Particle.unity\")"
     ]
   }
 }

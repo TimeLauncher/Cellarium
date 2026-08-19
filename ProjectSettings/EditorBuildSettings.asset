@@ -29,7 +29,7 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/Heart A06.unity
     guid: 72ce6b8de6a989844b36cd0893c84d62
-  - enabled: 1
+  - enabled: 0
     path: Assets/Scenes/SampleScene2.unity
     guid: e42193a549774137aa9b7df359381911
   m_configObjects:

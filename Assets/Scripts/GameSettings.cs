@@ -24,7 +24,10 @@ public static class GameSettings
     const string KeyMaster = "cellarium.volume.master";
     const string KeyBgm = "cellarium.volume.bgm";
     const string KeySfx = "cellarium.volume.sfx";
-    const string KeyBrightness = "cellarium.screen.brightness";
+    // 밝기는 기준이 바뀌었다 (예전 1 = 원본 → 지금 0.5 = 원본, 팀원 설정창의 0~100 슬라이더와 동일).
+    // 옛 키를 그대로 쓰면 예전에 저장된 1이 '최대 밝기'로 읽혀서 화면이 하얗게 뜬다.
+    // 키 이름을 바꿔 옛 값을 무시하고 기본값(0.5)으로 시작하게 한다.
+    const string KeyBrightness = "cellarium.screen.brightness2";
     const string KeyResW = "cellarium.screen.width";
     const string KeyResH = "cellarium.screen.height";
     const string KeyMode = "cellarium.screen.mode";

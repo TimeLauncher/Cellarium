@@ -8,7 +8,7 @@ using UnityEngine.UI;
 // 후처리와 달리 '원본보다 밝게'는 만들 수 없어서 0.5 위쪽은 원본 그대로 둔다.
 //   밝기 0.5 이상 = 판이 완전히 투명 (원본 그대로)
 //   밝기 0.25     = 판이 반쯤 검게 덮임
-//   밝기 0        = 판이 완전히 검음
+//   밝기 0        = 가장 어두움 (그래도 완전히 검게는 안 만든다 — 아래 maxDarkness 참고)
 //
 // 씬에 배치할 필요 없음 — GameSettings.Apply()가 처음 부를 때 자동 생성되고
 // DontDestroyOnLoad라 씬을 넘어가도 유지된다.
@@ -16,6 +16,10 @@ public class ScreenBrightness : MonoBehaviour
 {
     static ScreenBrightness instance;
     static Image overlay;
+
+    // 검은 판은 설정 UI보다도 위에 그려진다(sortingOrder 32000). 완전히 불투명해지면
+    // 밝기를 도로 올릴 설정창조차 안 보여서 빠져나올 방법이 없어진다.
+    const float maxDarkness = 0.85f;
 
     public static void Apply(float brightness)
     {
@@ -25,8 +29,8 @@ public class ScreenBrightness : MonoBehaviour
         EnsureInstance();
         if (overlay == null) return;
 
-        // 0.5(원본) → 0, 0(가장 어두움) → 1
-        float dark = Mathf.Clamp01((0.5f - brightness) * 2f);
+        // 0.5(원본) → 0, 0(가장 어두움) → maxDarkness
+        float dark = Mathf.Clamp01((0.5f - brightness) * 2f) * maxDarkness;
         overlay.color = new Color(0f, 0f, 0f, dark);
         overlay.enabled = dark > 0.001f;
     }

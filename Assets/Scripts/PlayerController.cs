@@ -261,6 +261,9 @@ private RuntimeAnimatorController cloneAnimatorController;
 
     private PlayerController returnBodyTarget;
     private Vector3 returnBaseScale = Vector3.one; // 회수 시작 시점(준비 애니메이션 전)의 원래 크기
+
+    //SFX
+    private PlayerSFX playerSFX;
     void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
@@ -283,6 +286,7 @@ private RuntimeAnimatorController cloneAnimatorController;
     void Start()
     {
         spr = GetComponent<SpriteRenderer>();
+        playerSFX = GetComponent<PlayerSFX>();
         animator = GetComponent<Animator>();
         if (spr != null) baseColor = spr.color; // 스프라이트 원래 색 보존 (강제로 흰색/초록으로 덮어쓰지 않기 위함)
         if (spr != null && forceSortingOrder) spr.sortingOrder = playerSortingOrder;
@@ -496,7 +500,7 @@ private RuntimeAnimatorController cloneAnimatorController;
                 lastWallJumpDir = wallDir;
                 wallJumpTimer = 0.25f;
                 coyoteTimer = 0f;
-                if (animator != null) animator.Play("jumpstart", 0, 0f);
+                
                 jumpBufferTimer = 0f;
             }
             // 공중 점프 차단: 지면에 있거나 방금 떠난 직후(코요테)에만 점프가 나간다.
@@ -506,7 +510,7 @@ private RuntimeAnimatorController cloneAnimatorController;
                 rb.linearVelocity = new Vector2(rb.linearVelocity.x, jumpPower);
                 jumpsLeft--;
                 coyoteTimer = 0f; // 한 번 뛰면 코요테 시간은 소진 — 뜨자마자 또 뛰는 것 방지
-                if (animator != null) animator.Play("jumpstart", 0, 0f);
+                
                 jumpBufferTimer = 0f;
             }
         }
@@ -1102,6 +1106,7 @@ private RuntimeAnimatorController cloneAnimatorController;
                 {
                     hitMonsters.Add(monster);
                     monster.TakeDamage(dashAttackDamage, dashDir); // 이펙트가 대시 진행 방향으로 뻗도록 방향도 넘긴다
+                    playerSFX?.PlayAttackSound();
 
                     // 맞은 몬스터도 대시 진행 방향으로 밀어낸다 (몬스터별 knockbackResistance로 조절, 0이면 안 밀림)
                     Vector2 monsterKnockDir = ((Vector2)(monster.transform.position - transform.position)).normalized;

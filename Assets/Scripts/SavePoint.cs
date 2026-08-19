@@ -105,9 +105,16 @@ public class SavePoint : MonoBehaviour
         if (PlayerManager.Instance != null)
         {
             PlayerManager.Instance.RecallAllClones();
+
             if (PlayerManager.Instance.allPlayers.Count > 0)
             {
                 PlayerController main = PlayerManager.Instance.allPlayers[0];
+
+                // 세이브 플레이어 모션
+                Animator playerAnimator = main.GetComponent<Animator>();
+                if (playerAnimator != null)
+                    playerAnimator.SetTrigger("Save");
+
                 main.RestoreFromConsume(main.maxHp, main.maxFissionGauge);
             }
         }

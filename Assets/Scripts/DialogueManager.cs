@@ -56,6 +56,7 @@ public class DialogueManager : MonoBehaviour
     bool builtOwnUI;
 
     public static bool IsPlaying => Instance != null && Instance.isPlaying;
+    public static int CurrentLineIndex => Instance != null ? Instance.lineIndex : -1;
 
     void Awake()
     {

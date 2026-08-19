@@ -1278,7 +1278,7 @@ MonoBehaviour:
   fogImage: {fileID: 231947305}
   textureWidth: 512
   textureHeight: 512
-  revealRadius: 50
+  revealRadius: 70
   softEdgeStart: 0.65
   revealSpacing: 0.01
 --- !u!114 &231947305
@@ -4575,7 +4575,7 @@ MonoBehaviour:
   fogImage: {fileID: 777064946}
   textureWidth: 512
   textureHeight: 512
-  revealRadius: 50
+  revealRadius: 70
   softEdgeStart: 0.65
   revealSpacing: 0.01
 --- !u!114 &777064946
@@ -9255,7 +9255,7 @@ MonoBehaviour:
   fogImage: {fileID: 1581442191}
   textureWidth: 512
   textureHeight: 512
-  revealRadius: 50
+  revealRadius: 60
   softEdgeStart: 0.65
   revealSpacing: 0.01
 --- !u!114 &1581442191
@@ -9437,7 +9437,7 @@ MonoBehaviour:
   fogImage: {fileID: 1630239069}
   textureWidth: 512
   textureHeight: 512
-  revealRadius: 50
+  revealRadius: 90
   softEdgeStart: 0.65
   revealSpacing: 0.01
 --- !u!114 &1630239069
@@ -11316,7 +11316,7 @@ MonoBehaviour:
   fogImage: {fileID: 1824638125}
   textureWidth: 512
   textureHeight: 512
-  revealRadius: 50
+  revealRadius: 130
   softEdgeStart: 0.65
   revealSpacing: 0.01
 --- !u!114 &1824638125

@@ -131,10 +131,7 @@ public class MapPositionTracker : MonoBehaviour
         string sceneName = SceneManager.GetActiveScene().name;
 
         MapArea[] mapAreas =
-            FindObjectsByType<MapArea>(
-                FindObjectsInactive.Include,
-                FindObjectsSortMode.None
-            );
+    content.GetComponentsInChildren<MapArea>(true);
 
         Debug.Log($"[Map] 현재 Scene = {sceneName}");
         Debug.Log($"[Map] 찾은 MapArea 개수 = {mapAreas.Length}");

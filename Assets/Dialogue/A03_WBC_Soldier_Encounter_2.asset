@@ -13,10 +13,10 @@ MonoBehaviour:
   m_Name: A03_WBC_Soldier_Encounter_2
   m_EditorClassIdentifier: 
   defaultJob: "\uBC31\uD608\uAD6C \uBCD1\uC0AC"
-  defaultSpeaker: ???
+  defaultSpeaker: "\uBC31\uD608\uAD6C \uBCD1\uC0AC 1"
   lines:
   - job: 
-    speaker: 
+    speaker: "\uBC31\uD608\uAD6C \uBCD1\uC0AC 2"
     text: "\uCE68\uC785\uC790\uC778\uAC00? \uC815\uCCB4\uB97C \uBC1D\uD600\uB77C!"
     charIntervalOverride: 0
   - job: 
@@ -26,7 +26,7 @@ MonoBehaviour:
       \uBE44\uC2B7\uD55C \uAC70 \uAC19\uC740\uB370?"
     charIntervalOverride: 0
   - job: 
-    speaker: 
+    speaker: "\uBC31\uD608\uAD6C \uBCD1\uC0AC 2"
     text: "\uD760\u2026 \uD138 \uB2EC\uB9B0 \uD558\uC580 \uACF5\u2026"
     charIntervalOverride: 0
   - job: 
@@ -34,7 +34,7 @@ MonoBehaviour:
     text: "\uADF8\uB9AC\uACE0 \uC800 \uBABB\uB09C \uAC80\uC740 \uB208\uB3D9\uC790\u2026!"
     charIntervalOverride: 0
   - job: 
-    speaker: 
+    speaker: "\uBC31\uD608\uAD6C \uBCD1\uC0AC 2"
     text: "\uD2C0\uB9BC\uC5C6\uC5B4! \uC6B4\uBC18\uC790\uAC00 \uB9D0\uD55C \uADF8
       \uD558\uC580 \uC138\uD3EC\uC57C!"
     charIntervalOverride: 0
@@ -44,7 +44,7 @@ MonoBehaviour:
       \uC218\uB294 \uC5C6\uC9C0!\r\n\uB530\uB77C\uC640, \uC6B0\uB9AC\uAC00 \uC548\uB0B4\uD574\uC8FC\uC9C0."
     charIntervalOverride: 0
   - job: 
-    speaker: 
+    speaker: "\uBC31\uD608\uAD6C \uBCD1\uC0AC 2"
     text: "\uB300\uC2E0 \uD5C8\uD2BC \uC9D3\uC744 \uD558\uBA74 \uCC14\uB7EC\uBC84\uB9B4\uAC70\uC57C.
       \uC870\uC2EC\uD574."
     charIntervalOverride: 0

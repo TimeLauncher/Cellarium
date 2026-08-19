@@ -1,0 +1,28 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8c5c9c8641762d74eac5a3509e51a5fa, type: 3}
+  m_Name: A06_WBC_Soldier_escape
+  m_EditorClassIdentifier: Assembly-CSharp::DialogueData
+  defaultJob: "\uBC31\uD608\uAD6C \uBCD1\uC0AC"
+  defaultSpeaker: "\uBC31\uD608\uAD6C \uBCD1\uC0AC 1"
+  lines:
+  - job: 
+    speaker: 
+    text: "T\uBC15\uC0AC\uB2D8! \uC218\uC0C1\uD55C \uB140\uC11D\uC744 \uB370\uB9AC\uACE0
+      \uC654\uC2B5\uB2C8\uB2E4!"
+    charIntervalOverride: 0
+  - job: 
+    speaker: "\uBC31\uD608\uAD6C \uBCD1\uC0AC 2"
+    text: "\uADF8\uB7FC \uC800\uD76C\uB294 \uB9C8\uC744 \uACBD\uBE44 \uC784\uBB34\uB85C
+      \uBCF5\uADC0\uD558\uACA0\uC2B5\uB2C8\uB2E4! \uC870\uC2EC\uD558\uC2ED\uC2DC\uC624,
+      \uBC15\uC0AC\uB2D8!"
+    charIntervalOverride: 0

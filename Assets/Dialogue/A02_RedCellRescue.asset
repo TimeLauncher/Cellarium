@@ -1,0 +1,33 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8c5c9c8641762d74eac5a3509e51a5fa, type: 3}
+  m_Name: A02_RedCellRescue
+  m_EditorClassIdentifier:
+  defaultJob: "적혈구 주민"
+  defaultSpeaker: "붉은이"
+  lines:
+  - job:
+    speaker:
+    text: "흐윽... 누, 누구세요...?"
+    charIntervalOverride: 0
+  - job:
+    speaker:
+    text: "여기 무너진 통로에 갇혀서... 아무도 안 오는 줄 알았어요."
+    charIntervalOverride: 0
+  - job:
+    speaker:
+    text: "고마워요, 화이트셀. 산소를 나르다 길을 잃었는데... 이제 돌아갈 수 있겠어요."
+    charIntervalOverride: 0
+  - job:
+    speaker:
+    text: "이거, 가진 게 이것뿐이라 미안하지만 받아 주세요."
+    charIntervalOverride: 0

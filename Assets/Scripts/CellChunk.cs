@@ -19,6 +19,11 @@ public class CellChunk : MonoBehaviour
     [Tooltip("튀어나오는 연출에 쓰는 중력 (Launch로 던져졌을 때만)")]
     public float popGravity = 14f;
 
+    // 튀어나오는 연출에서 실제로 움직일 오브젝트.
+    // 팀원이 만든 Bigcell 프리팹처럼 CellChunk가 자식에 붙어 있는 구조에서는
+    // 자기 자신만 움직이면 껍데기(빛/파티클)가 제자리에 남는다. Spawn이 루트를 넣어준다.
+    [System.NonSerialized] public Transform popRoot;
+
     float aliveTimer;
     Vector2 popVelocity;
     bool popping;
@@ -33,6 +38,8 @@ public class CellChunk : MonoBehaviour
 
     string id;
     bool isRuntimeDrop;
+
+    Transform PopRoot => popRoot != null ? popRoot : transform;
 
     void Awake()
     {
@@ -61,16 +68,17 @@ public class CellChunk : MonoBehaviour
 
         if (!popping) return;
 
-        transform.position += (Vector3)(popVelocity * Time.deltaTime);
+        Transform root = PopRoot;
+        root.position += (Vector3)(popVelocity * Time.deltaTime);
         popVelocity.y -= popGravity * Time.deltaTime;
 
         // 던져진 높이까지 도로 내려오면 연출 끝. 지형 충돌을 따로 보지 않아도
         // 시작 높이에서 멈추므로 바닥을 뚫고 들어가지 않는다.
-        if (popVelocity.y < 0f && transform.position.y <= popFloorY)
+        if (popVelocity.y < 0f && root.position.y <= popFloorY)
         {
-            Vector3 p = transform.position;
+            Vector3 p = root.position;
             p.y = popFloorY;
-            transform.position = p;
+            root.position = p;
             popping = false;
         }
     }
@@ -78,7 +86,9 @@ public class CellChunk : MonoBehaviour
     // 몬스터가 떨굴 때 살짝 튀어나오는 연출. 프리팹에 Rigidbody2D가 있으면 그쪽을 쓴다.
     public void Launch(Vector2 velocity)
     {
-        Rigidbody2D body = GetComponent<Rigidbody2D>();
+        Transform root = PopRoot;
+
+        Rigidbody2D body = root.GetComponent<Rigidbody2D>();
         if (body != null && body.bodyType == RigidbodyType2D.Dynamic)
         {
             body.linearVelocity = velocity;
@@ -86,7 +96,7 @@ public class CellChunk : MonoBehaviour
         }
 
         popVelocity = velocity;
-        popFloorY = transform.position.y;
+        popFloorY = root.position.y;
         popping = true;
     }
 
@@ -107,7 +117,71 @@ public class CellChunk : MonoBehaviour
             PlayerManager.Instance.AddCell(cellAmount);
 
         if (!isRuntimeDrop) WorldState.Record(WorldCategory.Pickup, id);
-        Destroy(gameObject);
+        Destroy(PopRoot.gameObject); // 프리팹 구조상 껍데기(빛/파티클)가 부모일 수 있어 루트째 지운다
+    }
+
+    // ── 셀 덩어리 생성 공용 창구 ──────────────────────────────────────
+    //
+    // 셀이 어떤 모습으로 나올지를 한 군데서 정한다. 고르는 순서는 HitEffect와 같다:
+    //   ① 인스펙터에 꽂은 프리팹 (몬스터별로 다른 셀을 쓰고 싶을 때)
+    //   ② Assets/Resources/Effects/CellDrop.prefab  ← 기본. 진짜 셀 이미지가 여기 들어있다
+    //   ③ 그것도 없으면 런타임 흰 동그라미 (에셋이 하나도 없을 때만)
+    //
+    // ★ ②가 Resources 아래에 있는 이유: 씬마다 몬스터가 28마리 넘게 깔려 있는데
+    //   전부 인스펙터에 프리팹을 꽂게 하면 한 마리라도 빠뜨리면 그 몬스터만 흰 동그라미를 떨군다.
+    const string DefaultPrefabPath = "Effects/CellDrop";
+
+    static GameObject defaultPrefab;
+    static bool defaultPrefabSearched;
+
+    static GameObject DefaultPrefab()
+    {
+        if (!defaultPrefabSearched)
+        {
+            defaultPrefabSearched = true;
+            defaultPrefab = Resources.Load<GameObject>(DefaultPrefabPath);
+        }
+        return defaultPrefab;
+    }
+
+    // position 자리에 셀 덩어리 하나를 만든다. 획득 기록(WorldState)은 남기지 않는다 —
+    // 몬스터 드랍·이벤트 보상은 씬을 리로드하면 다시 생겨야 하기 때문.
+    // sortingRef: 정렬 레이어를 물려줄 스프라이트(보통 떨군 몬스터). 프리팹을 쓸 땐 건드리지 않는다.
+    public static CellChunk Spawn(Vector3 position, int amount, GameObject prefab = null,
+                                  SpriteRenderer sortingRef = null)
+    {
+        GameObject source = prefab != null ? prefab : DefaultPrefab();
+
+        if (source == null)
+            return SpawnRuntime(position, amount, sortingRef);
+
+        NextIsRuntimeDrop = true;
+        GameObject go = Instantiate(source, position, Quaternion.identity);
+        NextIsRuntimeDrop = false; // 프리팹이 비활성이라 Awake가 안 돈 경우 대비
+
+        // 팀원이 만든 Bigcell 프리팹처럼 CellChunk가 자식에 붙어 있는 구조도 받아준다
+        CellChunk chunk = go.GetComponentInChildren<CellChunk>(true);
+        if (chunk == null)
+        {
+            Debug.LogWarning($"[CellChunk] 셀 프리팹 '{source.name}'에 CellChunk 컴포넌트가 없습니다.", source);
+            Destroy(go);
+            return SpawnRuntime(position, amount, sortingRef);
+        }
+
+        chunk.popRoot = go.transform;   // 튀어오르기/제거는 루트 기준
+        chunk.cellAmount = amount;
+
+        // ★ 떨군 몬스터의 정렬 레이어를 물려준다.
+        //   이 프로젝트엔 Default 말고 'New Layer 1/2'도 쓰이고 있어서, 레이어가 다르면
+        //   Order in Layer를 아무리 높여도 무시된다 — 몬스터는 보이는데 셀만 맵 뒤에 숨는다.
+        if (sortingRef != null)
+            foreach (SpriteRenderer sr in go.GetComponentsInChildren<SpriteRenderer>(true))
+            {
+                sr.sortingLayerID = sortingRef.sortingLayerID;
+                sr.sortingOrder = sortingRef.sortingOrder + 1; // 시체보다 앞에
+            }
+
+        return chunk;
     }
 
     // 셀 스프라이트가 아직 없어서(에셋 미제작) 런타임에 임시 셀 덩어리를 만든다.

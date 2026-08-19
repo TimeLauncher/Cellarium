@@ -1,0 +1,33 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8c5c9c8641762d74eac5a3509e51a5fa, type: 3}
+  m_Name: A03_WhiteSoldierFirst
+  m_EditorClassIdentifier:
+  defaultJob: "백혈구 병사"
+  defaultSpeaker: "루코"
+  lines:
+  - job:
+    speaker:
+    text: "거기 서라. 신원을 밝혀라."
+    charIntervalOverride: 0
+  - job:
+    speaker:
+    text: "...화이트셀? 이런 하급 구역에 왜 혼자 나와 있지."
+    charIntervalOverride: 0
+  - job:
+    speaker:
+    text: "지금 이 일대는 통제 중이다. 분열균이 혈관을 타고 번지고 있어."
+    charIntervalOverride: 0
+  - job:
+    speaker:
+    text: "설명은 나중에. 사령부로 간다. 따라와라."
+    charIntervalOverride: 0

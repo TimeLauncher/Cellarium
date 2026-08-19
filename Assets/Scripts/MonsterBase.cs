@@ -658,29 +658,10 @@ public class MonsterBase : MonoBehaviour, IConsumable
 
     void SpawnCellChunk(Vector3 position, int amount)
     {
-        CellChunk chunk;
-
-        if (cellChunkPrefab == null)
-        {
-            // 몬스터의 정렬 레이어를 물려줘야 맵/배경 뒤에 숨지 않는다
-            chunk = CellChunk.SpawnRuntime(position, amount, spr);
-        }
-        else
-        {
-            // 드랍분은 '이미 먹음' 기록을 남기지 않는다 (CellChunk.NextIsRuntimeDrop 주석 참고)
-            CellChunk.NextIsRuntimeDrop = true;
-            GameObject go = Instantiate(cellChunkPrefab, position, Quaternion.identity);
-            CellChunk.NextIsRuntimeDrop = false; // 프리팹이 비활성이라 Awake가 안 돈 경우 대비
-
-            chunk = go.GetComponent<CellChunk>();
-            if (chunk == null)
-            {
-                Debug.LogWarning($"[{name}] Cell Chunk Prefab에 CellChunk 컴포넌트가 없습니다.", this);
-                return;
-            }
-            chunk.cellAmount = amount;
-        }
-
+        // 어떤 모습으로 나올지는 CellChunk.Spawn이 정한다
+        // (인스펙터 프리팹 → Resources/Effects/CellDrop → 런타임 임시 원 순).
+        // 몬스터의 정렬 레이어를 물려줘야 맵/배경 뒤에 숨지 않는다.
+        CellChunk chunk = CellChunk.Spawn(position, amount, cellChunkPrefab, spr);
         if (chunk == null) return;
 
         // 섭취 직후엔 플레이어가 몬스터 자리에 겹쳐 있어서 그냥 두면 생기는 즉시 흡수된다.

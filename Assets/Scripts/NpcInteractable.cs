@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 
 // NPC 상호작용 (기획서 (1) '기능 추가: NPC 상호작용').
@@ -35,10 +36,34 @@ public class NpcInteractable : MonoBehaviour
     [Header("입력")]
     public KeyCode interactKey = KeyCode.E;
 
+    [Header("구조 이벤트 (A02 적혈구 주민 등)")]
+    // 기획서 (2)의 '적혈구 주민 구조 이벤트' — 울음소리(ProximitySound)로 동선을 유도해
+    // 찾아가서 말을 걸면 구조 완료. 감사 인사를 남기고 사라지면서 셀을 떨군다.
+    [Tooltip("켜면 대화가 끝난 뒤 이 NPC가 사라진다(구조 완료). 씬을 다시 로드해도 기억한다")]
+    public bool leaveAfterTalk = false;
+
+    [Tooltip("구조 보상으로 떨어뜨릴 셀 양. 0이면 보상 없음")]
+    public int rewardCell = 100;
+
+    [Tooltip("보상 셀의 모양. 비우면 기본 셀(Resources/Effects/CellDrop)이 나온다")]
+    public GameObject rewardCellPrefab;
+
+    [Tooltip("대화가 끝나고 이만큼 뒤에 떠나기 시작한다")]
+    public float leaveDelay = 0.3f;
+
+    [Tooltip("사라지는 데 걸리는 시간 (0이면 즉시 사라진다)")]
+    public float leaveFadeDuration = 0.8f;
+
+    [Tooltip("구조 여부를 기억할 때 쓰는 식별자. 비우면 계층 경로로 자동 생성된다")]
+    public string persistentId = "";
+
     public bool HasTalked { get; private set; }
 
     bool playerInRange;
+    bool leaving;
     WorldTooltip hint;
+
+    string RescueId => WorldState.MakeId(this, persistentId);
 
     // ★ 대화가 끝난 그 프레임에 같은 E키로 곧바로 다시 말을 거는 것을 막는다.
     //   DialogueManager.Update가 먼저 돌아 대화를 끝내면, 같은 프레임에 이 Update가
@@ -49,6 +74,13 @@ public class NpcInteractable : MonoBehaviour
     {
         Collider2D col = GetComponent<Collider2D>();
         if (col != null) col.isTrigger = true;
+
+        // 이미 구조한 주민이면 리로드된 씬에 다시 나타나지 않는다 (울음소리도 같이 멎는다)
+        if (leaveAfterTalk && WorldState.Has(WorldCategory.Event, RescueId))
+        {
+            gameObject.SetActive(false);
+            return;
+        }
 
         BuildHint();
     }
@@ -75,6 +107,7 @@ public class NpcInteractable : MonoBehaviour
 
     void Update()
     {
+        if (leaving) return;
         if (!playerInRange) return;
         if (DialogueManager.IsPlaying) return;   // 대화 중엔 재진입 금지
         if (Time.frameCount == lastEndedFrame) return; // 종료 프레임의 E키가 재시작으로 먹히는 것 방지
@@ -107,8 +140,69 @@ public class NpcInteractable : MonoBehaviour
         HasTalked = true;
         lastEndedFrame = Time.frameCount;
 
+        // 구조 대상이면 대화가 끝나는 순간 구조 완료 — 보상을 남기고 떠난다
+        if (leaveAfterTalk && !leaving)
+        {
+            leaving = true;
+            SetHintVisible(false);
+            StartCoroutine(LeaveAfterRescue());
+            return;
+        }
+
         // 다시 말을 걸 수 있으면 안내를 되살린다 (범위 안에 있을 때만 실제로 보인다)
         SetHintVisible(CanTalk);
+    }
+
+    // 구조 완료 — 보상 셀을 떨구고 서서히 사라진다
+    IEnumerator LeaveAfterRescue()
+    {
+        WorldState.Record(WorldCategory.Event, RescueId);
+
+        if (leaveDelay > 0f) yield return new WaitForSeconds(leaveDelay);
+
+        if (rewardCell > 0)
+        {
+            SpriteRenderer spr = GetComponentInChildren<SpriteRenderer>();
+            CellChunk reward = CellChunk.Spawn(transform.position, rewardCell, rewardCellPrefab, spr);
+
+            // 플레이어가 바로 앞에 서 있어서 그냥 두면 생기자마자 흡수된다 —
+            // 잠깐 튀어오르는 걸 보여준 뒤 먹히게 한다 (몬스터 셀 드랍과 같은 처리)
+            if (reward != null)
+            {
+                reward.pickupDelay = 0.45f;
+                reward.Launch(new Vector2(Random.Range(-1.2f, 1.2f), 4f));
+            }
+        }
+
+        yield return FadeOut();
+
+        gameObject.SetActive(false);
+    }
+
+    IEnumerator FadeOut()
+    {
+        SpriteRenderer[] sprites = GetComponentsInChildren<SpriteRenderer>();
+
+        if (leaveFadeDuration <= 0f || sprites.Length == 0) yield break;
+
+        float[] startAlpha = new float[sprites.Length];
+        for (int i = 0; i < sprites.Length; i++) startAlpha[i] = sprites[i].color.a;
+
+        float t = 0f;
+        while (t < leaveFadeDuration)
+        {
+            t += Time.deltaTime;
+            float k = 1f - Mathf.Clamp01(t / leaveFadeDuration);
+
+            for (int i = 0; i < sprites.Length; i++)
+            {
+                if (sprites[i] == null) continue;
+                Color c = sprites[i].color;
+                c.a = startAlpha[i] * k;
+                sprites[i].color = c;
+            }
+            yield return null;
+        }
     }
 
     void SetHintVisible(bool visible)

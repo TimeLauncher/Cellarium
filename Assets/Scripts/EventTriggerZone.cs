@@ -15,6 +15,8 @@ using UnityEngine.SceneManagement;
 //   3) MovePlayer : A06 쪽 지점까지 플레이어가 끌려감
 //   4) LoadScene  : A06으로 강제 씬 전환 (도착 지점은 SceneEntryPoint의 Entry Id로 지정)
 //
+// CameraFocus 단계를 쓰면 멀리 있는 것(열린 문, 무너진 벽 등)을 잠깐 비춰준 뒤 돌아올 수 있다.
+//
 // 배치법
 //   빈 게임오브젝트 + Collider2D(Is Trigger ✓) 에 붙이고 노란 구역 크기로 키운다.
 [RequireComponent(typeof(Collider2D))]
@@ -29,6 +31,11 @@ public class EventTriggerZone : MonoBehaviour
         SetActive,     // 오브젝트 켜기/끄기 (벽 막이, 연출용 오브젝트 등)
         UnlockFission, // 분열 능력 해금
         LoadScene,     // 씬 강제 전환
+
+        // ★ 새 항목은 반드시 맨 아래에 추가할 것.
+        //   중간에 끼워 넣으면 뒤쪽 값이 한 칸씩 밀려서, 이미 씬에 저장된 단계가
+        //   전혀 다른 동작으로 바뀐다 (LoadScene이 UnlockFission이 되는 식).
+        CameraFocus,   // 지정 지점을 잠깐 비춰준 뒤 다시 조종 중인 캐릭터로 돌아온다
     }
 
     [System.Serializable]
@@ -50,6 +57,14 @@ public class EventTriggerZone : MonoBehaviour
         public float moveSpeed = 3f;
         [Tooltip("이 거리 안에 들어오면 도착으로 친다")]
         public float arriveDistance = 0.3f;
+
+        [Header("CameraFocus")]
+        [Tooltip("잠깐 비출 지점. 머무는 시간은 위의 Duration을 쓴다")]
+        public Transform cameraTarget;
+        [Tooltip("카메라가 그 지점까지 날아가는 시간")]
+        public float cameraTravelTime = 0.8f;
+        [Tooltip("다시 조종 중인 캐릭터로 돌아오는 시간")]
+        public float cameraReturnTime = 0.8f;
 
         [Header("SetActive")]
         public GameObject target;
@@ -189,6 +204,17 @@ public class EventTriggerZone : MonoBehaviour
 
             case StepType.MovePlayer:
                 yield return DragPlayer(s);
+                break;
+
+            case StepType.CameraFocus:
+                if (s.cameraTarget == null)
+                {
+                    Debug.LogWarning($"[{name}] CameraFocus 단계의 Camera Target이 비어 있습니다.", this);
+                    break;
+                }
+                // 조작 잠금은 이 트리거의 Lock Input 설정을 그대로 따른다 (여기서 또 걸지 않는다)
+                yield return global::CameraFocus.PlayRoutine(
+                    s.cameraTarget, s.cameraTravelTime, s.duration, s.cameraReturnTime, false);
                 break;
 
             case StepType.SetActive:

@@ -49,6 +49,7 @@ public class AreaPortal : MonoBehaviour
     {
         if (!requireKeyPress || !playerInRange || triggered) return;
         if (SceneEntryPoint.EntrySequenceActive) return;
+        if (PlayerInputLock.IsLocked) return;
         if (Input.GetKeyDown(interactKey)) Go();
     }
 
@@ -60,6 +61,12 @@ public class AreaPortal : MonoBehaviour
         // ★ 입장 연출 중엔 발동시키지 않는다. 걸어 나오는 시작 지점이 문 안쪽이라
         //   그대로 두면 도착하자마자 이 트리거를 밟아 왔던 씬으로 도로 튕긴다.
         if (SceneEntryPoint.EntrySequenceActive) return;
+
+        // ★ 연출로 조작이 잠긴 동안(EventTriggerZone의 '끌려가는 연출' 등)에도 발동하지 않는다.
+        //   A03에서 백혈구 병사가 플레이어를 A06 쪽으로 끌고 가는데, 그 목표 지점 근처에
+        //   A06으로 가는 문이 있다. 막아두지 않으면 연출이 정한 LoadScene 대신 이 문이 먼저
+        //   발동해서, 연출이 중간에 잘린 채 씬이 넘어간다.
+        if (PlayerInputLock.IsLocked) return;
 
         if (!requireKeyPress) Go();
     }

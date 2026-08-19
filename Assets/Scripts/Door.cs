@@ -60,6 +60,23 @@ public class Door : MonoBehaviour
     public float openSlideDuration = 0.6f;
     public Vector2 openSlideDir = Vector2.up;
 
+    [Header("개방 시 카메라 연출")]
+    // 버튼과 문이 멀리 떨어져 있으면 문이 열려도 화면에 안 보인다.
+    // (A02의 Button_Door (1)은 버튼과 문이 80유닛 넘게 떨어져 있다)
+    // 켜면 '버튼 누름 → 카메라가 문으로 이동 → 열리는 것 보여줌 → 다시 본체로' 순으로 돈다.
+    [Tooltip("문이 열릴 때 카메라가 문을 비춰준 뒤 다시 조종 중인 캐릭터로 돌아온다")]
+    public bool focusCameraOnOpen = false;
+    [Tooltip("비추고 싶은 지점. 비우면 문 자신을 비춘다 (문 위쪽을 보여주고 싶으면 빈 오브젝트를 놓고 연결)")]
+    public Transform cameraFocusTarget;
+    [Tooltip("카메라가 문까지 날아가는 시간")]
+    public float focusTravelTime = 0.8f;
+    [Tooltip("문이 다 열린 뒤 그대로 보여주는 시간")]
+    public float focusHoldTime = 0.8f;
+    [Tooltip("다시 본체로 돌아오는 시간")]
+    public float focusReturnTime = 0.8f;
+    [Tooltip("연출 동안 조작을 막는다. 동시에 밟는 퍼즐이면 켜두는 편이 안전하다")]
+    public bool focusLockInput = true;
+
     [Header("진행 색 표시 (실제 문 스프라이트가 있으면 보통 끔)")]
     public bool tintDoorByProgress = false;
     public Color closedColor = Color.white;
@@ -299,9 +316,36 @@ public class Door : MonoBehaviour
         WorldState.Record(WorldCategory.Door, persistId);
         Debug.Log($"[{name}] 문 개방!");
 
-        // 사라지지 않고 위로 슬라이드 (스프라이트가 있고 이동값이 유효할 때)
-        if (spr != null && openSlideDistance != 0f && openSlideDuration > 0f && openSlideDir.sqrMagnitude > 0.0001f)
+        // 카메라 연출을 켜두면 '카메라가 문에 도착한 뒤'에 열어야 열리는 게 보인다
+        if (focusCameraOnOpen)
+            StartCoroutine(OpenWithCamera());
+        else if (CanSlide)
             StartCoroutine(SlideOpen());
+    }
+
+    // 사라지지 않고 위로 슬라이드 (스프라이트가 있고 이동값이 유효할 때)
+    bool CanSlide => spr != null && openSlideDistance != 0f && openSlideDuration > 0f
+                     && openSlideDir.sqrMagnitude > 0.0001f;
+
+    // 버튼 누름 → 카메라가 문으로 → 문이 열리는 것 보여주기 → 다시 본체로
+    IEnumerator OpenWithCamera()
+    {
+        Transform target = cameraFocusTarget != null ? cameraFocusTarget : transform;
+        CameraFocus focus = CameraFocus.Begin(target, focusTravelTime, focusLockInput);
+
+        // 연출을 못 걸었으면(대상이 없거나) 그냥 평소대로 연다
+        if (focus == null)
+        {
+            if (CanSlide) yield return SlideOpen();
+            yield break;
+        }
+
+        yield return focus.WaitForArrive();
+
+        if (CanSlide) yield return SlideOpen();
+
+        yield return new WaitForSeconds(Mathf.Max(0f, focusHoldTime));
+        yield return focus.End(focusReturnTime);
     }
 
     IEnumerator SlideOpen()

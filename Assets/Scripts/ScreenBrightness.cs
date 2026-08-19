@@ -3,10 +3,12 @@ using UnityEngine.UI;
 
 // 화면 밝기 조절 (기획서 (7) 설정 UI의 '화면 밝기').
 //
-// 이 프로젝트엔 Post Processing 패키지가 없어서 카메라 후처리로 밝기를 못 만진다.
-// 대신 화면 전체를 덮는 검은 판을 하나 띄우고 그 투명도로 어둡게 한다.
-//   밝기 1   = 판이 완전히 투명 (원본 그대로)
-//   밝기 0.5 = 판이 반쯤 검게 덮임
+// URP 후처리(ColorAdjustments)가 갖춰진 씬에서는 GameSettings가 그쪽으로 밝기를 걸고,
+// 그렇지 않은 씬에서만 이 방식으로 넘어온다 — 화면 전체를 덮는 검은 판의 투명도로 어둡게 한다.
+// 후처리와 달리 '원본보다 밝게'는 만들 수 없어서 0.5 위쪽은 원본 그대로 둔다.
+//   밝기 0.5 이상 = 판이 완전히 투명 (원본 그대로)
+//   밝기 0.25     = 판이 반쯤 검게 덮임
+//   밝기 0        = 판이 완전히 검음
 //
 // 씬에 배치할 필요 없음 — GameSettings.Apply()가 처음 부를 때 자동 생성되고
 // DontDestroyOnLoad라 씬을 넘어가도 유지된다.
@@ -18,12 +20,13 @@ public class ScreenBrightness : MonoBehaviour
     public static void Apply(float brightness)
     {
         // 원본 밝기면 굳이 오브젝트를 만들지 않는다 (기본 상태에서 쓸데없는 캔버스가 안 생기게)
-        if (instance == null && brightness >= 0.999f) return;
+        if (instance == null && brightness >= 0.5f) return;
 
         EnsureInstance();
         if (overlay == null) return;
 
-        float dark = Mathf.Clamp01(1f - brightness);
+        // 0.5(원본) → 0, 0(가장 어두움) → 1
+        float dark = Mathf.Clamp01((0.5f - brightness) * 2f);
         overlay.color = new Color(0f, 0f, 0f, dark);
         overlay.enabled = dark > 0.001f;
     }

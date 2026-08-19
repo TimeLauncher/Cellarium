@@ -21,7 +21,6 @@ public class PauseMenu : MonoBehaviour
     [SerializeField] private MapController mapController;
     private GameObject gameplayUI;
 
-    private bool isMapOpen;
     public static bool IsMapOpen { get; private set; }
     private static PauseMenu instance;
 
@@ -54,6 +53,16 @@ public class PauseMenu : MonoBehaviour
         if (quitConfirmPanel != null)
         {
             quitConfirmPanel.SetActive(false);
+        }
+
+        if (settingsPanel != null)
+        {
+            settingsPanel.SetActive(false);
+        }
+
+        if (mapPanel != null)
+        {
+            mapPanel.SetActive(false);
         }
 
         FindGameplayUI();
@@ -123,7 +132,8 @@ public class PauseMenu : MonoBehaviour
     {
         IsPaused = true;
 
-        optionPanel.SetActive(true);
+        if (optionPanel != null)
+            optionPanel.SetActive(true);
 
         if (gameplayUI != null)
             gameplayUI.SetActive(false);
@@ -142,9 +152,14 @@ public class PauseMenu : MonoBehaviour
         isSettingsOpen = false;
         isQuitConfirmOpen = false;
 
-        optionPanel.SetActive(false);
-        settingsPanel.SetActive(false);
-        quitConfirmPanel.SetActive(false);
+        if (optionPanel != null)
+            optionPanel.SetActive(false);
+
+        if (settingsPanel != null)
+            settingsPanel.SetActive(false);
+
+        if (quitConfirmPanel != null)
+            quitConfirmPanel.SetActive(false);
 
         if (gameplayUI != null)
             gameplayUI.SetActive(true);
@@ -154,9 +169,14 @@ public class PauseMenu : MonoBehaviour
 
     public void OpenQuitConfirm()
     {
+        if (quitConfirmPanel == null)
+            return;
+
         isQuitConfirmOpen = true;
 
-        optionPanel.SetActive(false);
+        if (optionPanel != null)
+            optionPanel.SetActive(false);
+
         quitConfirmPanel.SetActive(true);
 
         if (quitConfirmSelector != null)
@@ -174,8 +194,11 @@ public class PauseMenu : MonoBehaviour
 
         isQuitConfirmOpen = false;
 
-        quitConfirmPanel.SetActive(false);
-        optionPanel.SetActive(true);
+        if (quitConfirmPanel != null)
+            quitConfirmPanel.SetActive(false);
+
+        if (optionPanel != null)
+            optionPanel.SetActive(true);
     }
 
     public void ConfirmQuit()
@@ -227,10 +250,14 @@ public class PauseMenu : MonoBehaviour
         if (IsPaused || isSettingsOpen || isQuitConfirmOpen)
             return;
 
+        // 지도 UI가 연결 안 된 씬(A01/A02의 옛 Canvas 등)에서 열면
+        // 화면은 그대로인데 timeScale만 0이 돼서 게임이 멈춘 것처럼 보인다.
+        if (mapPanel == null)
+            return;
+
         IsMapOpen = true;
 
-        if (mapPanel != null)
-            mapPanel.SetActive(true);
+        mapPanel.SetActive(true);
 
         if (gameplayUI != null)
             gameplayUI.SetActive(false);

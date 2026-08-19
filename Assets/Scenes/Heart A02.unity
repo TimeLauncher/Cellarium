@@ -4445,7 +4445,7 @@ Transform:
   m_GameObject: {fileID: 866211444}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -41.000004, y: -23, z: -12.6605}
+  m_LocalPosition: {x: -41.00769, y: -23, z: -12.6605}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -55714,7 +55714,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 2.5822785, y: 2.5822785, z: 1}
+  m_LocalScale: {x: 2.581037, y: 2.581037, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
@@ -102960,7 +102960,7 @@ MonoBehaviour:
   entryId: from_A01
   walkInOnArrival: 1
   walkInDistance: 1.8
-  walkInDirection: -1
+  walkInDirection: 1
   waitForFadeIn: 1
   walkStartScreenAlpha: 0.55
   fadeWaitTimeout: 2

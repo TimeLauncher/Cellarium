@@ -20,6 +20,9 @@ public class WorldStateSettings : MonoBehaviour
     [Tooltip("세이브포인트 활성화 표시. 보통 되돌릴 이유가 없어 AlwaysPersist")]
     public PersistMode savePoints = PersistMode.AlwaysPersist;
 
+    [Tooltip("이미 본 강제 연출(EventTriggerZone). 죽을 때마다 연출을 다시 보고 싶지 않으면 AlwaysPersist")]
+    public PersistMode events = PersistMode.AlwaysPersist;
+
     void Awake()
     {
         Apply();
@@ -34,6 +37,7 @@ public class WorldStateSettings : MonoBehaviour
         w.SetMode(WorldCategory.Pickup, pickups);
         w.SetMode(WorldCategory.DarkCell, darkCells);
         w.SetMode(WorldCategory.SavePoint, savePoints);
+        w.SetMode(WorldCategory.Event, events);
     }
 
     // 플레이 중 인스펙터에서 바꾼 값을 바로 반영 (튜닝용)

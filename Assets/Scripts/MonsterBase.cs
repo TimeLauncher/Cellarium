@@ -61,6 +61,47 @@ public class MonsterBase : MonoBehaviour, IConsumable
     [Header("섭취 대기 시간")]
     public float consumableLifetime = 5f; // 섭취 가능 상태로 이 시간 동안 방치되면 자동 소멸
 
+    [Tooltip("섭취 가능 상태가 되면 사정거리 원을 표시하고, " +
+             "마우스로 집기 쉬운 섭취 전용 원형 콜라이더를 자동으로 붙인다")]
+    public bool showConsumeIndicator = true;
+
+    [Header("피격 이펙트")]
+    [Tooltip("맞은 자리에 터지는 이펙트. Prefab을 비워두면 임시 스파크가 런타임에 만들어진다")]
+    public HitEffect.Settings hitEffect = new HitEffect.Settings
+    {
+        scale = 0.9f,
+        lifetime = 0.3f,
+        fallbackColor = new Color(1f, 0.85f, 0.35f, 1f),
+    };
+
+    [Tooltip("맞은 순간 스프라이트를 이 색으로 물들인다. 곱하기 틴트라 흰색이면 아무 변화가 없다")]
+    public Color hitFlashColor = new Color(1f, 0.45f, 0.45f, 1f);
+
+    [Tooltip("피격 시 스프라이트가 물드는 시간. 0이면 색 변화 없음")]
+    public float hitFlashDuration = 0.12f;
+
+    [Header("셀 드랍")]
+    // 기본값은 전 몬스터 공통(총량 10 ÷ 5개 = 개당 2)이라 씬에 넣지 않고 여기 둔다.
+    // 씬마다 박아두면 몬스터를 새로 놓을 때마다 빠뜨리고, 씬 저장 사고로 날아가기도 한다.
+    // 몬스터별로 다르게 하고 싶으면 그 몬스터 인스펙터에서만 값을 바꾸면 된다.
+    [Tooltip("처치 시 떨어뜨리는 셀 총량. 0이면 드랍하지 않는다 (10 = 개당 2 × 5개)")]
+    [Range(0, 100)] public int cellDropTotal = 10;
+
+    [Tooltip("총량을 몇 덩어리로 나눠 뿌릴지. 덩어리 하나당 셀 = 총량 ÷ 개수 (나머지는 앞쪽 덩어리에 1씩 붙는다)")]
+    [Range(1, 10)] public int cellDropCount = 5;
+
+    [Tooltip("떨어뜨릴 셀 프리팹. 비우면 임시 셀(노란 동그라미)을 런타임에 만든다")]
+    public GameObject cellChunkPrefab;
+
+    [Tooltip("떨어진 셀이 이 시간 동안은 획득되지 않는다. 0이면 섭취한 자리에서 즉시 흡수돼 셀이 보이지 않는다")]
+    public float cellPickupDelay = 0.45f;
+
+    [Tooltip("셀이 튀어오르는 속도")]
+    public float cellPopUpSpeed = 4f;
+
+    [Tooltip("셀이 좌우로 흩어지는 속도")]
+    public float cellPopSideSpeed = 2.5f;
+
     protected float currentHp;
     protected float attackCooldownTimer;
     protected bool isAttacking;
@@ -83,6 +124,7 @@ public class MonsterBase : MonoBehaviour, IConsumable
     protected int facingDir = 1;       // 바라보는 방향(+1 오른쪽 / -1 왼쪽). 히트박스 방향/앞쪽 판정에 사용
     private float hitboxBaseOffsetX;   // 히트박스 자식의 원래 로컬 x 오프셋 크기 (방향 따라 부호만 바꿔줌)
     private Color baseColor;
+    private float hitFlashTimer;
     private float consumableTimer;
     private bool hitPlayerThisAttack;
     protected HitboxVisualizer hitboxView;
@@ -126,13 +168,23 @@ public class MonsterBase : MonoBehaviour, IConsumable
                 hitboxView = attackHitbox.gameObject.AddComponent<HitboxVisualizer>();
         }
 
+        // 기획서 (8): 섭취 사정거리 원 + 섭취 전용 콜라이더 + 커서 링 (인스펙터 작업 불필요).
+        // ★ 반드시 bodyCollider를 잡은 뒤에 붙일 것 — ConsumeIndicator가 콜라이더를 하나 더 만든다.
+        //   (자식에 만들긴 하지만, 순서를 지켜야 나중에 방식이 바뀌어도 안전하다)
+        if (showConsumeIndicator && GetComponent<ConsumeIndicator>() == null)
+            gameObject.AddComponent<ConsumeIndicator>();
+
         if (spr != null) baseColor = spr.color; // 인스펙터에서 구분용으로 지정한 색 보존
     }
 
     protected virtual void Update()
     {
+        // ★ 색은 여기서 매 프레임 덮어쓰므로 피격 반짝임도 반드시 이 안에서 처리해야 한다.
+        //   밖에서 spr.color를 직접 바꾸면 다음 프레임에 그대로 지워진다.
+        if (hitFlashTimer > 0f) hitFlashTimer -= Time.deltaTime;
+
         if (spr != null)
-            spr.color = IsDead ? Color.yellow : baseColor;
+            spr.color = IsDead ? Color.yellow : (hitFlashTimer > 0f ? hitFlashColor : baseColor);
 
         if (IsDead)
         {
@@ -182,7 +234,8 @@ public class MonsterBase : MonoBehaviour, IConsumable
         PlayerController pc = hit.GetComponent<PlayerController>();
         if (pc == null) return;
 
-        pc.TakeDamage(attackDamage, KnockbackVector(pc.transform.position), stunDuration);
+        // 몸통에 겹쳐서 주는 피해 — 대시로 들이받는 동안은 이것만 면역된다
+        pc.TakeDamage(attackDamage, KnockbackVector(pc.transform.position), stunDuration, DamageSource.Contact);
     }
 
     // 플레이어에게 줄 넉백 속도. 좌우 방향은 몬스터→플레이어 기준으로 잡고,
@@ -246,9 +299,11 @@ public class MonsterBase : MonoBehaviour, IConsumable
         return CastSurface(origin, Vector2.down, ledgeCheckDepth, out _);
     }
 
-    // 섭취 가능 상태로 방치되어 시간 초과된 경우 — 기본은 그냥 소멸
+    // 섭취 가능 상태로 방치되어 시간 초과된 경우 — 시체가 스스로 정리된다.
+    // 안 먹었어도 셀은 나온다 (먹어야만 주면 놓친 몬스터의 보상이 통째로 증발한다).
     protected virtual void OnConsumableTimeout()
     {
+        DropCells();
         Destroy(gameObject);
     }
 
@@ -256,6 +311,10 @@ public class MonsterBase : MonoBehaviour, IConsumable
     public virtual void OnConsumed(PlayerController consumer)
     {
         consumer.RestoreFromConsume(100f, 100f);
+
+        // ★ 셀은 죽자마자가 아니라 '섭취하고 나서' 나온다.
+        //   섭취 안 하고 방치해 consumableLifetime으로 사라지면 셀도 안 나온다(의도된 동작).
+        DropCells();
     }
 
     protected virtual void UpdateDetection()
@@ -531,22 +590,104 @@ public class MonsterBase : MonoBehaviour, IConsumable
                 if (Mathf.Abs(relX) > 0.05f && Mathf.Sign(relX) != facingDir) continue;
             }
 
-            pc.TakeDamage(HitboxDamage, KnockbackVector(pc.transform.position), stunDuration);
+            // 공격 히트박스 — 접촉이 아니라 공격이므로 대시 중에도 그대로 맞는다
+            pc.TakeDamage(HitboxDamage, KnockbackVector(pc.transform.position), stunDuration, DamageSource.Attack);
             hitPlayerThisAttack = true; // 중복 타격은 이 플래그로 막는다.
             // 여기서 DisableHitbox()를 부르면 켜진 같은 프레임에 꺼져서 판정 표시가 안 보이므로 끄지 않는다.
             break;
         }
     }
 
-    public virtual void TakeDamage(float amount)
+    // hitDirection: 공격이 날아온 방향(대시 진행 방향 등). 이펙트를 그쪽으로 뻗게 하는 데만 쓴다
+    public virtual void TakeDamage(float amount, Vector2 hitDirection = default)
     {
         if (IsDead) return;
         currentHp = Mathf.Max(0f, currentHp - amount);
+
+        PlayHitEffect(hitDirection);
+
         if (IsDead)
         {
             if (rb != null) rb.linearVelocity = Vector2.zero;
+
+            // ★ 여기서는 셀을 떨구지 않는다. 드랍 시점은 세 가지다:
+            //     ① 섭취했을 때            → OnConsumed()
+            //     ② 안 먹고 시체가 사라질 때 → OnConsumableTimeout()
+            //     ③ 자폭형이 터졌을 때      → FloaterGerm.Detonate()
+            //   즉 '죽는 것'이 아니라 '시체가 정리되는 것'이 조건이다.
             OnDeath();
         }
+    }
+
+    // 맞은 자리에 이펙트를 띄우고 스프라이트를 잠깐 물들인다.
+    // 죽은 뒤(노란 시체)엔 색을 건드리지 않으므로 이펙트만 나간다.
+    protected void PlayHitEffect(Vector2 hitDirection)
+    {
+        Vector3 pos = bodyCollider != null ? bodyCollider.bounds.center : transform.position;
+        HitEffect.Play(hitEffect, pos, hitDirection, spr);
+
+        if (hitFlashDuration > 0f)
+            hitFlashTimer = hitFlashDuration;
+    }
+
+    // 셀 드랍. 몸통(피격) 콜라이더 범위 안에 무작위로 흩뿌린다.
+    protected virtual void DropCells()
+    {
+        if (cellDropTotal <= 0 || cellDropCount <= 0) return;
+
+        Bounds area = bodyCollider != null
+            ? bodyCollider.bounds
+            : new Bounds(transform.position, Vector3.one);
+
+        int perChunk = cellDropTotal / cellDropCount;
+        int remainder = cellDropTotal - perChunk * cellDropCount; // 나머지는 앞쪽 덩어리에 1씩 얹는다
+
+        for (int i = 0; i < cellDropCount; i++)
+        {
+            int amount = perChunk + (i < remainder ? 1 : 0);
+            if (amount <= 0) continue; // 총량이 개수보다 적으면 뒤쪽 덩어리는 안 만든다
+
+            Vector3 pos = new Vector3(
+                Random.Range(area.min.x, area.max.x),
+                Random.Range(area.min.y, area.max.y),
+                transform.position.z);
+
+            SpawnCellChunk(pos, amount);
+        }
+    }
+
+    void SpawnCellChunk(Vector3 position, int amount)
+    {
+        CellChunk chunk;
+
+        if (cellChunkPrefab == null)
+        {
+            // 몬스터의 정렬 레이어를 물려줘야 맵/배경 뒤에 숨지 않는다
+            chunk = CellChunk.SpawnRuntime(position, amount, spr);
+        }
+        else
+        {
+            // 드랍분은 '이미 먹음' 기록을 남기지 않는다 (CellChunk.NextIsRuntimeDrop 주석 참고)
+            CellChunk.NextIsRuntimeDrop = true;
+            GameObject go = Instantiate(cellChunkPrefab, position, Quaternion.identity);
+            CellChunk.NextIsRuntimeDrop = false; // 프리팹이 비활성이라 Awake가 안 돈 경우 대비
+
+            chunk = go.GetComponent<CellChunk>();
+            if (chunk == null)
+            {
+                Debug.LogWarning($"[{name}] Cell Chunk Prefab에 CellChunk 컴포넌트가 없습니다.", this);
+                return;
+            }
+            chunk.cellAmount = amount;
+        }
+
+        if (chunk == null) return;
+
+        // 섭취 직후엔 플레이어가 몬스터 자리에 겹쳐 있어서 그냥 두면 생기는 즉시 흡수된다.
+        // 잠깐 튀어오르는 동안 못 먹게 막아야 "셀이 나왔다"가 화면에 보인다.
+        chunk.pickupDelay = cellPickupDelay;
+        chunk.Launch(new Vector2(Random.Range(-cellPopSideSpeed, cellPopSideSpeed),
+                                 Random.Range(cellPopUpSpeed * 0.6f, cellPopUpSpeed)));
     }
 
     // 사망(체력 0) 시점 훅 — 자폭 등 특수 사망 처리가 필요한 타입에서 override

@@ -48,6 +48,7 @@ public class AreaPortal : MonoBehaviour
     void Update()
     {
         if (!requireKeyPress || !playerInRange || triggered) return;
+        if (SceneEntryPoint.EntrySequenceActive) return;
         if (Input.GetKeyDown(interactKey)) Go();
     }
 
@@ -55,6 +56,11 @@ public class AreaPortal : MonoBehaviour
     {
         if (other.GetComponentInParent<PlayerController>() == null) return;
         playerInRange = true;
+
+        // ★ 입장 연출 중엔 발동시키지 않는다. 걸어 나오는 시작 지점이 문 안쪽이라
+        //   그대로 두면 도착하자마자 이 트리거를 밟아 왔던 씬으로 도로 튕긴다.
+        if (SceneEntryPoint.EntrySequenceActive) return;
+
         if (!requireKeyPress) Go();
     }
 

@@ -54,7 +54,8 @@ public class FloaterSpreaderGerm : FloaterGerm
         foreach (var hit in hits)
         {
             PlayerController pc = hit.GetComponent<PlayerController>();
-            if (pc != null) pc.TakeDamage(selfDestructDamage);
+            // 자폭은 공격 판정 — 대시 중이어도 맞는다
+            if (pc != null) pc.TakeDamage(selfDestructDamage, default, 0f, DamageSource.Attack);
         }
 
         if (floaterGermPrefab != null && spawnCount > 0)
@@ -67,6 +68,10 @@ public class FloaterSpreaderGerm : FloaterGerm
                 Instantiate(floaterGermPrefab, (Vector2)transform.position + offset, Quaternion.identity);
             }
         }
+
+        // ★ 이 Detonate는 base를 부르지 않으므로 셀 드랍도 여기 따로 넣어야 한다
+        //   (FloaterGerm.Detonate에만 넣으면 엘리트인 이쪽만 조용히 안 떨군다)
+        DropCells();
 
         Destroy(gameObject);
     }

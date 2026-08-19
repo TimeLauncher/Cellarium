@@ -20,6 +20,16 @@ public class PlayerManager : MonoBehaviour
     public int cellCurrency;
     public int darkCellCurrency;
 
+    [Header("분열체 조종 편의")]
+    // 기획서 기타 메모: "분열체 조종 조작 편의성 추가(1,2,3,4 외에 원버튼 조작 추가/롤의 핑 시스템과 유사)"
+    // 롤의 핑처럼 '가리키고 한 번 누르는' 조작을 그대로 옮겼다 —
+    //   마우스 커서가 어떤 분열체 위에 있으면 그 분열체로 바로 전환,
+    //   아무것도 안 가리키고 있으면 다음 차례로 순환.
+    [Tooltip("이 키 하나로 조종을 옮긴다. 커서가 분열체 위에 있으면 그 분열체로, 아니면 다음 차례로")]
+    public KeyCode cycleControlKey = KeyCode.Tab;
+    [Tooltip("순환 차례에 본체도 포함할지. 끄면 분열체끼리만 돈다")]
+    public bool cycleIncludesMainBody = true;
+
     [Header("능력 해금")]
     // A00 시작 시엔 이동/점프/대시/섭취만 가능. A02에서 분열 능력 획득 전까지 false 유지.
     // 테스트 씬에서 바로 분열을 쓰려면 인스펙터에서 체크해두면 됨.
@@ -74,6 +84,9 @@ public class PlayerManager : MonoBehaviour
 
     void Update()
     {
+        // 대화·연출 중엔 조종 전환/회수도 막는다 (PlayerController와 같은 잠금을 공유)
+        if (PlayerInputLock.IsLocked) return;
+
         // 분열체 조종 전환(숫자키)/분열 회수(R)도 다크셀 잔재로 능력을 해금하기 전까진 잠긴다
         if (!fissionUnlocked) return;
 
@@ -82,6 +95,61 @@ public class PlayerManager : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.Alpha3)) SwitchControl(2);
         if (Input.GetKeyDown(KeyCode.Alpha4)) SwitchControl(3);
         if (Input.GetKeyDown(KeyCode.R)) RecallAllClones();
+
+        if (Input.GetKeyDown(cycleControlKey)) CycleControl();
+    }
+
+    // 원버튼 조종 전환 (기타 메모 '분열체 조종 조작 편의성 추가')
+    public void CycleControl()
+    {
+        if (allPlayers.Count <= 1) return;
+
+        // ① 커서가 가리키는 개체가 있으면 그쪽 우선
+        int pointed = IndexUnderMouse();
+        if (pointed >= 0 && allPlayers[pointed] != currentPlayer)
+        {
+            SwitchControl(pointed);
+            return;
+        }
+
+        // ② 아니면 다음 차례로 순환
+        int start = allPlayers.IndexOf(currentPlayer);
+        if (start < 0) start = 0;
+
+        for (int step = 1; step <= allPlayers.Count; step++)
+        {
+            int next = (start + step) % allPlayers.Count;
+            if (!cycleIncludesMainBody && next == 0) continue; // 본체 건너뛰기
+            if (allPlayers[next] == null) continue;
+
+            SwitchControl(next);
+            return;
+        }
+    }
+
+    // 마우스 커서 아래에 있는 본체/분열체의 인덱스 (없으면 -1)
+    int IndexUnderMouse()
+    {
+        Camera cam = Camera.main;
+        if (cam == null) return -1;
+
+        Vector2 world = cam.ScreenToWorldPoint(Input.mousePosition);
+
+        // 레이어 마스크를 안 쓰는 이유: 플레이어 레이어가 씬마다 제각각이라(이 프로젝트 고질병)
+        // 마스크로 거르면 어떤 씬에선 조용히 아무것도 안 잡힌다. 전부 훑고 컴포넌트로 판별한다.
+        Collider2D[] hits = Physics2D.OverlapPointAll(world);
+        foreach (Collider2D h in hits)
+        {
+            if (h == null) continue;
+
+            PlayerController pc = h.GetComponentInParent<PlayerController>();
+            if (pc == null) continue;
+
+            int index = allPlayers.IndexOf(pc);
+            if (index >= 0) return index;
+        }
+
+        return -1;
     }
 
     public void RecallAllClones()

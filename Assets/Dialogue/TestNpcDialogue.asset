@@ -1,0 +1,29 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8c5c9c8641762d74eac5a3509e51a5fa, type: 3}
+  m_Name: TestNpcDialogue
+  m_EditorClassIdentifier:
+  defaultJob: "백혈구 병사"
+  defaultSpeaker: "루코"
+  lines:
+  - job:
+    speaker:
+    text: "여기서 뭐 하나, 화이트셀."
+    charIntervalOverride: 0
+  - job:
+    speaker:
+    text: "이 아래로는 혼자 가지 마. 분열균들이 길목을 막아놓았어."
+    charIntervalOverride: 0
+  - job:
+    speaker:
+    text: "정 가야겠다면 말리지는 않겠다. 다만 살아서 돌아와."
+    charIntervalOverride: 0

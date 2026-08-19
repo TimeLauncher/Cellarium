@@ -242,8 +242,14 @@ public class FloaterGerm : MonsterBase
         foreach (var hit in hits)
         {
             PlayerController pc = hit.GetComponent<PlayerController>();
-            if (pc != null) pc.TakeDamage(selfDestructDamage);
+            // 자폭은 공격 판정 — 대시 중이어도 맞는다
+            if (pc != null) pc.TakeDamage(selfDestructDamage, default, 0f, DamageSource.Attack);
         }
+
+        // 자폭형은 섭취가 불가능해서(IsConsumable = false) OnConsumed도 OnConsumableTimeout도
+        // 영영 안 불린다. 셀을 주는 시점은 '터지는 순간'뿐이다.
+        DropCells();
+
         Destroy(gameObject);
     }
 

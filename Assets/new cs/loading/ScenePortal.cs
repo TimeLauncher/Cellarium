@@ -35,7 +35,7 @@ public class ScenePortal : MonoBehaviour
         if (triggered && canTriggerOnce)
             return;
 
-        PlayerControll player = other.GetComponentInParent<PlayerControll>();
+        PlayerController player = other.GetComponentInParent<PlayerController>();
 
         if (player == null)
             return;

@@ -15,6 +15,32 @@ public class FlyingGerm : MonsterBase
     private Vector2 diveDir;
     private bool isDiving;
 
+    protected override void Update()
+    {
+        base.Update();
+
+        if (animator == null || rb == null)
+            return;
+
+        bool isMoving =
+            !IsDead &&
+            !isAttacking &&
+            rb.linearVelocity.sqrMagnitude > 0.01f;
+
+        animator.SetBool("move", isMoving);
+        animator.SetBool("isDiving", isDiving);
+    }
+    protected override void FaceDirection(float dirX)
+    {
+        if (Mathf.Abs(dirX) <= 0.01f)
+            return;
+
+        base.FaceDirection(dirX);
+
+        if (spr != null)
+            spr.flipX = dirX > 0f;
+    }
+
     protected override void Awake()
     {
         base.Awake();

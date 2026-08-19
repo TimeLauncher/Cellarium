@@ -9,17 +9,17 @@ public class TissueMesh : MonoBehaviour
 {
     private static readonly List<TissueMesh> active = new List<TissueMesh>();
 
-    private Collider2D col;
+    private Collider2D[] cols;
 
     void Awake()
     {
-        col = GetComponent<Collider2D>();
+        cols = GetComponents<Collider2D>();
         active.Add(this);
 
         if (PlayerManager.Instance != null)
         {
             foreach (var p in PlayerManager.Instance.allPlayers)
-                if (p.isClone) IgnoreWith(p);
+                if (p != null && p.isClone) IgnoreWith(p);
         }
     }
 
@@ -30,9 +30,19 @@ public class TissueMesh : MonoBehaviour
 
     void IgnoreWith(PlayerController clone)
     {
-        Collider2D cloneCol = clone.GetComponent<Collider2D>();
-        if (cloneCol != null && col != null)
-            Physics2D.IgnoreCollision(cloneCol, col, true);
+        if (clone == null || cols == null) return;
+
+        // ★ GetComponent<Collider2D>() 하나만 잡으면 안 된다.
+        //   플레이어에는 피격용 트리거 BoxCollider2D와 몸통 CircleCollider2D가 함께 붙어 있고,
+        //   컴포넌트 순서상 트리거 쪽이 먼저 잡힌다. 그물망을 실제로 막는 건 몸통 콜라이더라서
+        //   트리거에만 IgnoreCollision을 걸면 분열체가 그대로 튕긴다.
+        //   (PlayerController.Awake가 bodyColliders를 따로 걸러내는 것과 같은 이유)
+        foreach (Collider2D cloneCol in clone.GetComponents<Collider2D>())
+        {
+            if (cloneCol == null) continue;
+            foreach (Collider2D meshCol in cols)
+                if (meshCol != null) Physics2D.IgnoreCollision(cloneCol, meshCol, true);
+        }
     }
 
     // 새 분열체가 등록될 때 PlayerManager가 호출 — 현재 존재하는 모든 그물망과 충돌 무시 설정

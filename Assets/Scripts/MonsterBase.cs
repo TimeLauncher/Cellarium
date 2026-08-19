@@ -43,6 +43,10 @@ public class MonsterBase : MonoBehaviour, IConsumable
     public float attackDamage = 10f;
     public float attackCooldown = 1.5f;
     public float knockbackForce = 5f;
+    [Tooltip("넉백에 섞는 위쪽 성분 비율. 0이면 지금처럼 옆으로만 밀리고, 클수록 위로 띄우는 포물선이 된다 (0.6 정도가 대시 넉백과 같은 느낌)")]
+    public float knockbackUpRatio = 0.5f;
+    [Tooltip("켜면 몬스터보다 아래에 있는 플레이어도 위로 띄운다. 끄면 실제 상하 위치 관계를 그대로 따른다")]
+    public bool knockbackAlwaysUp = true;
     public float stunDuration = 0.3f;
 
     [Header("히트박스")]
@@ -178,9 +182,25 @@ public class MonsterBase : MonoBehaviour, IConsumable
         PlayerController pc = hit.GetComponent<PlayerController>();
         if (pc == null) return;
 
-        Vector2 knockDir = ((Vector2)(pc.transform.position - transform.position)).normalized;
-        if (knockDir.sqrMagnitude < 0.001f) knockDir = Vector2.up;
-        pc.TakeDamage(attackDamage, knockDir * knockbackForce, stunDuration);
+        pc.TakeDamage(attackDamage, KnockbackVector(pc.transform.position), stunDuration);
+    }
+
+    // 플레이어에게 줄 넉백 속도. 좌우 방향은 몬스터→플레이어 기준으로 잡고,
+    // 거기에 knockbackUpRatio만큼 위쪽 성분을 섞어 포물선으로 띄운다.
+    // (전엔 두 위치를 그대로 normalize해서 서로 비슷한 높이일 때 사실상 x축으로만 밀렸다)
+    protected Vector2 KnockbackVector(Vector3 playerPos)
+    {
+        float dx = playerPos.x - transform.position.x;
+        float dy = playerPos.y - transform.position.y;
+
+        Vector2 dir = new Vector2(Mathf.Abs(dx) < 0.001f ? 0f : Mathf.Sign(dx), 0f);
+
+        // 위로 띄우는 성분. AlwaysUp이면 아래에 있는 플레이어도 위로, 아니면 실제 상하 관계를 따른다
+        float up = knockbackAlwaysUp ? 1f : (Mathf.Abs(dy) < 0.001f ? 1f : Mathf.Sign(dy));
+        dir += Vector2.up * (up * knockbackUpRatio);
+
+        if (dir.sqrMagnitude < 0.001f) dir = Vector2.up;
+        return dir.normalized * knockbackForce;
     }
 
     // 지형 표면 감지 — 맵이 wall/ground 레이어로 나뉘어 있지 않아 레이어 대신 필터링으로 판정한다.
@@ -511,10 +531,7 @@ public class MonsterBase : MonoBehaviour, IConsumable
                 if (Mathf.Abs(relX) > 0.05f && Mathf.Sign(relX) != facingDir) continue;
             }
 
-            Vector2 knockDir = ((Vector2)(pc.transform.position - transform.position)).normalized;
-            if (knockDir.sqrMagnitude < 0.001f) knockDir = Vector2.up;
-
-            pc.TakeDamage(HitboxDamage, knockDir * knockbackForce, stunDuration);
+            pc.TakeDamage(HitboxDamage, KnockbackVector(pc.transform.position), stunDuration);
             hitPlayerThisAttack = true; // 중복 타격은 이 플래그로 막는다.
             // 여기서 DisableHitbox()를 부르면 켜진 같은 프레임에 꺼져서 판정 표시가 안 보이므로 끄지 않는다.
             break;

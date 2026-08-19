@@ -23,7 +23,7 @@ public class AcidProjectile : MonoBehaviour
         Vector2 velocity = direction.normalized * speed;
         rb.linearVelocity = velocity;
 
-        float angle = Mathf.Atan2(velocity.y, velocity.x) * Mathf.Rad2Deg+180f;
+        float angle = Mathf.Atan2(velocity.y, velocity.x) * Mathf.Rad2Deg;
         transform.rotation = Quaternion.Euler(0f, 0f, angle);
     }
 

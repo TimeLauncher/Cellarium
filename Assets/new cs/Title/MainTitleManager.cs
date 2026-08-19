@@ -26,7 +26,7 @@ public class MainTitleManager : MonoBehaviour
 
     public void StartGame()
     {
-        SceneManager.LoadScene(saveSelectSceneName);
+        SceneLoader.LoadScene(saveSelectSceneName);
     }
 
     public void OpenQuitConfirm()

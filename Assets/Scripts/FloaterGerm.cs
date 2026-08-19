@@ -20,16 +20,7 @@ public class FloaterGerm : MonsterBase
     public float selfDestructDamage = 100f;
     public bool showExplosionRange = true; // 이펙트 에셋 나오기 전까지 자폭 범위를 화면에 원으로 표시
 
-    [Header("추적 준비")]
-    public float chaseReadyDuration = 0.5f;
-
-    private bool isChasePreparing;
-    private float chaseReadyTimer;
-    private bool wasTargetDetected;
-
     private bool isDetonating;
-
-    private bool detectionPrepared;
 
     // 자폭형이라 언제든 섭취 불가 (사망해도 회복셀처럼 먹을 수 없음)
     public override bool IsConsumable => false;
@@ -45,101 +36,18 @@ public class FloaterGerm : MonsterBase
     {
         if (isDetonating)
         {
-            UpdateDetection();
-
-            if (animator != null)
-            {
-                animator.SetBool("move", false);
-                animator.SetBool("ChaseReady", false);
-            }
-
+            UpdateDetection(); // 위치 갱신 정도만, 그 외 행동/판정 없음
             return;
         }
-
         base.Update();
-
-        UpdateChasePreparation();
-        UpdateFloaterAnimator();
-    }
-    private void UpdateChasePreparation()
-    {
-        bool hasTarget = target != null;
-
-        // 플레이어를 처음 감지한 순간, 거리와 무관하게 준비 시작
-        if (hasTarget && !wasTargetDetected)
-        {
-            isChasePreparing = true;
-            detectionPrepared = false;
-            chaseReadyTimer = chaseReadyDuration;
-
-            if (rb != null)
-                rb.linearVelocity = Vector2.zero;
-        }
-
-        if (isChasePreparing)
-        {
-            chaseReadyTimer -= Time.deltaTime;
-
-            if (rb != null)
-                rb.linearVelocity = Vector2.zero;
-
-            if (chaseReadyTimer <= 0f)
-            {
-                isChasePreparing = false;
-                detectionPrepared = true;
-            }
-        }
-
-        // 플레이어를 완전히 잃으면 다음 감지를 위해 초기화
-        if (!hasTarget)
-        {
-            isChasePreparing = false;
-            detectionPrepared = false;
-            chaseReadyTimer = 0f;
-        }
-
-        wasTargetDetected = hasTarget;
-    }
-
-    private void UpdateFloaterAnimator()
-    {
-        if (animator == null || rb == null)
-            return;
-
-        bool isMoving =
-            !IsDead &&
-            !isAttacking &&
-            !isDetonating &&
-            !isChasePreparing &&
-            rb.linearVelocity.sqrMagnitude > 0.01f;
-
-        animator.SetBool("move", isMoving);
-        animator.SetBool("ChaseReady", isChasePreparing);
-    }
-    protected override void FaceDirection(float dirX)
-    {
-        if (Mathf.Abs(dirX) <= 0.01f)
-            return;
-
-        base.FaceDirection(dirX);
-
-        if (spr != null)
-            spr.flipX = dirX > 0f;
     }
 
     protected override void UpdateBehavior()
     {
-        if (isAttacking)
-            return;
+        if (isAttacking) return;
 
-        if (isChasePreparing || !detectionPrepared)
-            return;
-
-        if (
-            target != null &&
-            attackCooldownTimer <= 0f &&
-            Vector2.Distance(transform.position, target.position) <= engageRange
-        )
+        if (target != null && attackCooldownTimer <= 0f &&
+            Vector2.Distance(transform.position, target.position) <= engageRange)
         {
             TryStartAttack();
         }
@@ -182,41 +90,24 @@ public class FloaterGerm : MonsterBase
 
     protected override void UpdateMovement()
     {
-        if (rb == null || IsDead)
-            return;
-
-        // 넉백/공격후 딜레이 중엔 속도를 건드리지 않는다. 이 아래 분기들이 매 FixedUpdate마다
-        // linearVelocity를 하드 세팅하므로, 이 가드가 없으면 ApplyKnockback이 넣은 속도가
-        // 다음 물리 프레임에 그대로 지워져 넉백이 아예 안 걸린다.
         if (MovementSuppressed()) return;
 
-        if (isChasePreparing || !detectionPrepared)
-        {
-            rb.linearVelocity = Vector2.zero;
-            return;
-        }
-
+        // isDetonating일 때는 IsDead가 true라 MonsterBase.FixedUpdate가 이 메서드를 호출하지 않음
         if (isAttacking)
         {
             rb.linearVelocity = Vector2.zero;
             return;
         }
 
-        if (
-            target != null &&
-            Vector2.Distance(transform.position, target.position) > engageRange
-        )
+        if (target != null && Vector2.Distance(transform.position, target.position) > engageRange)
         {
-            Vector2 dir =
-                ((Vector2)(target.position - transform.position)).normalized;
-
+            Vector2 dir = ((Vector2)(target.position - transform.position)).normalized;
             rb.linearVelocity = dir * moveSpeed;
             FaceDirection(dir.x);
             return;
         }
 
-        rb.linearVelocity = Vector2.zero;
-
+        rb.linearVelocity = Vector2.zero; // 교전 범위 내에서는 체공 유지
     }
 
     protected override void OnDeath()

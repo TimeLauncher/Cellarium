@@ -18,25 +18,6 @@ public class CrusherGerm : MonsterBase
     private bool isStunned;
     private float stunTimer;
 
-    protected override void Update()
-    {
-        base.Update();
-
-        if (animator == null)
-            return;
-
-        bool isMoving =
-            !IsDead &&
-            !isAttacking &&
-            !isStunned &&
-            rb != null &&
-            Mathf.Abs(rb.linearVelocity.x) > 0.05f;
-
-        animator.SetBool("move", isMoving);
-        animator.SetBool("IsDead", IsDead);
-        animator.SetBool("isDashing", isDashing);
-        animator.SetBool("isStunned", isStunned);
-    }
     protected override void UpdateBehavior()
     {
         if (isAttacking || isStunned) return;
@@ -113,37 +94,16 @@ public class CrusherGerm : MonsterBase
     // 바닥(법선이 위)이나 플레이어/다른 몬스터는 제외.
     bool IsWallHit(Collision2D collision)
     {
-        if (collision.collider == null)
-            return false;
+        if (collision.collider == null) return false;
+        if (collision.collider.GetComponent<PlayerController>() != null) return false;
+        if (collision.collider.GetComponent<MonsterBase>() != null) return false;
 
-        if (collision.collider.GetComponentInParent<PlayerController>() != null)
-            return false;
-
-        if (collision.collider.GetComponentInParent<MonsterBase>() != null)
-            return false;
-
-        foreach (ContactPoint2D contact in collision.contacts)
+        foreach (var c in collision.contacts)
         {
-            Vector2 normal = contact.normal;
-
-            // 바닥이나 경사면 제외
-            // 수직벽에 가까운 법선만 인정
-            if (Mathf.Abs(normal.x) < 0.9f)
-                continue;
-
-            if (Mathf.Abs(normal.y) > 0.2f)
-                continue;
-
-            // 돌진 방향 정면에 있는 벽인지 확인
-            bool isFrontWall =
-                dashDir > 0f
-                    ? normal.x < -0.9f
-                    : normal.x > 0.9f;
-
-            if (isFrontWall)
-                return true;
+            if (Mathf.Abs(c.normal.x) < 0.7f) continue;              // 수직면이 아님
+            if (Mathf.Sign(c.normal.x) == Mathf.Sign(dashDir)) continue; // 등 뒤에서 닿은 것
+            return true;
         }
-
         return false;
     }
 
@@ -164,42 +124,12 @@ public class CrusherGerm : MonsterBase
 
     void OnCollisionEnter2D(Collision2D collision)
     {
-        TryHandleWallCollision(collision);
-    }
-
-    void OnCollisionStay2D(Collision2D collision)
-    {
-        TryHandleWallCollision(collision);
-    }
-
-    private void TryHandleWallCollision(Collision2D collision)
-    {
-        if (!isDashing)
-            return;
-
-        if (!IsWallHit(collision))
-            return;
+        if (!isDashing) return;
+        if (!IsWallHit(collision)) return;
 
         EndDash();
-
         isStunned = true;
         stunTimer = wallStunDuration;
-
-        rb.linearVelocity = new Vector2(
-            -dashDir * wallKnockback,
-            rb.linearVelocity.y
-        );
+        rb.linearVelocity = new Vector2(-dashDir * wallKnockback, rb.linearVelocity.y);
     }
-    protected override void FaceDirection(float dirX)
-    {
-        if (Mathf.Abs(dirX) <= 0.01f)
-            return;
-
-        base.FaceDirection(dirX);
-
-        // 원본 이미지가 왼쪽을 바라보는 기준
-        if (spr != null)
-            spr.flipX = dirX > 0f;
-    }
-
 }

@@ -175,7 +175,8 @@ public class SpiderGerm : MonsterBase
             PlayerController pc = hit.GetComponent<PlayerController>();
             if (pc != null)
             {
-                pc.TakeDamage(pounceDamage, KnockbackVector(hit.transform.position), stunDuration);
+                Vector2 knockDir = ((Vector2)(hit.transform.position - transform.position)).normalized;
+                pc.TakeDamage(pounceDamage, knockDir * knockbackForce, stunDuration);
             }
         }
 

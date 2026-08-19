@@ -16,25 +16,19 @@ public class PlayerHUD : MonoBehaviour
     public Sprite fissionNotchOnSprite;     // 활성화된 칸 (없으면 색으로 대체)
     public Sprite fissionNotchOffSprite;    // 비활성 칸
     public float fissionPerNotch = 100f;    // 한 칸이 나타내는 분열 게이지
-    [Tooltip("분열 칸 크기(가로,세로). 축값이 0이면 그 축은 Notch Size를 따른다. 분열 칸만 따로 키우고 싶을 때 사용")]
-    public Vector2 fissionNotchSize = Vector2.zero;
 
     [Header("칸 자동 생성 (이미지 에셋 없이 데모용)")]
     public bool autoBuildNotches = false;         // 켜면 아래 부모 밑에 색깔 사각형 칸을 런타임에 생성
     public RectTransform hpNotchParent;           // 체력 칸을 생성할 부모 (Canvas 아래 빈 오브젝트)
     public RectTransform fissionNotchParent;      // 분열 칸을 생성할 부모
     public Vector2 notchSize = new Vector2(24f, 24f);
-    public float notchSpacing = 4f;              // 분열 칸 사이 간격
-    [Tooltip("체력 칸 사이 간격. 음수로 주면 칸끼리 겹쳐진다. 0이면 딱 붙음")]
-    public float hpNotchSpacing = 0f;            // 체력 칸 간격 (분열과 분리 — 좁게 붙이려면 0 이하)
+    public float notchSpacing = 4f;
     public Color hpNotchColor = new Color(0.9f, 0.25f, 0.25f);      // 체력 칸 색 (빨강 계열)
     public Color fissionNotchColor = new Color(0.35f, 0.7f, 1f);    // 분열 칸 색 (하늘색 계열)
 
     [Header("분열 연속 바 자동 생성 (칸 뒤에 겹쳐 표시)")]
     public bool autoBuildFissionBar = true;                         // 분열 칸 뒤에 지속 상승하는 바를 겹쳐 생성 (칸이 앞, 바가 뒤)
     public float fissionBarHeight = 24f;                            // 바 두께 (칸 높이와 같게 두면 배경 바처럼 보임)
-    [Tooltip("분열 바 전체 길이(px). 0이면 칸 수에 맞춰 자동. 값을 주면 그 길이로 늘어나고 칸도 같은 길이에 맞춰 균등 분할된다(바-칸 정렬 유지). Play 중 인스펙터에서 바로 반영됨")]
-    public float fissionBarLength = 0f;                            // 바 길이 직접 지정 (0 = 자동)
     public float fissionBarXOffset = 0f;                            // 칸 왼쪽 기준 바의 X 위치 조정 (좌표 이동)
     public float fissionBarYOffset = 0f;                            // 칸 중심 기준 바의 Y 위치 조정 (0 = 칸과 같은 높이)
     public Color fissionBarBgColor = new Color(0f, 0f, 0f, 0.5f);   // 바 배경색 (스프라이트 없을 때)
@@ -44,7 +38,6 @@ public class PlayerHUD : MonoBehaviour
 
     private int builtHpNotchCount = -1;      // 마지막으로 생성한 체력 칸 수 (최대체력 바뀌면 다시 만듦)
     private int builtFissionNotchCount = -1; // 마지막으로 생성한 분열 칸 수
-    private float builtFissionBarLength = -1f; // 마지막으로 생성한 바 길이 (인스펙터에서 바꾸면 다시 만듦)
     private Image fissionBarFillImg;        // 자동 생성한 바의 채움 Image
     private RectTransform fissionBarFillRT; // 채움의 RectTransform (스프라이트 없을 때 폭으로 조절)
     private RectTransform fissionBarBgRT;   // 배경 바의 RectTransform (좌표 실시간 반영용)
@@ -68,40 +61,16 @@ public class PlayerHUD : MonoBehaviour
     public Sprite slotUncontrolledSprite; // 존재하지만 비조종인 분열체
     [Range(0f, 1f)] public float uncontrolledSlotAlpha = 0.4f; // 스프라이트가 없을 때만, 비조종 슬롯을 흐리게 하는 투명도
 
-    [Header("분열 가능 횟수 아이콘 - 개수별 자동 배치")]
-    [Tooltip("켜면 Max Fission Count 개수만큼 아이콘을 본체 아래에 좌우 대칭 아치로 자동 배치한다. 개수(N)에 따라 위치가 자동으로 바뀜 — 1개=바로 밑, 2개=좌우 둘, 3개=아치. 끄면 씬에 배치한 위치/기존 방식")]
-    public bool autoLayoutFissionSlots = true;
-    [Tooltip("본체 아이콘 기준, 가운데 칸이 내려오는 세로 거리(깊이)")]
-    public float fissionSlotDropY = 52f;
-    [Tooltip("칸 사이 좌우 간격")]
-    public float fissionSlotSpacingX = 42f;
-    [Tooltip("바깥 칸이 위로 올라오는 아치 곡률(0이면 일자로 나란히, 클수록 U자로 휨)")]
-    public float fissionSlotArc = 22f;
-
-    [Header("보유 재화 (평소 숨김 → 획득 시 잠깐 표시)")]
+    [Header("보유 재화")]
     public Image cellIcon;
     public Text cellAmountText;
-    [Tooltip("획득했을 때 '+50'처럼 오른 양을 표시 (코인 아래에 배치)")]
-    public Text cellGainText;
     public Image darkCellIcon;
     public Text darkCellAmountText;
-    public Text darkCellGainText;
-    [Tooltip("획득 후 코인/숫자를 몇 초 동안 보여줄지 (지나면 다시 숨김)")]
-    public float currencyDisplayDuration = 2f;
-
-    private int lastCellShown = int.MinValue;
-    private int lastDarkShown = int.MinValue;
-    private float cellVisibleTimer;
-    private float darkVisibleTimer;
 
     void Update()
     {
         PlayerManager manager = PlayerManager.Instance;
         if (manager == null) return;
-
-        // 재화(코인): 평소엔 숨기고, 획득해서 값이 오르면 아이콘+숫자+"+N"을 잠깐 띄운다
-        UpdateCurrencyDisplay(manager.cellCurrency, cellIcon, cellAmountText, cellGainText, ref lastCellShown, ref cellVisibleTimer);
-        UpdateCurrencyDisplay(manager.darkCellCurrency, darkCellIcon, darkCellAmountText, darkCellGainText, ref lastDarkShown, ref darkVisibleTimer);
 
         PlayerController controlled = manager.currentPlayer;
         if (controlled == null) return;
@@ -182,8 +151,7 @@ public class PlayerHUD : MonoBehaviour
             fissionGauge.value = player.CurrentFissionGauge;
         }
 
-        // 100 게이지가 찰 때마다 한 칸씩 활성화(Floor), 최대 게이지를 넘는 칸은 숨김.
-        // 빈 칸(Off)은 계속 보여준다 — "이만큼 차야 분열 가능"이라는 표시. 바가 그 칸까지 차면 On으로 켜진다.
+        // 100 게이지가 찰 때마다 한 칸씩 활성화(Floor), 최대 게이지를 넘는 칸은 숨김
         if (fissionNotches != null && fissionNotches.Length > 0 && fissionPerNotch > 0f)
         {
             int active = Mathf.FloorToInt(player.CurrentFissionGauge / fissionPerNotch);
@@ -249,7 +217,7 @@ public class PlayerHUD : MonoBehaviour
             if (need != builtHpNotchCount)
             {
                 ClearChildren(hpNotchParent);
-                hpNotches = BuildNotchRow(hpNotchParent, need, hpNotchColor, hpFilledSprite, hpNotchSpacing, notchSize.x, notchSize.y);
+                hpNotches = BuildNotchRow(hpNotchParent, need, hpNotchColor, hpFilledSprite);
                 builtHpNotchCount = need;
             }
         }
@@ -257,26 +225,16 @@ public class PlayerHUD : MonoBehaviour
         if (fissionNotchParent != null && fissionPerNotch > 0f)
         {
             int need = Mathf.Max(0, Mathf.CeilToInt(fissionRef.MaxFissionGauge / fissionPerNotch));
-            // 칸 수(최대 게이지 증가)나 바 길이가 바뀌면 다시 만든다 — 길이는 Play 중 인스펙터 조정도 반영
-            if (need != builtFissionNotchCount || !Mathf.Approximately(fissionBarLength, builtFissionBarLength))
+            if (need != builtFissionNotchCount)
             {
                 ClearChildren(fissionNotchParent);
                 fissionBarFillImg = null;
                 fissionBarFillRT = null;
-
-                float totalW = FissionRowWidth(need);                         // 바 = 칸 행 전체 폭 (자동 or 지정 길이)
-                int notches = Mathf.Max(1, need);
-                Vector2 fnSize = FissionNotchSize();                           // 분열 칸 크기 (별도 지정 or notchSize)
-                // 칸은 지정 크기를 그대로 유지하고, 바 길이에 맞춰 '간격'만 벌려 퍼뜨린다 → 이미지 안 깨짐.
-                // 자동 폭일 땐 이 값이 notchSpacing 그대로라 기존 배치와 동일.
-                float spacing = notches > 1 ? (totalW - notches * fnSize.x) / (notches - 1) : notchSpacing;
-
                 // 바를 먼저 생성해 뒤에 깔고(=먼저 그려짐), 칸을 나중에 생성해 앞에 올린다 (UI는 형제 순서대로 그려짐)
                 if (autoBuildFissionBar)
-                    BuildFissionBar(fissionNotchParent, totalW);
-                fissionNotches = BuildNotchRow(fissionNotchParent, need, fissionNotchColor, fissionNotchOnSprite, spacing, fnSize.x, fnSize.y);
+                    BuildFissionBar(fissionNotchParent, need);
+                fissionNotches = BuildNotchRow(fissionNotchParent, need, fissionNotchColor, fissionNotchOnSprite);
                 builtFissionNotchCount = need;
-                builtFissionBarLength = fissionBarLength;
             }
         }
     }
@@ -288,26 +246,11 @@ public class PlayerHUD : MonoBehaviour
             Destroy(parent.GetChild(i).gameObject);
     }
 
-    // 분열 칸 크기. fissionNotchSize의 축값이 0이면 그 축은 공통 notchSize를 따른다.
-    Vector2 FissionNotchSize()
-    {
-        return new Vector2(
-            fissionNotchSize.x > 0f ? fissionNotchSize.x : notchSize.x,
-            fissionNotchSize.y > 0f ? fissionNotchSize.y : notchSize.y);
-    }
-
-    // 분열 칸 행의 전체 폭. fissionBarLength>0이면 그 길이, 아니면 칸 크기/간격으로 자동 산출
-    float FissionRowWidth(int notchCount)
-    {
-        if (fissionBarLength > 0f) return fissionBarLength;
-        notchCount = Mathf.Max(1, notchCount);
-        return notchCount * FissionNotchSize().x + (notchCount - 1) * notchSpacing;
-    }
-
     // 분열 칸 아래에 지속 상승하는 연속 바(배경 + 채움)를 생성. 채움은 UpdateFissionGauge에서 폭 조절
-    void BuildFissionBar(RectTransform parent, float totalWidth)
+    void BuildFissionBar(RectTransform parent, int notchCount)
     {
-        fissionBarWidth = totalWidth; // 칸 행과 같은 전체 폭
+        notchCount = Mathf.Max(1, notchCount);
+        fissionBarWidth = notchCount * notchSize.x + (notchCount - 1) * notchSpacing; // 칸 행과 같은 전체 폭
         float y = fissionBarYOffset; // 칸과 같은 높이(중심)에 겹쳐 배치 — 칸이 앞에서 덮음
 
         fissionBarBgRT = MakeBarPart("FissionBarBg", parent, fissionBarBgColor, fissionBarBgSprite, fissionBarWidth, y).rectTransform;
@@ -346,7 +289,7 @@ public class PlayerHUD : MonoBehaviour
     // 부모 밑에 count개의 칸 Image를 좌→우로 생성해 반환.
     // sprite가 있으면 그 스프라이트로(색은 흰색=원본), 없으면 단색 사각형으로 렌더한다.
     // 채움/빈칸 전환은 매 프레임 SetNotch가 처리하므로 여기선 초기 모양만 준다.
-    Image[] BuildNotchRow(RectTransform parent, int count, Color color, Sprite sprite, float spacing, float cellWidth, float cellHeight)
+    Image[] BuildNotchRow(RectTransform parent, int count, Color color, Sprite sprite)
     {
         count = Mathf.Max(0, count);
         Image[] arr = new Image[count];
@@ -357,8 +300,8 @@ public class PlayerHUD : MonoBehaviour
             rt.SetParent(parent, false);
             rt.anchorMin = rt.anchorMax = new Vector2(0f, 0.5f);
             rt.pivot = new Vector2(0f, 0.5f);
-            rt.sizeDelta = new Vector2(cellWidth, cellHeight);
-            rt.anchoredPosition = new Vector2(i * (cellWidth + spacing), 0f);
+            rt.sizeDelta = notchSize;
+            rt.anchoredPosition = new Vector2(i * (notchSize.x + notchSpacing), 0f);
 
             Image img = go.GetComponent<Image>();
             if (sprite != null)
@@ -395,51 +338,37 @@ public class PlayerHUD : MonoBehaviour
         if (fissionSlotIcons == null) return;
 
         int cloneCount = manager.allPlayers.Count - 1;        // 현재 존재하는 분열체 수 (= 소모된 칸)
-        int capacity = Mathf.Max(0, manager.maxFissionCount); // 데이터상 최대 분열 가능 횟수 = 켜둘 칸 수
+        int capacity = Mathf.Max(0, manager.maxFissionCount); // 최대 분열 가능 횟수 = 켜둘 칸 수
         int totalSlots = fissionSlotIcons.Length;
-
-        // 자동 배치일 때 위치 기준점: 본체 아이콘 위치 (없으면 원점)
-        Vector2 anchor = mainBodyIcon != null ? mainBodyIcon.rectTransform.anchoredPosition : Vector2.zero;
-        int shown = Mathf.Min(capacity, totalSlots); // 실제로 보일 칸 수 — 이 수로 대칭 아치를 만든다
 
         for (int i = 0; i < totalSlots; i++)
         {
             if (fissionSlotIcons[i] == null) continue;
 
-            // rank: 0 = 가장 먼저 채워지는 칸.
-            // 자동 배치 → 앞에서부터(0번=본체 바로 밑) capacity개 표시, 소모는 앞에서부터.
-            // 기존 방식 → 우측부터 표시/소모(fromRight).
-            int rank;
-            bool exists;
-            if (autoLayoutFissionSlots)
+            // 분열 가능 횟수를 소모할 때 우측부터 채워지도록 인덱스를 뒤집어서 매핑
+            int fromRight = totalSlots - 1 - i;
+
+            // 최대 분열 횟수를 넘는 여분 칸은 사용하지 않으므로 숨긴다
+            if (fromRight >= capacity)
             {
-                exists = i < capacity;
-                rank = i;
-            }
-            else
-            {
-                rank = totalSlots - 1 - i;
-                exists = rank < capacity;
+                fissionSlotIcons[i].enabled = false;
+                continue;
             }
 
-            fissionSlotIcons[i].enabled = exists;
-            if (!exists) continue;
+            fissionSlotIcons[i].enabled = true;
 
-            // 개수(shown)에 맞춰 위치를 자동 계산해 배치 (1개=바로 밑, 2개=좌우 둘, 3개=아치)
-            if (autoLayoutFissionSlots)
-                fissionSlotIcons[i].rectTransform.anchoredPosition = anchor + FissionSlotPos(i, shown);
-
-            bool hasClone = rank < cloneCount;
+            bool hasClone = fromRight < cloneCount;
             if (!hasClone)
             {
                 // 아직 분열하지 않은 '분열 가능' 칸 — 켜진 상태로 계속 표시한다
+                // (한 번 분열해도 남은 분열 가능 횟수만큼은 그대로 켜져 있음 — 꺼지지 않음)
                 if (slotDefaultSprite != null) fissionSlotIcons[i].sprite = slotDefaultSprite;
                 SetIconAlpha(fissionSlotIcons[i], 1f);
                 continue;
             }
 
             // 분열체가 있는(소모된) 칸 — 조종 중이면 controlled, 아니면 uncontrolled 스프라이트
-            PlayerController clone = manager.allPlayers[1 + rank];
+            PlayerController clone = manager.allPlayers[1 + fromRight];
             bool controlled = clone == manager.currentPlayer;
             Sprite s = controlled ? slotControlledSprite : slotUncontrolledSprite;
             if (s != null) fissionSlotIcons[i].sprite = s; // 각 상태 스프라이트는 독립적으로 검사 (한쪽만 넣어도 동작)
@@ -450,19 +379,6 @@ public class PlayerHUD : MonoBehaviour
         }
     }
 
-    // 개수(count)에 따라 i번째 슬롯의 위치(본체 기준 오프셋)를 자동 계산.
-    // 본체 아래 가운데를 기준으로 좌우 대칭으로 펼치고, 바깥 칸은 아치처럼 살짝 위로 올린다.
-    // count가 바뀌면(개수 조절) 전체 위치가 같이 재배치된다.
-    Vector2 FissionSlotPos(int i, int count)
-    {
-        if (count <= 1) return new Vector2(0f, -fissionSlotDropY); // 1개면 본체 바로 밑
-        float half = (count - 1) * 0.5f;
-        float t = (i - half) / half;                              // -1(왼끝)~0(가운데)~1(오른끝)
-        float x = (i - half) * fissionSlotSpacingX;               // 가운데 기준 좌우 대칭
-        float y = -fissionSlotDropY + fissionSlotArc * (t * t);   // 가운데가 가장 아래, 바깥이 위로(아치)
-        return new Vector2(x, y);
-    }
-
     void SetIconAlpha(Image img, float a)
     {
         Color c = img.color;
@@ -470,42 +386,7 @@ public class PlayerHUD : MonoBehaviour
         img.color = c;
     }
 
-    // 한 재화(코인/다크셀)의 표시 갱신. 평소엔 아이콘/숫자/획득표시를 숨기고,
-    // 값이 오른 순간에만 켜서 유지시간 동안 보여준다("+N"도 함께). 시간이 지나면 다시 숨김.
-    void UpdateCurrencyDisplay(int current, Image icon, Text amountText, Text gainText, ref int lastShown, ref float timer)
-    {
-        if (lastShown == int.MinValue)
-        {
-            lastShown = current; // 첫 프레임 기준값 — 시작 시엔 표시하지 않음
-        }
-        else if (current > lastShown)
-        {
-            int gain = current - lastShown;
-            timer = currencyDisplayDuration;             // 획득하면 켜고 유지시간 리셋
-            if (gainText != null) gainText.text = $"+{gain}";
-            lastShown = current;
-        }
-        else if (current != lastShown)
-        {
-            lastShown = current;                         // 감소 등도 반영 (팝업은 안 띄움)
-        }
-
-        if (amountText != null) amountText.text = current.ToString();
-
-        bool visible = timer > 0f;
-        if (timer > 0f) timer -= Time.deltaTime;
-
-        SetActiveIfNeeded(icon != null ? icon.gameObject : null, visible);
-        SetActiveIfNeeded(amountText != null ? amountText.gameObject : null, visible);
-        SetActiveIfNeeded(gainText != null ? gainText.gameObject : null, visible);
-    }
-
-    void SetActiveIfNeeded(GameObject go, bool active)
-    {
-        if (go != null && go.activeSelf != active) go.SetActive(active);
-    }
-
-    // (호환용) 외부에서 즉시 갱신하고 싶을 때 — 숫자만 세팅. 표시/숨김은 UpdateCurrencyDisplay가 담당.
+    // 재화 시스템 완성 전까지 외부(재화 매니저 등)에서 호출해 갱신
     public void SetCurrency(int cellCount, int darkCellCount)
     {
         if (cellAmountText != null) cellAmountText.text = cellCount.ToString();

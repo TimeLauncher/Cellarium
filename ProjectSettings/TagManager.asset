@@ -5,7 +5,6 @@ TagManager:
   serializedVersion: 3
   tags:
   - Ground
-  - wall
   layers:
   - Default
   - TransparentFX
@@ -48,9 +47,6 @@ TagManager:
     locked: 0
   - name: New Layer 2
     uniqueID: 569334549
-    locked: 0
-  - name: camera
-    uniqueID: 1363601277
     locked: 0
   m_RenderingLayers:
   - Default

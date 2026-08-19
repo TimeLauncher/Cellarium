@@ -1,5 +1,4 @@
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 // 관통 타일: 아래→위 통과는 PlatformEffector2D(인스펙터에서 컴포넌트 추가, useOneWay 체크)로 처리.
@@ -18,25 +17,14 @@ public class OneWayPlatformTile : MonoBehaviour
 
     public void DropThrough(Collider2D playerCol)
     {
-        DropThrough(new List<Collider2D> { playerCol });
+        StartCoroutine(DropRoutine(playerCol));
     }
 
-    // 플레이어에 몸통 콜라이더가 여러 개일 수 있어(씬마다 Box+Circle 조합이 다름) 전부 무시해야 실제로 내려간다.
-    // 하나라도 남아 있으면 그 콜라이더가 발판에 걸려 하강이 씹힌다.
-    public void DropThrough(List<Collider2D> playerCols)
+    private IEnumerator DropRoutine(Collider2D playerCol)
     {
-        if (playerCols == null || playerCols.Count == 0) return;
-        StartCoroutine(DropRoutine(playerCols));
-    }
-
-    private IEnumerator DropRoutine(List<Collider2D> playerCols)
-    {
-        foreach (Collider2D pc in playerCols)
-            if (pc != null && platformCol != null) Physics2D.IgnoreCollision(pc, platformCol, true);
-
+        Physics2D.IgnoreCollision(playerCol, platformCol, true);
         yield return new WaitForSeconds(dropIgnoreDuration);
-
-        foreach (Collider2D pc in playerCols)
-            if (pc != null && platformCol != null) Physics2D.IgnoreCollision(pc, platformCol, false);
+        if (playerCol != null && platformCol != null)
+            Physics2D.IgnoreCollision(playerCol, platformCol, false);
     }
 }

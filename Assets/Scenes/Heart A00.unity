@@ -7821,7 +7821,7 @@ MonoBehaviour:
   returnTriggerName: ReturnReady
   shrinkWhileReturning: 1
   returnShrinkStrength: 1
-  returnMinScale: 0.4
+  returnMinScale: 0.8
   isControlled: 1
   isClone: 0
   forceSortingOrder: 1

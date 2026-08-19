@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -16,6 +17,24 @@ using UnityEngine.SceneManagement;
 //   4) LoadScene  : A06으로 강제 씬 전환 (도착 지점은 SceneEntryPoint의 Entry Id로 지정)
 //
 // CameraFocus 단계를 쓰면 멀리 있는 것(열린 문, 무너진 벽 등)을 잠깐 비춰준 뒤 돌아올 수 있다.
+//
+// ★ 동시에 여러 개를 움직이려면 Run With Next 를 켠다.
+//   단계는 원래 위에서부터 하나씩 순서대로 도는데, Run With Next 를 켜면
+//   그 단계를 시작만 하고 기다리지 않은 채 다음 단계도 같이 시작한다.
+//   켜진 단계들 + 바로 뒤의 한 단계가 '한 묶음'이 되어 동시에 돌고, 다 끝나야 다음으로 넘어간다.
+//
+//   백혈구 병사 둘이 PC를 데려가는 연출(A03)이면 이렇게 된다:
+//     1) Dialogue   "거기 누구냐!"
+//     2) MoveActor  병사A -> 플레이어      [Run With Next 켬]
+//     3) MoveActor  병사B -> 플레이어              <- 둘이 같이 다가온다
+//     4) Dialogue   "따라와, 우리가 안내해주지"
+//     5) MovePlayer 플레이어 -> A06 통로 앞  [Run With Next 켬]
+//     6) MoveActor  병사A, Follow Player 켬 / Offset +1.3  [Run With Next 켬]
+//     7) MoveActor  병사B, Follow Player 켬 / Offset -1.3  <- 양옆에 붙어 같이 이동
+//     8) LoadScene  Heart A06
+//
+//   Follow Player 를 켠 MoveActor 는 '도착'이 없으므로 스스로 끝나지 않는다.
+//   같은 묶음의 다른 단계(위 예에서는 5번 MovePlayer)가 끝나면 같이 멈춘다.
 //
 // 배치법
 //   빈 게임오브젝트 + Collider2D(Is Trigger ✓) 에 붙이고 노란 구역 크기로 키운다.
@@ -43,6 +62,10 @@ public class EventTriggerZone : MonoBehaviour
     {
         public StepType type = StepType.Dialogue;
 
+        [Tooltip("켜면 이 단계를 시작만 하고 기다리지 않은 채 다음 단계도 같이 시작한다.\n" +
+                 "병사 둘이 동시에 다가오게 하거나, 끌려가는 플레이어 옆에 NPC를 붙일 때 쓴다")]
+        public bool runWithNext = false;
+
         [Tooltip("Wait: 기다릴 시간(초). MoveActor/MovePlayer: 이 시간이 지나면 도착 못 해도 다음으로 넘어간다(0이면 10초)")]
         public float duration = 1f;
 
@@ -54,9 +77,19 @@ public class EventTriggerZone : MonoBehaviour
         public Transform actor;
         [Tooltip("도착 지점. 빈 오브젝트를 놓고 연결하면 된다")]
         public Transform moveTarget;
+        [Tooltip("초당 이동 거리. Follow Player로 끌려가는 PC를 따라갈 때는\n" +
+                 "PlayerController.moveSpeed(기본 8)보다 크게 줘야 안 뒤처진다")]
         public float moveSpeed = 3f;
         [Tooltip("이 거리 안에 들어오면 도착으로 친다")]
         public float arriveDistance = 0.3f;
+
+        [Tooltip("MoveActor에서 켜면 Move Target 대신 '조종 중인 캐릭터'를 계속 따라다닌다.\n" +
+                 "끌려가는 PC 양옆에 호위를 붙이는 연출용. 도착이 없으므로 같은 묶음의\n" +
+                 "다른 단계가 끝날 때 같이 멈춘다 (Run With Next 와 같이 쓸 것)")]
+        public bool followPlayer = false;
+        [Tooltip("따라다닐 때 플레이어로부터 좌우로 얼마나 떨어져 설지. +면 오른쪽, -면 왼쪽.\n" +
+                 "높이는 건드리지 않는다(발이 뜨지 않게)")]
+        public float followOffsetX = 1.3f;
 
         [Header("CameraFocus")]
         [Tooltip("잠깐 비출 지점. 머무는 시간은 위의 Duration을 쓴다")]
@@ -176,17 +209,83 @@ public class EventTriggerZone : MonoBehaviour
     {
         AcquireLock();
 
-        foreach (Step s in steps)
+        int i = 0;
+        while (i < steps.Length)
         {
-            if (s == null) continue;
-            yield return RunStep(s);
+            // Run With Next 가 켜진 단계들 + 바로 뒤의 한 단계까지를 한 묶음으로 모은다
+            int last = i;
+            while (last < steps.Length - 1 && steps[last] != null && steps[last].runWithNext)
+                last++;
+
+            if (last == i)
+            {
+                if (steps[i] != null) yield return RunStep(steps[i]);
+            }
+            else
+            {
+                yield return RunGroup(i, last);
+            }
+
+            i = last + 1;
         }
 
         ReleaseLock();
         running = false;
     }
 
-    IEnumerator RunStep(Step s)
+    // 한 묶음을 동시에 실행한다.
+    // Follow Player 단계는 스스로 끝나지 않으므로, 나머지가 다 끝나면 같이 멈춘다.
+    IEnumerator RunGroup(int from, int to)
+    {
+        List<Step> anchors = new List<Step>();   // 스스로 끝나는 단계
+        List<Step> escorts = new List<Step>();   // 따라다니기만 하는 단계
+
+        for (int i = from; i <= to; i++)
+        {
+            Step s = steps[i];
+            if (s == null) continue;
+            if (IsEscort(s)) escorts.Add(s);
+            else anchors.Add(s);
+        }
+
+        // 묶음이 통째로 따라다니기뿐이면 끊어줄 기준이 없다.
+        // 그럴 땐 각자 Duration 만큼 돌게 둔다.
+        if (anchors.Count == 0)
+        {
+            anchors.AddRange(escorts);
+            escorts.Clear();
+        }
+
+        Group g = new Group { pending = anchors.Count };
+
+        foreach (Step s in anchors) StartCoroutine(RunAndCount(s, g));
+        foreach (Step s in escorts) StartCoroutine(RunStep(s, g));
+
+        while (g.pending > 0) yield return null;
+
+        // 따라다니던 쪽이 마지막 정리(걷기 애니메이션 끄기)를 할 한 프레임을 준다
+        yield return null;
+    }
+
+    static bool IsEscort(Step s)
+    {
+        return s.type == StepType.MoveActor && s.followPlayer;
+    }
+
+    IEnumerator RunAndCount(Step s, Group g)
+    {
+        yield return RunStep(s);
+        g.pending--;
+    }
+
+    // 같은 묶음이 아직 도는 중인지 알려주는 공유 표식
+    class Group
+    {
+        public int pending;
+    }
+
+    // group: 같은 묶음으로 동시에 도는 중이면 그 표식. 단독 실행이면 null.
+    IEnumerator RunStep(Step s, Group group = null)
     {
         switch (s.type)
         {
@@ -199,7 +298,7 @@ public class EventTriggerZone : MonoBehaviour
                 break;
 
             case StepType.MoveActor:
-                yield return MoveTransform(s.actor, s);
+                yield return MoveTransform(s.actor, s, group);
                 break;
 
             case StepType.MovePlayer:
@@ -246,10 +345,20 @@ public class EventTriggerZone : MonoBehaviour
         while (!done) yield return null;
     }
 
-    // NPC 접근 연출 — Rigidbody가 없는 연출용 오브젝트 기준이라 위치를 직접 옮긴다
-    IEnumerator MoveTransform(Transform mover, Step s)
+    // NPC 접근 연출 — Rigidbody가 없는 연출용 오브젝트 기준이라 위치를 직접 옮긴다.
+    // Follow Player를 켜면 목표를 매 프레임 '플레이어 + 좌우 간격'으로 다시 잡아
+    // 끌려가는 PC 옆에 붙어 같이 이동한다.
+    IEnumerator MoveTransform(Transform mover, Step s, Group group)
     {
-        if (mover == null || s.moveTarget == null)
+        Transform follow = null;
+        if (s.followPlayer)
+        {
+            PlayerController pc = CurrentPlayer();
+            if (pc != null) follow = pc.transform;
+            else Debug.LogWarning($"[{name}] MoveActor 단계가 Follow Player인데 플레이어를 찾지 못했습니다.", this);
+        }
+
+        if (mover == null || (follow == null && s.moveTarget == null))
         {
             Debug.LogWarning($"[{name}] MoveActor 단계의 Actor 또는 Move Target이 비어 있습니다.", this);
             yield break;
@@ -264,10 +373,20 @@ public class EventTriggerZone : MonoBehaviour
 
         while (timer < limit)
         {
-            Vector3 goal = new Vector3(s.moveTarget.position.x, mover.position.y, mover.position.z);
-            if (Vector3.Distance(mover.position, goal) <= s.arriveDistance) break;
+            // 같은 묶음의 다른 단계가 다 끝났으면 호위도 여기서 멈춘다
+            if (group != null && group.pending <= 0) break;
 
-            if (spr != null) spr.flipX = goal.x < mover.position.x;
+            float goalX = follow != null
+                ? follow.position.x + s.followOffsetX
+                : s.moveTarget.position.x;
+            Vector3 goal = new Vector3(goalX, mover.position.y, mover.position.z);
+
+            float gap = Mathf.Abs(goalX - mover.position.x);
+            // 따라다니는 중엔 '도착'으로 끝내지 않는다 (목표가 계속 움직이므로)
+            if (follow == null && gap <= s.arriveDistance) break;
+
+            // 목표 위에 서 있을 땐 방향을 뒤집지 않는다 (제자리에서 좌우로 떠는 것 방지)
+            if (spr != null && gap > 0.05f) spr.flipX = goalX < mover.position.x;
             mover.position = Vector3.MoveTowards(mover.position, goal, s.moveSpeed * Time.deltaTime);
 
             timer += Time.deltaTime;

@@ -59979,6 +59979,9 @@ MonoBehaviour:
   rewardCellPrefab: {fileID: 0}
   leaveDelay: 0.3
   leaveFadeDuration: 0.9
+  blackoutOnLeave: 1
+  blackoutHold: 0.4
+  rewardPickupDelay: 1.2
   persistentId: A02_RedCellVillager
 --- !u!1 &1856348196
 GameObject:

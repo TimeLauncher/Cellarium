@@ -51,8 +51,21 @@ public class NpcInteractable : MonoBehaviour
     [Tooltip("대화가 끝나고 이만큼 뒤에 떠나기 시작한다")]
     public float leaveDelay = 0.3f;
 
-    [Tooltip("사라지는 데 걸리는 시간 (0이면 즉시 사라진다)")]
+    [Tooltip("사라지는 데 걸리는 시간 (0이면 즉시 사라진다). 아래 Blackout On Leave를 켜면 안 쓰인다")]
     public float leaveFadeDuration = 0.8f;
+
+    [Tooltip("켜면 대화가 끝난 뒤 화면이 잠깐 암전되고, 어두운 사이에 사라진다.\n" +
+             "다시 밝아지면 그 자리엔 보상 셀만 남아 있다.\n" +
+             "(ScreenFadeManager가 없으면 위의 스프라이트 페이드로 대신한다)")]
+    public bool blackoutOnLeave = false;
+
+    [Tooltip("화면이 완전히 검어진 뒤 이만큼 더 기다렸다가 다시 밝아진다")]
+    public float blackoutHold = 0.4f;
+
+    [Tooltip("암전으로 사라질 때 보상 셀이 이 시간 동안은 획득되지 않는다.\n" +
+             "플레이어가 바로 앞에 서 있어서, 짧게 주면 화면이 밝아지기도 전에 먹혀버린다.\n" +
+             "(Blackout Hold + 화면이 밝아지는 시간)보다 넉넉하게 줄 것")]
+    public float rewardPickupDelay = 1.2f;
 
     [Tooltip("구조 여부를 기억할 때 쓰는 식별자. 비우면 계층 경로로 자동 생성된다")]
     public string persistentId = "";
@@ -153,30 +166,92 @@ public class NpcInteractable : MonoBehaviour
         SetHintVisible(CanTalk);
     }
 
-    // 구조 완료 — 보상 셀을 떨구고 서서히 사라진다
+    // 구조 완료 — 보상 셀을 남기고 사라진다
     IEnumerator LeaveAfterRescue()
     {
         WorldState.Record(WorldCategory.Event, RescueId);
 
         if (leaveDelay > 0f) yield return new WaitForSeconds(leaveDelay);
 
-        if (rewardCell > 0)
-        {
-            SpriteRenderer spr = GetComponentInChildren<SpriteRenderer>();
-            CellChunk reward = CellChunk.Spawn(transform.position, rewardCell, rewardCellPrefab, spr);
+        ScreenFadeManager fade = blackoutOnLeave ? ScreenFadeManager.Instance : null;
+        if (blackoutOnLeave && fade == null)
+            Debug.LogWarning($"[NPC] {name}: 암전을 쓰려면 ScreenFadeManager가 필요합니다. " +
+                             "스프라이트 페이드로 대신합니다.", this);
 
-            // 플레이어가 바로 앞에 서 있어서 그냥 두면 생기자마자 흡수된다 —
-            // 잠깐 튀어오르는 걸 보여준 뒤 먹히게 한다 (몬스터 셀 드랍과 같은 처리)
-            if (reward != null)
-            {
-                reward.pickupDelay = 0.45f;
-                reward.Launch(new Vector2(Random.Range(-1.2f, 1.2f), 4f));
-            }
+        if (fade != null)
+        {
+            yield return BlackoutLeave(fade);
+            yield break;
         }
 
+        // 예전 방식 — 셀이 튀어오르는 걸 보여주고 그 자리에서 서서히 투명해진다
+        DropReward(true);
         yield return FadeOut();
-
         gameObject.SetActive(false);
+    }
+
+    // 암전 연출 (A02 적혈구 구조):
+    //   대화 종료 → 화면 암전 → 어두운 사이에 적혈구를 지우고 그 자리에 셀을 놓음 → 다시 밝아짐
+    //
+    // ★ 어두운 동안 gameObject.SetActive(false)를 하면 이 코루틴도 같이 죽어서
+    //   화면이 검은 채로 영영 남는다. 그래서 어두울 땐 '안 보이게'만 하고,
+    //   다 밝아진 뒤에 오브젝트를 끈다.
+    IEnumerator BlackoutLeave(ScreenFadeManager fade)
+    {
+        PlayerInputLock.Acquire();
+
+        yield return fade.FadeOut();
+
+        // 화면이 검은 지금 자리를 바꿔치기한다
+        DropReward(false);
+        Hide();
+
+        if (blackoutHold > 0f) yield return new WaitForSecondsRealtime(blackoutHold);
+
+        yield return fade.FadeIn();
+
+        PlayerInputLock.Release();
+        gameObject.SetActive(false);
+    }
+
+    // 오브젝트를 끄지 않고 '없는 것처럼' 만든다 (코루틴은 계속 돌아야 하므로)
+    void Hide()
+    {
+        foreach (SpriteRenderer r in GetComponentsInChildren<SpriteRenderer>())
+            if (r != null) r.enabled = false;
+
+        Collider2D col = GetComponent<Collider2D>();
+        if (col != null) col.enabled = false;
+
+        // 울음소리는 매 프레임 볼륨을 다시 쓰므로 Stop만으로는 안 멎는다 — 컴포넌트를 끈다
+        foreach (ProximitySound ps in GetComponentsInChildren<ProximitySound>())
+            if (ps != null) ps.enabled = false;
+
+        foreach (AudioSource a in GetComponentsInChildren<AudioSource>())
+            if (a != null) a.Stop();
+    }
+
+    // pop: 셀이 튀어오르는 연출을 쓸지. 암전 중에는 어차피 안 보이므로 제자리에 놓는다.
+    void DropReward(bool pop)
+    {
+        if (rewardCell <= 0) return;
+
+        SpriteRenderer spr = GetComponentInChildren<SpriteRenderer>();
+        CellChunk reward = CellChunk.Spawn(transform.position, rewardCell, rewardCellPrefab, spr);
+        if (reward == null) return;
+
+        if (pop)
+        {
+            // 플레이어가 바로 앞에 서 있어서 그냥 두면 생기자마자 흡수된다 —
+            // 잠깐 튀어오르는 걸 보여준 뒤 먹히게 한다 (몬스터 셀 드랍과 같은 처리)
+            reward.pickupDelay = 0.45f;
+            reward.Launch(new Vector2(Random.Range(-1.2f, 1.2f), 4f));
+        }
+        else
+        {
+            // 화면이 다시 밝아지기 전에 먹히면 '셀이 남았다'는 게 화면에 안 보인다
+            reward.pickupDelay = rewardPickupDelay;
+        }
     }
 
     IEnumerator FadeOut()

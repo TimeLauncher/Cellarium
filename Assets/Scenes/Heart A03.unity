@@ -644,12 +644,15 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::EventTriggerZone
   steps:
   - type: 1
+    runWithNext: 0
     duration: 1
     dialogue: {fileID: 11400000, guid: ff4c56641fd7eda48af0742be5069363, type: 2}
     actor: {fileID: 0}
     moveTarget: {fileID: 0}
     moveSpeed: 3
     arriveDistance: 0.3
+    followPlayer: 0
+    followOffsetX: 1.3
     cameraTarget: {fileID: 0}
     cameraTravelTime: 0.8
     cameraReturnTime: 0.8
@@ -658,12 +661,32 @@ MonoBehaviour:
     sceneName: 
     entryId: 
   - type: 2
+    runWithNext: 1
     duration: 5
     dialogue: {fileID: 0}
     actor: {fileID: 1041131962}
     moveTarget: {fileID: 950946480}
     moveSpeed: 3
     arriveDistance: 2
+    followPlayer: 0
+    followOffsetX: 1.3
+    cameraTarget: {fileID: 0}
+    cameraTravelTime: 0.8
+    cameraReturnTime: 0.8
+    target: {fileID: 0}
+    active: 1
+    sceneName: 
+    entryId: 
+  - type: 2
+    runWithNext: 0
+    duration: 5
+    dialogue: {fileID: 0}
+    actor: {fileID: 935593055}
+    moveTarget: {fileID: 950946480}
+    moveSpeed: 3.4
+    arriveDistance: 4
+    followPlayer: 0
+    followOffsetX: 1.3
     cameraTarget: {fileID: 0}
     cameraTravelTime: 0.8
     cameraReturnTime: 0.8
@@ -672,12 +695,15 @@ MonoBehaviour:
     sceneName: 
     entryId: 
   - type: 1
+    runWithNext: 0
     duration: 1
     dialogue: {fileID: 11400000, guid: 005be98211f84033955c71a5af63d242, type: 2}
     actor: {fileID: 0}
     moveTarget: {fileID: 0}
     moveSpeed: 3
     arriveDistance: 0.3
+    followPlayer: 0
+    followOffsetX: 1.3
     cameraTarget: {fileID: 0}
     cameraTravelTime: 0.8
     cameraReturnTime: 0.8
@@ -686,12 +712,15 @@ MonoBehaviour:
     sceneName: 
     entryId: 
   - type: 0
+    runWithNext: 0
     duration: 0.4
     dialogue: {fileID: 0}
     actor: {fileID: 0}
     moveTarget: {fileID: 0}
     moveSpeed: 3
     arriveDistance: 0.3
+    followPlayer: 0
+    followOffsetX: 1.3
     cameraTarget: {fileID: 0}
     cameraTravelTime: 0.8
     cameraReturnTime: 0.8
@@ -700,12 +729,49 @@ MonoBehaviour:
     sceneName: 
     entryId: 
   - type: 3
-    duration: 5
+    runWithNext: 1
+    duration: 8
     dialogue: {fileID: 0}
     actor: {fileID: 0}
     moveTarget: {fileID: 650972236}
     moveSpeed: 3
     arriveDistance: 0.5
+    followPlayer: 0
+    followOffsetX: 1.3
+    cameraTarget: {fileID: 0}
+    cameraTravelTime: 0.8
+    cameraReturnTime: 0.8
+    target: {fileID: 0}
+    active: 1
+    sceneName: 
+    entryId: 
+  - type: 2
+    runWithNext: 1
+    duration: 12
+    dialogue: {fileID: 0}
+    actor: {fileID: 935593055}
+    moveTarget: {fileID: 0}
+    moveSpeed: 12
+    arriveDistance: 0.3
+    followPlayer: 1
+    followOffsetX: -3
+    cameraTarget: {fileID: 0}
+    cameraTravelTime: 0.8
+    cameraReturnTime: 0.8
+    target: {fileID: 0}
+    active: 1
+    sceneName: 
+    entryId: 
+  - type: 2
+    runWithNext: 0
+    duration: 12
+    dialogue: {fileID: 0}
+    actor: {fileID: 1041131962}
+    moveTarget: {fileID: 0}
+    moveSpeed: 12
+    arriveDistance: 0.3
+    followPlayer: 1
+    followOffsetX: 2.5
     cameraTarget: {fileID: 0}
     cameraTravelTime: 0.8
     cameraReturnTime: 0.8
@@ -714,12 +780,15 @@ MonoBehaviour:
     sceneName: 
     entryId: 
   - type: 6
+    runWithNext: 0
     duration: 1
     dialogue: {fileID: 0}
     actor: {fileID: 0}
     moveTarget: {fileID: 0}
     moveSpeed: 3
     arriveDistance: 0.3
+    followPlayer: 0
+    followOffsetX: 1.3
     cameraTarget: {fileID: 0}
     cameraTravelTime: 0.8
     cameraReturnTime: 0.8

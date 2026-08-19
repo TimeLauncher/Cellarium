@@ -11,23 +11,28 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8c5c9c8641762d74eac5a3509e51a5fa, type: 3}
   m_Name: A02_RedCellRescue
-  m_EditorClassIdentifier:
-  defaultJob: "적혈구 주민"
-  defaultSpeaker: "붉은이"
+  m_EditorClassIdentifier: 
+  defaultJob: "\uC801\uD608\uAD6C \uC8FC\uBBFC"
+  defaultSpeaker: "\uBD89\uC740\uC774"
   lines:
-  - job:
-    speaker:
-    text: "흐윽... 누, 누구세요...?"
+  - job: "\uC801\uD608\uAD6C \uC8FC\uBBFC"
+    speaker: "\uBA54\uAE30"
+    text: "\uD788\uC774\uC774\uC775!!! \uC624\uC9C0\uB9C8!! \uB098, \uB09C \uB9DB
+      \uC5C6\uC5B4\uC5B4\uC5B4\uC5B4\uC5B4\u2026\uC5B4? \uD558\uC580 \uC138\uD3EC?"
     charIntervalOverride: 0
-  - job:
-    speaker:
-    text: "여기 무너진 통로에 갇혀서... 아무도 안 오는 줄 알았어요."
+  - job: "\uC801\uD608\uAD6C \uC8FC\uBBFC"
+    speaker: "\uBA54\uAE30"
+    text: "\uD639\uC2DC \uC6B0\uB9AC \uB9C8\uC744\uC758 \uBC31\uD608\uAD6C \uBD84\uC774\uC2E0\uAC00\uC694?
+      \uD558\uC9C0\uB9CC \uADF8\uCABD\uCC98\uB7FC \uC0DD\uAE34 \uBC31\uD608\uAD6C\uB294
+      \uBCF8 \uC801\uC774 \uC5C6\uB294\uB370.."
     charIntervalOverride: 0
-  - job:
-    speaker:
-    text: "고마워요, 화이트셀. 산소를 나르다 길을 잃었는데... 이제 돌아갈 수 있겠어요."
+  - job: "\uC801\uD608\uAD6C \uC8FC\uBBFC"
+    speaker: "\uBA54\uAE30"
+    text: "\uC5B4\uCA0C\uB4E0 \uC815\uB9D0 \uC8FD\uB294 \uC904 \uC54C\uC558\uB294\uB370
+      \uAD6C\uD574\uC8FC\uC154\uC11C \uACE0\uB9C8\uC6CC\uC694!"
     charIntervalOverride: 0
-  - job:
-    speaker:
-    text: "이거, 가진 게 이것뿐이라 미안하지만 받아 주세요."
+  - job: "\uC801\uD608\uAD6C \uC8FC\uBBFC"
+    speaker: "\uBA54\uAE30"
+    text: "\uC774 \uC55E\uCABD\uC73C\uB85C \uCB49 \uAC00\uC2DC\uBA74 \uB9C8\uC744\uC774
+      \uB098\uC62C \uAC70\uC5D0\uC694! \uBE44\uBC14 \uC140\uB77C!"
     charIntervalOverride: 0

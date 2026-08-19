@@ -6613,12 +6613,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::SceneEntryPoint
   entryId: from_A01
   walkInOnArrival: 1
-  walkInDistance: 1.8
+  walkInDistance: 2.5
   walkInDirection: -1
   waitForFadeIn: 1
   walkStartScreenAlpha: 0.55
   fadeWaitTimeout: 2
-  walkInSpeedRatio: 0.5
+  walkInSpeedRatio: 0.7
   walkInDelay: 0
   walkInMaxDuration: 2.5
 --- !u!4 &1120054019

@@ -1,0 +1,42 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8c5c9c8641762d74eac5a3509e51a5fa, type: 3}
+  m_Name: A06_TCell_Encounter
+  m_EditorClassIdentifier: 
+  defaultJob: ???
+  defaultSpeaker: "T\uBC15\uC0AC"
+  lines:
+  - job: 
+    speaker: 
+    text: "\uC0DD\uAC01\uC9C0\uB3C4 \uBABB\uD55C \uC190\uB2D8\uC774 \uCC3E\uC544\uC654\uAD70."
+    charIntervalOverride: 0
+  - job: 
+    speaker: 
+    text: "\uB2E4 \uC8FD\uC5B4\uAC00\uB294 \uB545\uC5D0 \uC774\uC81C\uC640\uC11C
+      \uBC31\uC2E0\uC774 \uB098\uD0C0\uB0A0 \uC904\uC774\uC57C."
+    charIntervalOverride: 0
+  - job: 
+    speaker: 
+    text: "\u2026"
+    charIntervalOverride: 0
+  - job: 
+    speaker: 
+    text: "\uD3D0\uB3D9\uB9E5\uC5D0 \uCEE4\uB2E4\uB780 \uB140\uC11D\uC774 \uB465\uC9C0\uB97C
+      \uD2C0\uC5B4\uC11C \uC0B0\uC18C \uC6B4\uBC18\uC790\uB4E4\uC774 \uC560\uBA39\uACE0
+      \uC788\uB124."
+    charIntervalOverride: 0
+  - job: 
+    speaker: 
+    text: "\uC790\uB124\uAC00 \uBC31\uC2E0\uC774\uB77C\uBA74, \uBCF8\uBD84\uC744
+      \uB2E4\uD574\uC57C \uD558\uC9C0 \uC54A\uACA0\uB098. \uB300\uD654\uB294 \uADF8
+      \uB2E4\uC74C\uC77C\uC138."
+    charIntervalOverride: 0

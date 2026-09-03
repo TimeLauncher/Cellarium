@@ -1,0 +1,29 @@
+===== Heart A01.unity (111)
+GeneralHitbox, through (4), generalGerm (3), EventSystem, Background, Loader, GeneralHitbox, HealCell_Glow, generalGerm (2), CellGain, Bigcell_visual, Grid, Floatergerm, Coin get amoount, Canvas (1), GeneralHitbox, Cell, CrushGerm, CellGain, GeneralHitbox, Handle, Save, Bigcell (2), UI_eat1, Fissiongauze, screenFade, GeneralHitbox, Mapline, outline, generalGerm (4), Bigcell (1), Main Camera, through (5), GeneralHitbox, Square, camera line, spike (3), Bigcell_visual, GeneralHitbox, Trap, Map_open_UI, Coin amoount, Handle, GeneralHitbox, Slot1, CellGain, HPUIstart, Slot3, MusicManager, CrushGerm (2), through (1), CellBubble, generalGerm, PlayerManager, Player, CrushGerm (3), Bigcell_visual, Handle Slide Area, floaterHitbox, generalGerm (1), gate, Slot0, DashCoolDown, Background, HPSlider, map, GameObject, FissionUIstart, monster, Square (1), Fill, leftgate, Bigfloaterfirepoint, left SceneEntryPoint, HealCell, Flyinggerm, spike (1), CinemachineCamera, Background, floaterfirepoint, Fill Area, HealCell_HeartBeat, Fill, flyingHitbox, floaterHitbox, Tile, Fission, GeneralHitbox, Glow, spike (2), CrushGerm (1), Audio Source, CellBubble, Glow, Bigcell, groundcheak, Glow, SceneEntryPoint, Handle Slide Area, Fill Area, GameplayHUDRoot, UI, BigFloatergerm, Image, HealCell_Visual, spike, through (3), through, CellBubble, Slot2, Coin
+
+===== Heart A03.unity (55)
+camera line, Tooltip, Slot1, Fill, Coin amoount, HPSlider, Fill Area, Coin get amoount, Background, SceneEntryPoint (from_A06), DragToA06Point, HPUIstart, EventSystem, WhiteSoldier, map, CinemachineCamera, Square (1), Canvas (2), Audio Source, Fission, Square (3), WhiteSoldier (1), Square, GameObject, WBC, MusicManager, EventTriggerZone (WhiteSoldier), PlayerManager, "\uBBF8 \uAD6C\uD604_0", groundcheak, Slot0, Fill, FissionUIstart, Handle, Coin, Fill Area, Slot3, DashCoolDown, gate (to A06), GameplayHUDRoot, Main Camera, Slot2, gate (to A02), outline, Handle Slide Area, Background, Background, Fissiongauze, Grid, Player, Handle, SceneEntryPoint (from_A02), Handle Slide Area, Square (2), mapline
+
+===== Heart A06.unity (93)
+through (15), WhiteSoldier_escape, Audio Source, map, Background, Handle, through (1), Slot3, HeartVill_SmallHouse4, "gate (to A03) [E\uD0A4]", Mapline, through (3), groundcheak, through (19), WhiteSoldier (1), through (25), Square (3), through (6), through (5), through (21), through (18), Background, TCell, Tooltip, Coin amoount, through, through (20), Main Camera, through (24), Square (1), HeartVill_House, EventSystem, Fission, Fill Area, through (12), Handle Slide Area, platform, through (7), Player, WhiteSoldier, through (17), GameplayHUDRoot, Coin get amoount, camera line, Coin, Fill, through (10), through (13), HeartVill_MiddleHouse2, through (2), Fill Area, through (16), SceneEntryPoint (from_A03), DashCoolDown, Background, FissionUIstart, Slot2, Canvas (2), HeartVill_SmallHouse3, outline, Square (4), through (26), through (8), through (14), MusicManager, EventTriggerZone (TCell), HPSlider, through (4), HeartVill_BigHouse2, Fissiongauze, through (22), HeartVill_MiddleHouse1, Fill, Slot1, Handle Slide Area, Handle, HeartVill_SmallHouse2, CinemachineCamera, Tile_Through, through (11), GameObject, through (23), Slot0, SceneEntryPoint (from_A03) (1), HPUIstart, through (9), PlayerManager, HeartVill_BigHouse1, through (27), HeartVill_MiddleHouse3, HeartVill_SmallHouse1, HeartVill_OxygenCarrierHouse, "\uBBF8 \uAD6C\uD604_0"
+
+===== PREFABS (19)
+Acid
+generalGerm
+CellDrop
+HitEffect_Hit
+A00
+Bigcell
+HitSpark
+HitSpark
+acid
+BigFloatergerm (1)
+Floatergerm
+Flyinggerm (2)
+generalGerm
+Text Popup
+TextMeshPro - Prefab 1
+TextMeshPro - Prefab 2
+acid bullet
+New Palette
+New Palette

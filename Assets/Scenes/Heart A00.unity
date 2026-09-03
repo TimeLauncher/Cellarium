@@ -5188,7 +5188,7 @@ GameObject:
   - component: {fileID: 794923064}
   - component: {fileID: 794923063}
   m_Layer: 0
-  m_Name: LymphGate
+  m_Name: OBJ_LymphGate
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -7646,7 +7646,7 @@ GameObject:
   - component: {fileID: 1181797108}
   - component: {fileID: 1181797116}
   m_Layer: 7
-  m_Name: Player
+  m_Name: PC_WhiteCell
   m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

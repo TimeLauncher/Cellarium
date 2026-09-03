@@ -59,9 +59,9 @@ public class ButtonSwitch : MonoBehaviour
         if (col != null && col.isTrigger)
             Debug.LogWarning($"[{name}] Collider2D가 Is Trigger 상태라 플레이어가 통과합니다. 체크를 해제하세요.", this);
 
-        int playerLayer = LayerMask.NameToLayer("player");
+        int playerLayer = LayerMask.NameToLayer("Player");
         if (playerLayer >= 0 && Physics2D.GetIgnoreLayerCollision(gameObject.layer, playerLayer))
-            Debug.LogWarning($"[{name}] 이 오브젝트의 레이어({LayerMask.LayerToName(gameObject.layer)})는 player와 충돌이 꺼져 있어 밟고 설 수 없습니다. Default 또는 ground 레이어로 옮기세요.", this);
+            Debug.LogWarning($"[{name}] 이 오브젝트의 레이어({LayerMask.LayerToName(gameObject.layer)})는 Player와 충돌이 꺼져 있어 밟고 설 수 없습니다. Default 또는 Ground 레이어로 옮기세요.", this);
     }
 
     void Update()

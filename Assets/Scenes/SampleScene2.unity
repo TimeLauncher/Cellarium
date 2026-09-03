@@ -131,7 +131,7 @@ GameObject:
   - component: {fileID: 179386}
   - component: {fileID: 179385}
   m_Layer: 0
-  m_Name: Button (1)
+  m_Name: OBJ_Button (1)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -247,7 +247,7 @@ GameObject:
   - component: {fileID: 4301491}
   - component: {fileID: 4301490}
   m_Layer: 3
-  m_Name: DarkCell
+  m_Name: IT_DarkRemnant
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -401,7 +401,7 @@ GameObject:
   - component: {fileID: 9080523}
   - component: {fileID: 9080522}
   m_Layer: 0
-  m_Name: TissueMesh
+  m_Name: OBJ_TissueWeb
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -828,7 +828,7 @@ GameObject:
   - component: {fileID: 78813007}
   - component: {fileID: 78813006}
   m_Layer: 0
-  m_Name: Bigcell
+  m_Name: IT_CellChunk
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1050,7 +1050,7 @@ GameObject:
   - component: {fileID: 103644128}
   - component: {fileID: 103644127}
   m_Layer: 3
-  m_Name: Floatergerm
+  m_Name: MS_Germ_Floater
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1101,7 +1101,7 @@ MonoBehaviour:
   knockbackAlwaysUp: 1
   stunDuration: 0.3
   attackHitbox: {fileID: 0}
-  showHitbox: 1
+  showHitbox: 0
   attackFrontOnly: 1
   attackWindup: 0.2
   attackActiveTime: 0.3
@@ -1357,7 +1357,7 @@ GameObject:
   - component: {fileID: 188999139}
   - component: {fileID: 188999138}
   m_Layer: 0
-  m_Name: Button_Door
+  m_Name: OBJ_ButtonDoor
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1988,7 +1988,7 @@ GameObject:
   - component: {fileID: 281676883}
   - component: {fileID: 281676882}
   m_Layer: 0
-  m_Name: LymphGate
+  m_Name: OBJ_LymphGate
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2214,7 +2214,7 @@ GameObject:
   - component: {fileID: 318815097}
   - component: {fileID: 318815096}
   m_Layer: 0
-  m_Name: Button (2)
+  m_Name: OBJ_Button (2)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -3034,7 +3034,7 @@ GameObject:
   - component: {fileID: 559252985}
   - component: {fileID: 559252984}
   m_Layer: 3
-  m_Name: minispidergerm
+  m_Name: MS_Germ_SpiderMini
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -3085,7 +3085,7 @@ MonoBehaviour:
   knockbackAlwaysUp: 1
   stunDuration: 0.3
   attackHitbox: {fileID: 0}
-  showHitbox: 1
+  showHitbox: 0
   attackFrontOnly: 1
   attackWindup: 0.2
   attackActiveTime: 0.3
@@ -3822,7 +3822,7 @@ GameObject:
   - component: {fileID: 746293460}
   - component: {fileID: 746293459}
   m_Layer: 3
-  m_Name: BigFloatergerm
+  m_Name: MS_Germ_BigFloater
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -3890,7 +3890,7 @@ MonoBehaviour:
   knockbackAlwaysUp: 1
   stunDuration: 0.3
   attackHitbox: {fileID: 0}
-  showHitbox: 1
+  showHitbox: 0
   attackFrontOnly: 1
   attackWindup: 0.2
   attackActiveTime: 0.3
@@ -5094,7 +5094,7 @@ GameObject:
   - component: {fileID: 828614642}
   - component: {fileID: 828614641}
   m_Layer: 8
-  m_Name: through
+  m_Name: TL_Heart_Through
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -5296,7 +5296,7 @@ GameObject:
   - component: {fileID: 899599571}
   - component: {fileID: 899599570}
   m_Layer: 3
-  m_Name: HealCell
+  m_Name: IT_HealCell
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -5863,7 +5863,7 @@ GameObject:
   - component: {fileID: 1051709538}
   - component: {fileID: 1051709542}
   m_Layer: 3
-  m_Name: generalGerm
+  m_Name: MS_Germ_Normal
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -6062,7 +6062,7 @@ MonoBehaviour:
   knockbackAlwaysUp: 1
   stunDuration: 0.3
   attackHitbox: {fileID: 748455632}
-  showHitbox: 1
+  showHitbox: 0
   attackFrontOnly: 1
   attackWindup: 0.2
   attackActiveTime: 0.3
@@ -7235,7 +7235,7 @@ GameObject:
   - component: {fileID: 1377724178}
   - component: {fileID: 1377724177}
   m_Layer: 0
-  m_Name: spike
+  m_Name: TR_Heart_Spike
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -7451,7 +7451,7 @@ GameObject:
   - component: {fileID: 1447688276}
   - component: {fileID: 1447688275}
   m_Layer: 3
-  m_Name: CrushGerm
+  m_Name: MS_Germ_Crush
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -7502,7 +7502,7 @@ MonoBehaviour:
   knockbackAlwaysUp: 1
   stunDuration: 0.3
   attackHitbox: {fileID: 1164581951}
-  showHitbox: 1
+  showHitbox: 0
   attackFrontOnly: 1
   attackWindup: 0.2
   attackActiveTime: 0.3
@@ -8068,7 +8068,7 @@ GameObject:
   - component: {fileID: 1630602707}
   - component: {fileID: 1630602706}
   m_Layer: 3
-  m_Name: Flyinggerm
+  m_Name: MS_Germ_Flying
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -8119,7 +8119,7 @@ MonoBehaviour:
   knockbackAlwaysUp: 1
   stunDuration: 0.2
   attackHitbox: {fileID: 204435875}
-  showHitbox: 1
+  showHitbox: 0
   attackFrontOnly: 1
   attackWindup: 0.2
   attackActiveTime: 0.3
@@ -8293,7 +8293,7 @@ GameObject:
   - component: {fileID: 1656173080}
   - component: {fileID: 1656173079}
   m_Layer: 7
-  m_Name: Player
+  m_Name: PC_WhiteCell
   m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -9386,7 +9386,7 @@ GameObject:
   - component: {fileID: 1897398195}
   - component: {fileID: 1897398194}
   m_Layer: 3
-  m_Name: SpiderGerm
+  m_Name: MS_Germ_Spider
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -9437,7 +9437,7 @@ MonoBehaviour:
   knockbackAlwaysUp: 1
   stunDuration: 0.3
   attackHitbox: {fileID: 754318926}
-  showHitbox: 1
+  showHitbox: 0
   attackFrontOnly: 1
   attackWindup: 0.2
   attackActiveTime: 0.3
@@ -10479,7 +10479,7 @@ GameObject:
   - component: {fileID: 2118739055}
   - component: {fileID: 2118739054}
   m_Layer: 0
-  m_Name: Save
+  m_Name: OBJ_SavePoint
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

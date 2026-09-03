@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 
 // 셀 덩어리: 섭취 불필요, PC 접촉 시 자동으로 사라지며 보유 셀 증가. 움직임을 방해하는 판정 없음
 [RequireComponent(typeof(Collider2D))]
@@ -19,6 +19,18 @@ public class CellChunk : MonoBehaviour
     [Tooltip("튀어나오는 연출에 쓰는 중력 (Launch로 던져졌을 때만)")]
     public float popGravity = 14f;
 
+    [Tooltip("튀어나오면서 가로로 이동할 수 있는 최대 거리. 벽 판정이 없어도 이만큼만 간다")]
+    public float maxPopDistanceX = 1.2f;
+
+    [Tooltip("튀어나오는 도중 이 레이어에 막히면 그 자리에서 멈춘다. 비워두면(Nothing) 기본값을 쓴다.\n" +
+             "★ 이 프로젝트의 타일맵 콜라이더는 Default(0)에 있으므로 Default를 빼면 벽을 그냥 통과한다")]
+    public LayerMask popBlockMask;
+
+    // Default(0) | wall(6) | ground(8). 이 프로젝트는 지형 레이어를 신뢰할 수 없어서
+    // (지면 타일맵 콜라이더가 Default에 있다) Default를 반드시 포함해야 한다.
+    const int DefaultBlockMask = (1 << 0) | (1 << 6) | (1 << 8);
+    const float PopSkin = 0.05f;
+
     // 튀어나오는 연출에서 실제로 움직일 오브젝트.
     // 팀원이 만든 Bigcell 프리팹처럼 CellChunk가 자식에 붙어 있는 구조에서는
     // 자기 자신만 움직이면 껍데기(빛/파티클)가 제자리에 남는다. Spawn이 루트를 넣어준다.
@@ -28,6 +40,7 @@ public class CellChunk : MonoBehaviour
     Vector2 popVelocity;
     bool popping;
     float popFloorY;
+    float popTravelX;   // 지금까지 가로로 이동한 거리
 
     // ★ 몬스터가 죽으면서 떨군 셀(기획서 (4))은 '이미 먹었는지'를 기억하면 안 된다.
     //   씬에 손으로 놓은 덩어리와 달리, 부활로 씬이 리로드되면 몬스터도 되살아나 다시 떨구기 때문에
@@ -69,7 +82,24 @@ public class CellChunk : MonoBehaviour
         if (!popping) return;
 
         Transform root = PopRoot;
-        root.position += (Vector3)(popVelocity * Time.deltaTime);
+        Vector3 step = (Vector3)(popVelocity * Time.deltaTime);
+
+        // ★ 가로 이동만 지형 검사를 한다 (세로는 아래 popFloorY로 이미 막혀 있다).
+        //   벽 옆에서 죽은 몬스터가 떨군 셀이 벽을 뚫고 나가 못 먹게 되는 것을 막는다.
+        if (Mathf.Abs(step.x) > 0.0001f)
+        {
+            if (popTravelX + Mathf.Abs(step.x) > maxPopDistanceX || IsBlockedX(root.position, step.x))
+            {
+                popVelocity.x = 0f;
+                step.x = 0f;
+            }
+            else
+            {
+                popTravelX += Mathf.Abs(step.x);
+            }
+        }
+
+        root.position += step;
         popVelocity.y -= popGravity * Time.deltaTime;
 
         // 던져진 높이까지 도로 내려오면 연출 끝. 지형 충돌을 따로 보지 않아도
@@ -97,7 +127,30 @@ public class CellChunk : MonoBehaviour
 
         popVelocity = velocity;
         popFloorY = root.position.y;
+        popTravelX = 0f;
         popping = true;
+    }
+
+    // 가로 방향이 지형에 막혔는지.
+    // ★ 이 프로젝트는 지형 레이어를 신뢰할 수 없다(지면 타일맵 콜라이더가 Default에 있고,
+    //   ground(8) 레이어를 쓰는 콜라이더는 몇 개뿐이다). 그래서 마스크를 넓게 두고
+    //   트리거·자기 자신·몬스터·플레이어는 코드에서 걸러낸다.
+    bool IsBlockedX(Vector3 from, float stepX)
+    {
+        int mask = popBlockMask.value != 0 ? popBlockMask.value : DefaultBlockMask;
+        Vector2 dir = new Vector2(Mathf.Sign(stepX), 0f);
+        RaycastHit2D[] hits = Physics2D.RaycastAll(from, dir, Mathf.Abs(stepX) + PopSkin, mask);
+
+        foreach (RaycastHit2D h in hits)
+        {
+            Collider2D c = h.collider;
+            if (c == null || c.isTrigger) continue;                        // 획득/상호작용 판정은 지형이 아니다
+            if (c.transform.IsChildOf(PopRoot)) continue;                  // 자기 자신
+            if (c.GetComponentInParent<MonsterBase>() != null) continue;   // 시체에 걸려 멈추지 않게
+            if (c.GetComponentInParent<PlayerController>() != null) continue;
+            return true;
+        }
+        return false;
     }
 
     void OnTriggerEnter2D(Collider2D other) => TryPickup(other);

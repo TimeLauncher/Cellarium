@@ -169,7 +169,7 @@ GameObject:
   - component: {fileID: 35808659}
   - component: {fileID: 35808658}
   m_Layer: 3
-  m_Name: Floatergerm (2)
+  m_Name: MS_Germ_Floater (2)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -259,7 +259,7 @@ MonoBehaviour:
   knockbackAlwaysUp: 1
   stunDuration: 0.3
   attackHitbox: {fileID: 0}
-  showHitbox: 1
+  showHitbox: 0
   attackFrontOnly: 1
   attackWindup: 0.2
   attackActiveTime: 0.3
@@ -676,7 +676,7 @@ GameObject:
   - component: {fileID: 103668398}
   - component: {fileID: 103668397}
   m_Layer: 0
-  m_Name: Bigcell
+  m_Name: IT_CellChunk
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -847,7 +847,7 @@ GameObject:
   - component: {fileID: 140951691}
   - component: {fileID: 140951690}
   m_Layer: 8
-  m_Name: through (2)
+  m_Name: TL_Heart_Through (2)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1018,7 +1018,7 @@ GameObject:
   - component: {fileID: 143637897}
   - component: {fileID: 143637896}
   m_Layer: 0
-  m_Name: spike (2)
+  m_Name: TR_Heart_Spike (2)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1173,7 +1173,7 @@ GameObject:
   - component: {fileID: 180905332}
   - component: {fileID: 180905331}
   m_Layer: 0
-  m_Name: Button_Door (1)
+  m_Name: OBJ_ButtonDoor (1)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1365,7 +1365,7 @@ GameObject:
   - component: {fileID: 210127390}
   - component: {fileID: 210127389}
   m_Layer: 3
-  m_Name: HealCell
+  m_Name: IT_HealCell
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1556,7 +1556,7 @@ GameObject:
   - component: {fileID: 289342702}
   - component: {fileID: 289342701}
   m_Layer: 3
-  m_Name: CrushGerm
+  m_Name: MS_Germ_Crush
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1882,7 +1882,7 @@ GameObject:
   - component: {fileID: 333649484}
   - component: {fileID: 333649483}
   m_Layer: 8
-  m_Name: through (1)
+  m_Name: TL_Heart_Through (1)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2193,7 +2193,7 @@ GameObject:
   - component: {fileID: 364103354}
   - component: {fileID: 364103353}
   m_Layer: 3
-  m_Name: generalGerm (1)
+  m_Name: MS_Germ_Normal (1)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2282,7 +2282,7 @@ MonoBehaviour:
   knockbackAlwaysUp: 1
   stunDuration: 0.3
   attackHitbox: {fileID: 410875183}
-  showHitbox: 1
+  showHitbox: 0
   attackFrontOnly: 1
   attackWindup: 0.2
   attackActiveTime: 0.3
@@ -12478,7 +12478,7 @@ GameObject:
   - component: {fileID: 1842719219}
   - component: {fileID: 1842719220}
   m_Layer: 0
-  m_Name: RedCellVillager
+  m_Name: NPC_RBC_Benny
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -12575,7 +12575,7 @@ GameObject:
   - component: {fileID: 501722033}
   - component: {fileID: 501722032}
   m_Layer: 0
-  m_Name: Button (3)
+  m_Name: OBJ_Button (3)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -12722,7 +12722,7 @@ GameObject:
   - component: {fileID: 528335674}
   - component: {fileID: 528335673}
   m_Layer: 0
-  m_Name: spike (1)
+  m_Name: TR_Heart_Spike (1)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -13503,7 +13503,7 @@ GameObject:
   - component: {fileID: 797217795}
   - component: {fileID: 797217794}
   m_Layer: 0
-  m_Name: spike (4)
+  m_Name: TR_Heart_Spike (4)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -13689,7 +13689,7 @@ GameObject:
   - component: {fileID: 812665560}
   - component: {fileID: 812665559}
   m_Layer: 3
-  m_Name: DarkCell
+  m_Name: IT_DarkRemnant
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -13843,7 +13843,7 @@ GameObject:
   - component: {fileID: 830373923}
   - component: {fileID: 830373922}
   m_Layer: 0
-  m_Name: TissueMesh
+  m_Name: OBJ_TissueWeb
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -13996,7 +13996,7 @@ GameObject:
   - component: {fileID: 861977117}
   - component: {fileID: 861977116}
   m_Layer: 3
-  m_Name: generalGerm
+  m_Name: MS_Germ_Normal
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -14085,7 +14085,7 @@ MonoBehaviour:
   knockbackAlwaysUp: 1
   stunDuration: 0.3
   attackHitbox: {fileID: 1632210344}
-  showHitbox: 1
+  showHitbox: 0
   attackFrontOnly: 1
   attackWindup: 0.2
   attackActiveTime: 0.3
@@ -14628,7 +14628,7 @@ GameObject:
   - component: {fileID: 880254293}
   - component: {fileID: 880254292}
   m_Layer: 8
-  m_Name: through (3)
+  m_Name: TL_Heart_Through (3)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -16082,7 +16082,7 @@ GameObject:
   - component: {fileID: 1257796162}
   - component: {fileID: 1257796161}
   m_Layer: 0
-  m_Name: TissueMesh (1)
+  m_Name: OBJ_TissueWeb (1)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -16819,7 +16819,7 @@ GameObject:
   - component: {fileID: 1441570645}
   - component: {fileID: 1441570644}
   m_Layer: 3
-  m_Name: Flyinggerm (1)
+  m_Name: MS_Germ_Flying (1)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -16908,7 +16908,7 @@ MonoBehaviour:
   knockbackAlwaysUp: 1
   stunDuration: 0.2
   attackHitbox: {fileID: 348888877}
-  showHitbox: 1
+  showHitbox: 0
   attackFrontOnly: 1
   attackWindup: 0.2
   attackActiveTime: 0.3
@@ -69928,7 +69928,7 @@ GameObject:
   - component: {fileID: 1723498256}
   - component: {fileID: 1723498255}
   m_Layer: 3
-  m_Name: generalGerm (2)
+  m_Name: MS_Germ_Normal (2)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -70017,7 +70017,7 @@ MonoBehaviour:
   knockbackAlwaysUp: 1
   stunDuration: 0.3
   attackHitbox: {fileID: 2118366570}
-  showHitbox: 1
+  showHitbox: 0
   attackFrontOnly: 1
   attackWindup: 0.2
   attackActiveTime: 0.3
@@ -70299,7 +70299,7 @@ GameObject:
   - component: {fileID: 1813014874}
   - component: {fileID: 1813014873}
   m_Layer: 0
-  m_Name: spike
+  m_Name: TR_Heart_Spike
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -70601,7 +70601,7 @@ GameObject:
   - component: {fileID: 1876706281}
   - component: {fileID: 1876706280}
   m_Layer: 3
-  m_Name: Floatergerm (1)
+  m_Name: MS_Germ_Floater (1)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -70691,7 +70691,7 @@ MonoBehaviour:
   knockbackAlwaysUp: 1
   stunDuration: 0.3
   attackHitbox: {fileID: 0}
-  showHitbox: 1
+  showHitbox: 0
   attackFrontOnly: 1
   attackWindup: 0.2
   attackActiveTime: 0.3
@@ -70871,7 +70871,7 @@ GameObject:
   - component: {fileID: 1895529377}
   - component: {fileID: 1895529376}
   m_Layer: 0
-  m_Name: Save
+  m_Name: OBJ_SavePoint
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -71036,7 +71036,7 @@ GameObject:
   - component: {fileID: 1965552591}
   - component: {fileID: 1965552599}
   m_Layer: 7
-  m_Name: Player
+  m_Name: PC_WhiteCell
   m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -71415,7 +71415,7 @@ GameObject:
   - component: {fileID: 1973165756}
   - component: {fileID: 1973165755}
   m_Layer: 0
-  m_Name: spike (3)
+  m_Name: TR_Heart_Spike (3)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -117570,7 +117570,7 @@ GameObject:
   - component: {fileID: 1995801827}
   - component: {fileID: 1995801826}
   m_Layer: 0
-  m_Name: Button (2)
+  m_Name: OBJ_Button (2)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -117685,7 +117685,7 @@ GameObject:
   - component: {fileID: 2007363790}
   - component: {fileID: 2007363789}
   m_Layer: 0
-  m_Name: Button (1)
+  m_Name: OBJ_Button (1)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -117854,7 +117854,7 @@ GameObject:
   - component: {fileID: 2044070251}
   - component: {fileID: 2044070250}
   m_Layer: 0
-  m_Name: Button (4)
+  m_Name: OBJ_Button (4)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -118041,7 +118041,7 @@ GameObject:
   - component: {fileID: 2084478667}
   - component: {fileID: 2084478666}
   m_Layer: 3
-  m_Name: Flyinggerm
+  m_Name: MS_Germ_Flying
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -118130,7 +118130,7 @@ MonoBehaviour:
   knockbackAlwaysUp: 1
   stunDuration: 0.2
   attackHitbox: {fileID: 1581464427}
-  showHitbox: 1
+  showHitbox: 0
   attackFrontOnly: 1
   attackWindup: 0.2
   attackActiveTime: 0.3
@@ -123543,7 +123543,7 @@ GameObject:
   - component: {fileID: 2119977686}
   - component: {fileID: 2119977685}
   m_Layer: 3
-  m_Name: BigFloatergerm
+  m_Name: MS_Germ_BigFloater
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -123633,7 +123633,7 @@ MonoBehaviour:
   knockbackAlwaysUp: 1
   stunDuration: 0.3
   attackHitbox: {fileID: 0}
-  showHitbox: 1
+  showHitbox: 0
   attackFrontOnly: 1
   attackWindup: 0.2
   attackActiveTime: 0.3
@@ -123873,7 +123873,7 @@ GameObject:
   - component: {fileID: 2128174650}
   - component: {fileID: 2128174649}
   m_Layer: 8
-  m_Name: through
+  m_Name: TL_Heart_Through
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -124044,7 +124044,7 @@ GameObject:
   - component: {fileID: 2129202688}
   - component: {fileID: 2129202687}
   m_Layer: 0
-  m_Name: Button_Door
+  m_Name: OBJ_ButtonDoor
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 
 public class MonsterBase : MonoBehaviour, IConsumable
 {
@@ -51,7 +51,7 @@ public class MonsterBase : MonoBehaviour, IConsumable
 
     [Header("히트박스")]
     public Collider2D attackHitbox; // Inspector에서 자식 오브젝트의 Collider2D 연결
-    public bool showHitbox = true;  // 이펙트 에셋 나오기 전까지 공격 범위를 화면에 표시
+    public bool showHitbox = false; // 공격 범위를 화면에 표시 (개발용 — 기획 요청으로 기본값 끔)
     public bool attackFrontOnly = true; // 바라보는 앞쪽만 공격 판정(뒤통수 안 때림). 히트박스도 방향 따라 뒤집힘
 
     [Header("공격 임시 타이머 (애니메이션 붙기 전까지만 사용)")]

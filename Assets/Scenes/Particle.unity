@@ -10836,7 +10836,7 @@ GameObject:
   - component: {fileID: 866054823}
   - component: {fileID: 866054822}
   m_Layer: 7
-  m_Name: Player
+  m_Name: PC_WhiteCell
   m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -16015,7 +16015,7 @@ GameObject:
   - component: {fileID: 1151060041}
   - component: {fileID: 1151060040}
   m_Layer: 3
-  m_Name: HealCell
+  m_Name: IT_HealCell
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -17751,7 +17751,7 @@ GameObject:
   - component: {fileID: 1849794956264653412}
   - component: {fileID: 8895123157524721935}
   m_Layer: 0
-  m_Name: Bigcell
+  m_Name: IT_CellChunk
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

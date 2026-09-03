@@ -51,8 +51,8 @@ public class PlayerManager : MonoBehaviour
         if (Instance == null) Instance = this;
         else Destroy(gameObject);
 
-        int playerLayer = LayerMask.NameToLayer("player");
-        int monsterLayer = LayerMask.NameToLayer("monster");
+        int playerLayer = LayerMask.NameToLayer("Player");
+        int monsterLayer = LayerMask.NameToLayer("Monster");
 
         // 플레이어는 몬스터를 밀거나 타고 올라갈 수 없다 (접촉 데미지는 MonsterBase가 겹침 검사로 따로 처리)
         if (playerLayer >= 0 && monsterLayer >= 0)

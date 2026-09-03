@@ -1,4 +1,4 @@
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -1102,6 +1102,11 @@ private RuntimeAnimatorController cloneAnimatorController;
             foreach (var hit in hits)
             {
                 MonsterBase monster = hit.collider.GetComponent<MonsterBase>();
+
+                // 섭취 가능(= 죽은) 몬스터는 대시 적중 대상이 아니다.
+                // 시체에 적중 판정이 나면 플레이어가 튕겨나가 대시가 끊기고, 섭취하러 파고들 수가 없다.
+                if (monster != null && monster.IsConsumable) continue;
+
                 if (monster != null && !hitMonsters.Contains(monster))
                 {
                     hitMonsters.Add(monster);

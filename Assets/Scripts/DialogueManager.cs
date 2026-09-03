@@ -1,4 +1,4 @@
-using System.Collections;
+﻿using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -57,6 +57,10 @@ public class DialogueManager : MonoBehaviour
 
     public static bool IsPlaying => Instance != null && Instance.isPlaying;
     public static int CurrentLineIndex => Instance != null ? Instance.lineIndex : -1;
+
+    // 지금 재생 중인 대화 에셋. '특정 대화에만' 반응해야 하는 컴포넌트가 쓴다
+    // (줄 번호만 보면 같은 씬의 다른 대화에도 똑같이 반응해 버린다)
+    public static DialogueData Current => Instance != null && Instance.isPlaying ? Instance.current : null;
 
     void Awake()
     {

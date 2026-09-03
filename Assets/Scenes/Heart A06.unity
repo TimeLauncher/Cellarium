@@ -133,7 +133,7 @@ GameObject:
   - component: {fileID: 25092086}
   - component: {fileID: 25092085}
   m_Layer: 8
-  m_Name: through (15)
+  m_Name: TL_Heart_Through (15)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -28316,7 +28316,7 @@ GameObject:
   - component: {fileID: 160247344}
   - component: {fileID: 160247343}
   m_Layer: 8
-  m_Name: through (1)
+  m_Name: TL_Heart_Through (1)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -28745,7 +28745,7 @@ GameObject:
   - component: {fileID: 238920937}
   - component: {fileID: 238920936}
   m_Layer: 8
-  m_Name: through (3)
+  m_Name: TL_Heart_Through (3)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -28952,7 +28952,7 @@ GameObject:
   - component: {fileID: 294297374}
   - component: {fileID: 294297373}
   m_Layer: 8
-  m_Name: through (19)
+  m_Name: TL_Heart_Through (19)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -29303,6 +29303,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::NpcDialogueDisappear
   disappearAfterLine: 2
+  targetDialogue: {fileID: 11400000, guid: a33f6fdda58c03b4f8e1a453a3fbfa1e, type: 2}
   persistentId: NPC_Disappear_02
 --- !u!1 &338397776
 GameObject:
@@ -29318,7 +29319,7 @@ GameObject:
   - component: {fileID: 338397779}
   - component: {fileID: 338397778}
   m_Layer: 8
-  m_Name: through (25)
+  m_Name: TL_Heart_Through (25)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -29581,7 +29582,7 @@ GameObject:
   - component: {fileID: 348848705}
   - component: {fileID: 348848704}
   m_Layer: 8
-  m_Name: through (6)
+  m_Name: TL_Heart_Through (6)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -29753,7 +29754,7 @@ GameObject:
   - component: {fileID: 362532566}
   - component: {fileID: 362532565}
   m_Layer: 8
-  m_Name: through (5)
+  m_Name: TL_Heart_Through (5)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -29925,7 +29926,7 @@ GameObject:
   - component: {fileID: 384105156}
   - component: {fileID: 384105155}
   m_Layer: 8
-  m_Name: through (21)
+  m_Name: TL_Heart_Through (21)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -30127,7 +30128,7 @@ GameObject:
   - component: {fileID: 412899907}
   - component: {fileID: 412899906}
   m_Layer: 8
-  m_Name: through (18)
+  m_Name: TL_Heart_Through (18)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -30354,7 +30355,7 @@ GameObject:
   - component: {fileID: 1973941555}
   - component: {fileID: 1973941556}
   m_Layer: 0
-  m_Name: TCell
+  m_Name: NPC_TCell
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -30514,7 +30515,7 @@ GameObject:
   - component: {fileID: 509090442}
   - component: {fileID: 509090441}
   m_Layer: 8
-  m_Name: through
+  m_Name: TL_Heart_Through
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -30716,7 +30717,7 @@ GameObject:
   - component: {fileID: 537484076}
   - component: {fileID: 537484075}
   m_Layer: 8
-  m_Name: through (20)
+  m_Name: TL_Heart_Through (20)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -31102,7 +31103,7 @@ GameObject:
   - component: {fileID: 610871259}
   - component: {fileID: 610871258}
   m_Layer: 8
-  m_Name: through (24)
+  m_Name: TL_Heart_Through (24)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -31532,7 +31533,7 @@ GameObject:
   - component: {fileID: 708922265}
   - component: {fileID: 708922264}
   m_Layer: 8
-  m_Name: through (12)
+  m_Name: TL_Heart_Through (12)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -31774,7 +31775,7 @@ GameObject:
   - component: {fileID: 736090591}
   - component: {fileID: 736090590}
   m_Layer: 8
-  m_Name: through (7)
+  m_Name: TL_Heart_Through (7)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -31950,7 +31951,7 @@ GameObject:
   - component: {fileID: 1049106015}
   - component: {fileID: 1790874540}
   m_Layer: 7
-  m_Name: Player
+  m_Name: PC_WhiteCell
   m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -32106,6 +32107,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::NpcDialogueDisappear
   disappearAfterLine: 2
+  targetDialogue: {fileID: 11400000, guid: a33f6fdda58c03b4f8e1a453a3fbfa1e, type: 2}
   persistentId: NPC_Disappear_01
 --- !u!114 &757567696
 MonoBehaviour:
@@ -32232,7 +32234,7 @@ GameObject:
   - component: {fileID: 779297989}
   - component: {fileID: 779297988}
   m_Layer: 8
-  m_Name: through (17)
+  m_Name: TL_Heart_Through (17)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -32966,7 +32968,7 @@ GameObject:
   - component: {fileID: 1056966015}
   - component: {fileID: 1056966014}
   m_Layer: 8
-  m_Name: through (10)
+  m_Name: TL_Heart_Through (10)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -33138,7 +33140,7 @@ GameObject:
   - component: {fileID: 1058961299}
   - component: {fileID: 1058961298}
   m_Layer: 8
-  m_Name: through (13)
+  m_Name: TL_Heart_Through (13)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -33643,7 +33645,7 @@ GameObject:
   - component: {fileID: 1110154736}
   - component: {fileID: 1110154735}
   m_Layer: 8
-  m_Name: through (2)
+  m_Name: TL_Heart_Through (2)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -33897,7 +33899,7 @@ GameObject:
   - component: {fileID: 1154085433}
   - component: {fileID: 1154085432}
   m_Layer: 8
-  m_Name: through (16)
+  m_Name: TL_Heart_Through (16)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -55241,7 +55243,7 @@ GameObject:
   - component: {fileID: 1379699896}
   - component: {fileID: 1379699895}
   m_Layer: 8
-  m_Name: through (26)
+  m_Name: TL_Heart_Through (26)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -55413,7 +55415,7 @@ GameObject:
   - component: {fileID: 1397997550}
   - component: {fileID: 1397997549}
   m_Layer: 8
-  m_Name: through (8)
+  m_Name: TL_Heart_Through (8)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -55616,7 +55618,7 @@ GameObject:
   - component: {fileID: 1409303694}
   - component: {fileID: 1409303693}
   m_Layer: 8
-  m_Name: through (14)
+  m_Name: TL_Heart_Through (14)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -56000,7 +56002,7 @@ GameObject:
   - component: {fileID: 548970916}
   - component: {fileID: 1420020020}
   m_Layer: 0
-  m_Name: EventTriggerZone (TCell)
+  m_Name: EV_Heart06_Encounter
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -56261,7 +56263,7 @@ GameObject:
   - component: {fileID: 1534695279}
   - component: {fileID: 1534695278}
   m_Layer: 8
-  m_Name: through (4)
+  m_Name: TL_Heart_Through (4)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -56581,7 +56583,7 @@ GameObject:
   - component: {fileID: 1591054916}
   - component: {fileID: 1591054915}
   m_Layer: 8
-  m_Name: through (22)
+  m_Name: TL_Heart_Through (22)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -57848,7 +57850,7 @@ GameObject:
   - component: {fileID: 1777475800}
   - component: {fileID: 1777475799}
   m_Layer: 8
-  m_Name: through (11)
+  m_Name: TL_Heart_Through (11)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -58088,7 +58090,7 @@ GameObject:
   - component: {fileID: 1858662511}
   - component: {fileID: 1858662510}
   m_Layer: 8
-  m_Name: through (23)
+  m_Name: TL_Heart_Through (23)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -58494,7 +58496,7 @@ GameObject:
   - component: {fileID: 1944999934}
   - component: {fileID: 1944999933}
   m_Layer: 8
-  m_Name: through (9)
+  m_Name: TL_Heart_Through (9)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -58941,7 +58943,7 @@ GameObject:
   - component: {fileID: 2069780517}
   - component: {fileID: 2069780516}
   m_Layer: 8
-  m_Name: through (27)
+  m_Name: TL_Heart_Through (27)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

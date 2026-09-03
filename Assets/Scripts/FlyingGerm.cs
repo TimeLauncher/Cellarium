@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 
 // 일반비행균: 느린 속도로 체공하며 조우 시 추적, 근접 시 공중 돌진
 public class FlyingGerm : MonsterBase
@@ -62,6 +62,7 @@ public class FlyingGerm : MonsterBase
     protected override void TryStartAttack()
     {
         diveDir = ((Vector2)(target.position - transform.position)).normalized;
+        FaceDirection(diveDir.x); // 돌진 모션이 돌진 방향으로 재생되도록 (UpdateMovement는 공격 중 방향을 안 잡는다)
         isAttacking = true;
         isDiving = false;
         if (animator != null) animator.SetTrigger("Attack");

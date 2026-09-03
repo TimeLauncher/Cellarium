@@ -24280,7 +24280,7 @@ GameObject:
   - component: {fileID: 1734000399}
   - component: {fileID: 398471299}
   m_Layer: 0
-  m_Name: EventTriggerZone (WhiteSoldier)
+  m_Name: EV_Heart03_Encounter
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -38352,7 +38352,7 @@ GameObject:
   - component: {fileID: 1025807843}
   - component: {fileID: 1930321732}
   m_Layer: 7
-  m_Name: Player
+  m_Name: PC_WhiteCell
   m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

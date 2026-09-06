@@ -1,6 +1,7 @@
 using System.Collections.Generic;
-using UnityEngine;
 using Unity.Cinemachine;
+using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class PlayerManager : MonoBehaviour
 {
@@ -256,5 +257,24 @@ public class PlayerManager : MonoBehaviour
             cinemachineCamera.Follow = currentPlayer.transform;
 
         Debug.Log($"{index + 1}번 캐릭터로 조종 전환!");
+    }
+    void OnEnable()
+    {
+        SceneManager.sceneLoaded += OnSceneLoaded;
+    }
+
+    void OnDisable()
+    {
+        SceneManager.sceneLoaded -= OnSceneLoaded;
+    }
+
+    void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+        cinemachineCamera = FindFirstObjectByType<CinemachineCamera>();
+
+        if (cinemachineCamera != null && currentPlayer != null)
+        {
+            cinemachineCamera.Follow = currentPlayer.transform;
+        }
     }
 }

@@ -15,4 +15,11 @@ public class PersistentPlayerRoot : MonoBehaviour
         instance = this;
         DontDestroyOnLoad(gameObject);
     }
+    private void OnDestroy()
+    {
+        if (instance == this)
+        {
+            instance = null;
+        }
+    }
 }

@@ -12,6 +12,11 @@ public class MapPositionTracker : MonoBehaviour
     [SerializeField] private RectTransform content;
     [SerializeField] private RectTransform playerMarker;
 
+    [SerializeField] private float sceneChangeFogDelay = 1f;
+
+    private bool blockFogReveal;
+    private Coroutine fogDelayCoroutine;
+
     private void Start()
     {
         RefreshReferences();
@@ -30,9 +35,35 @@ public class MapPositionTracker : MonoBehaviour
     {
         Debug.Log($"[Map] 씬 변경 감지: {scene.name}");
 
-        RefreshReferences();
-    }
+        // 씬 전환 직후부터 Fog 기록 정지
+        blockFogReveal = true;
 
+        RefreshReferences();
+
+        if (fogDelayCoroutine != null)
+            StopCoroutine(fogDelayCoroutine);
+
+        fogDelayCoroutine =
+            StartCoroutine(ResumeFogAfterSceneChange());
+    }
+    private System.Collections.IEnumerator ResumeFogAfterSceneChange()
+    {
+        // Time.timeScale 영향을 받지 않도록 Realtime 사용
+        yield return new WaitForSecondsRealtime(sceneChangeFogDelay);
+
+        // 전환 도중의 이전 위치 기록 제거
+        if (currentArea != null && currentArea.Fog != null)
+        {
+            currentArea.Fog.ResetTrackingPosition();
+        }
+
+        blockFogReveal = false;
+
+        // 플레이어가 완전히 정착한 현재 위치만 첫 지점으로 공개
+        RevealFogNow();
+
+        fogDelayCoroutine = null;
+    }
     private void Update()
     {
         if (player == null)
@@ -171,7 +202,6 @@ public class MapPositionTracker : MonoBehaviour
                     currentArea.Fog.ResetTrackingPosition();
 
                     // 현재 플레이어 위치 즉시 공개
-                    RevealFogNow();
                 }
 
                 Debug.Log($"[Map] 연결 성공 = {area.gameObject.name}");
@@ -276,6 +306,9 @@ public class MapPositionTracker : MonoBehaviour
     }
     private void UpdateFog()
     {
+        if (blockFogReveal)
+            return;
+
         if (player == null ||
             cameraLine == null ||
             currentArea == null ||

@@ -70896,7 +70896,7 @@ MonoBehaviour:
   hintShowRange: 3
   hintOffset: {x: 0, y: 3, z: 0}
   hintScale: 0.5
-  hideHintAfterActivate: 1
+  hideHintAfterActivate: 0
   persistentId: 
 --- !u!61 &1895529377
 BoxCollider2D:

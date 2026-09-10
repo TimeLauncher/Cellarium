@@ -207,6 +207,58 @@ private RuntimeAnimatorController cloneAnimatorController;
     private bool isStunned;
     private bool isInvincible;
     private bool isDead;
+    private bool isSaving;
+    private bool saveStateEntered;
+    private float saveMotionElapsed;
+    private RigidbodyConstraints2D constraintsBeforeSave;
+
+    // Only idle, grounded players can save: an active dash/consume coroutine must not
+    // compete with the stationary save animation for control of the body.
+    public bool TryBeginSaveMotion()
+    {
+        if (isClone || isDead || isReturning || isSaving || !isControlled ||
+            PlayerInputLock.IsLocked || PauseMenu.IsPaused || PauseMenu.IsMapOpen ||
+            !isGrounded || IsActionLocked() || isSlamming || knockbackTimer > 0f)
+            return false;
+
+        if (!HasAnimatorParameter("Save")) return true;
+
+        isSaving = true;
+        PlayerInputLock.Acquire();
+        saveStateEntered = false;
+        saveMotionElapsed = 0f;
+        moveX = scriptedMoveX = jumpBufferTimer = 0f;
+        constraintsBeforeSave = rb.constraints;
+        rb.linearVelocity = Vector2.zero;
+        rb.constraints = RigidbodyConstraints2D.FreezeAll;
+        animator.SetBool("move", false);
+        animator.SetTrigger("Save");
+        return true;
+    }
+
+    void UpdateSaveMotion()
+    {
+        saveMotionElapsed += Time.deltaTime;
+        bool inSave = animator != null && animator.isActiveAndEnabled &&
+            (animator.GetCurrentAnimatorStateInfo(0).IsName("WhiteCell_Save") ||
+             (animator.IsInTransition(0) && animator.GetNextAnimatorStateInfo(0).IsName("WhiteCell_Save")));
+        if (inSave) saveStateEntered = true;
+        // Follow actual animator state/speed, with a timeout for missing transitions.
+        if ((saveStateEntered && !inSave) || saveMotionElapsed >= 5f ||
+            (!saveStateEntered && saveMotionElapsed >= 0.5f))
+            EndSaveMotion();
+    }
+
+    void EndSaveMotion()
+    {
+        if (!isSaving) return;
+        isSaving = false;
+        PlayerInputLock.Release();
+        if (rb != null) rb.constraints = constraintsBeforeSave;
+        if (HasAnimatorParameter("Save")) animator.ResetTrigger("Save");
+    }
+
+    void OnDisable() => EndSaveMotion();
     private bool isReturning;   // 본체로 회수되어 날아가는 중 — 입력·물리·피격 전부 정지
     private float knockbackTimer;
     private float dashInvincibleTimer;
@@ -311,6 +363,7 @@ private RuntimeAnimatorController cloneAnimatorController;
             return;
         if (isDead) return; // 사망 모션 중엔 입력·물리 판정 모두 정지
         if (isReturning) return; // 회수 비행 중엔 ReturnRoutine이 위치를 직접 옮긴다
+        if (isSaving) { UpdateSaveMotion(); return; }
 
         if (thrownTimer > 0f)
             thrownTimer -= Time.deltaTime;
@@ -551,6 +604,7 @@ private RuntimeAnimatorController cloneAnimatorController;
 
     void FixedUpdate()
     {
+        if (isSaving) { rb.linearVelocity = Vector2.zero; return; }
         if (isDead) { rb.linearVelocity = Vector2.zero; return; } // 사망 모션 중 완전 정지
         if (isReturning) return; // 회수 중엔 rb.simulated = false 라 물리 갱신 자체가 무의미
 
@@ -800,6 +854,9 @@ private RuntimeAnimatorController cloneAnimatorController;
         // 대시로 몬스터에 박는 동안은 공격 행동이므로 '몸통 접촉' 피해만 받지 않는다.
         // 공격 히트박스·투사체·자폭은 대시 중에도 그대로 맞는다 (기획서 Bug Report 3번).
         if (source == DamageSource.Contact && dashInvincibleTimer > 0f) return;
+
+        // A hit interrupts saving; restore the body before applying knockback/death.
+        EndSaveMotion();
 
         // 분열체는 피격 시 사망 (QA (4). 추후 1회 무효화 등 추가 예정)
         // 그 자리에서 사라지지 않고 본체까지 날아와 흡수된다 — 도착 시 Destroy,

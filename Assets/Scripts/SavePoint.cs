@@ -33,12 +33,12 @@ public class SavePoint : MonoBehaviour
     [Tooltip("안내 이미지 크기 (1이면 원본 크기)")]
     public float hintScale = 0.5f;
     [Tooltip("세이브를 찍은 뒤에는 안내를 감춘다")]
-    public bool hideHintAfterActivate = true;
+    public bool hideHintAfterActivate = false;
 
     [Tooltip("부활 후에도 '이미 활성화됨'을 기억할 때 쓰는 식별자. 비우면 계층 경로로 자동 생성된다")]
     public string persistentId = "";
 
-    private bool playerInRange;
+    private Collider2D interactionCollider;
     private SpriteRenderer spr;
     private WorldTooltip hint;
     private string id;
@@ -46,6 +46,7 @@ public class SavePoint : MonoBehaviour
     void Awake()
     {
         Collider2D col = GetComponent<Collider2D>();
+        interactionCollider = col;
         if (col != null) col.isTrigger = true;
 
         spr = GetComponentInChildren<SpriteRenderer>();
@@ -82,7 +83,10 @@ public class SavePoint : MonoBehaviour
 
     void Update()
     {
-        if (!playerInRange || !Input.GetKeyDown(KeyCode.E)) return;
+        if (!Input.GetKeyDown(KeyCode.E) || PlayerManager.Instance == null ||
+            PlayerManager.Instance.allPlayers.Count == 0) return;
+        PlayerController main = PlayerManager.Instance.allPlayers[0];
+        if (main == null || !IsInRange(main) || !main.TryBeginSaveMotion()) return;
         Activate();
     }
 
@@ -110,11 +114,6 @@ public class SavePoint : MonoBehaviour
             {
                 PlayerController main = PlayerManager.Instance.allPlayers[0];
 
-                // 세이브 플레이어 모션
-                Animator playerAnimator = main.GetComponent<Animator>();
-                if (playerAnimator != null)
-                    playerAnimator.SetTrigger("Save");
-
                 main.RestoreFromConsume(main.maxHp, main.maxFissionGauge);
             }
         }
@@ -136,13 +135,13 @@ public class SavePoint : MonoBehaviour
             hint.gameObject.SetActive(false);
     }
 
-    void OnTriggerEnter2D(Collider2D other)
+    bool IsInRange(PlayerController player)
     {
-        if (other.GetComponent<PlayerController>() != null) playerInRange = true;
-    }
-
-    void OnTriggerExit2D(Collider2D other)
-    {
-        if (other.GetComponent<PlayerController>() != null) playerInRange = false;
+        // Check the main body directly: clone exits or multiple colliders must not
+        // clear another player's overlap, nor activate a distant save point.
+        foreach (Collider2D body in player.GetComponentsInChildren<Collider2D>())
+            if (body.enabled && !body.isTrigger && interactionCollider.Distance(body).isOverlapped)
+                return true;
+        return false;
     }
 }

@@ -3,7 +3,7 @@ using UnityEngine;
 // 버튼: PC가 위에 올라가 접촉해 있는 동안 활성화.
 // 충돌/트리거 이벤트를 쓰지 않고 매 프레임 겹침 검사를 한다 —
 // 레이어 충돌 매트릭스(player↔monster 무시 등)나 Is Trigger 설정에 상관없이 항상 동작시키기 위함.
-public class ButtonSwitch : MonoBehaviour
+public class ButtonSwitch : WorldActivator
 {
     [Header("감지")]
     public float detectMargin = 0.15f; // 버튼 위에 '올라선' 상태도 잡히도록 감지 범위를 살짝 넓힘
@@ -27,8 +27,6 @@ public class ButtonSwitch : MonoBehaviour
     [Tooltip("이 스위치가 문에 켤 표시등 이미지. 색깔별로 다른 이미지를 넣으면 문 표시등이 그 이미지로 바뀐다")]
     public Sprite indicatorOnSprite;   // 눌렸을 때 (색깔별 켜진 이미지)
     public Sprite indicatorOffSprite;  // 안 눌렸을 때 (꺼진 이미지, 없으면 off일 때 표시등 숨김)
-
-    public bool IsActive { get; private set; }
 
     private Collider2D col;
     private SpriteRenderer spr;

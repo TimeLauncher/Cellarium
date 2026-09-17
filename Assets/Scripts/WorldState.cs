@@ -22,6 +22,8 @@ public enum WorldCategory
     DarkCell,   // 다크셀 잔재 (능력 해금)
     SavePoint,  // 세이브포인트 활성화 여부
     Event,      // 이미 본 연출/이벤트 트리거 (EventTriggerZone)
+    Destructible, // 파괴된 응고 조직 벽 / 둥지 (DestructibleObject)
+    Vision,     // 암시야가 해제된 시야 제한 영역 (VisionArea)
 }
 
 public enum PersistMode
@@ -47,6 +49,10 @@ public class WorldState : MonoBehaviour
         // 강제 연출은 한 번 봤으면 다시 안 보는 편이 낫다.
         // 세이브 전으로 되돌리고 싶으면 WorldStateSettings에서 RestoreToCheckpoint로 바꿀 것.
         { WorldCategory.Event,     PersistMode.AlwaysPersist },
+
+        // 기획서 A07~A09: 벽·둥지는 "파괴된 이후 재생성되지 않음". 벽이 없어지면 그 뒤 암시야도 같이 풀린 채로 남는다.
+        { WorldCategory.Destructible, PersistMode.AlwaysPersist },
+        { WorldCategory.Vision,       PersistMode.AlwaysPersist },
     };
 
     readonly Dictionary<WorldCategory, HashSet<string>> live = NewTable();       // 지금 진행 중인 상태

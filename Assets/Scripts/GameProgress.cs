@@ -59,6 +59,14 @@ public class GameProgress : MonoBehaviour
         // 씬 로드 후 복원이 끝나기 전엔 새 씬의 초기값(풀피)이 들어오므로 저장하지 않는다
         if (restoring) return;
 
+        // ★ 타이틀/세이브선택에서는 캡처하지 않는다.
+        //   플레이어가 씬 밖에서 살아남는 구조(PersistentPlayerRoot)에서는 메뉴 씬에도
+        //   PlayerManager.Instance가 그대로 살아 있다. 막지 않으면 GameSession.ResetRun()이
+        //   진행상황을 비운 바로 다음 프레임에 LateUpdate가 살아있는 플레이어 값을 도로 캡처해서
+        //   초기화가 통째로 무효가 된다 — 새 게임을 시작해도 이전 판의 체력·재화·분열 해금이 딸려온다.
+        //   (LoadingScene은 메뉴가 아니다. 게임 씬으로 들어가는 통로라 캡처가 계속돼야 한다)
+        if (GameSession.IsMenuScene(SceneManager.GetActiveScene().name)) return;
+
         // 부활 중엔 죽기 직전 상태(체력 0 등)를 덮어쓰면 안 된다 — RespawnManager가 체크포인트로 복원 중이다
         if (RespawnManager.Instance != null && RespawnManager.Instance.RespawnInProgress) return;
 

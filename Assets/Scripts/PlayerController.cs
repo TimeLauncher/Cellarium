@@ -316,6 +316,12 @@ private RuntimeAnimatorController cloneAnimatorController;
 
     //SFX
     private PlayerSFX playerSFX;
+
+    // 거미줄 등 지형 기믹이 거는 이동/점프/대시 배율 (PlayerTraversal.cs)
+    public PlayerTraversal Traversal { get; } = new PlayerTraversal();
+    public bool IsGrounded => isGrounded; // 상하단 진입 연출(SceneEntryPoint)이 착지 판정에 사용
+    private Vector2 flowFacing; // 혈류 안에서 마지막으로 누른 방향키 = 점프 이탈 방향
+
     void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
@@ -364,6 +370,8 @@ private RuntimeAnimatorController cloneAnimatorController;
         if (isDead) return; // 사망 모션 중엔 입력·물리 판정 모두 정지
         if (isReturning) return; // 회수 비행 중엔 ReturnRoutine이 위치를 직접 옮긴다
         if (isSaving) { UpdateSaveMotion(); return; }
+
+        Traversal.Tick();
 
         if (thrownTimer > 0f)
             thrownTimer -= Time.deltaTime;
@@ -465,6 +473,29 @@ private RuntimeAnimatorController cloneAnimatorController;
 
         moveX = Input.GetAxisRaw("Horizontal");
 
+        // 혈류 안: 좌우 이동 대신 방향키로 바라보는 방향(=이탈 방향)만 정하고, 점프로 이탈한다.
+        // 대시는 쓸 수 있지만 역류 방향 성분은 TryNormalDash/FissionDash에서 지운다.
+        BloodFlow flow = Traversal.CurrentFlow;
+        if (flow != null)
+        {
+            float moveY = Input.GetAxisRaw("Vertical");
+            if (Mathf.Abs(moveX) > 0.01f || Mathf.Abs(moveY) > 0.01f)
+                flowFacing = Mathf.Abs(moveX) >= Mathf.Abs(moveY)
+                    ? new Vector2(Mathf.Sign(moveX), 0f)
+                    : new Vector2(0f, Mathf.Sign(moveY));
+            if (spr != null && Mathf.Abs(moveX) > 0.01f)
+                spr.flipX = moveX < 0f;
+
+            moveX = 0f;
+            jumpBufferTimer = 0f;
+            airDashLeft = maxAirDash;
+
+            if (Input.GetButtonDown("Jump") && !IsActionLocked())
+                ExitBloodFlow(flow);
+        }
+        else
+            flowFacing = Vector2.zero; // 끝까지 흘러 나간 경우 — 다음 혈류에 이전 방향이 남지 않게
+
         bool isWallSliding = isOnWall && !isGrounded && wallJumpTimer <= 0f &&
             ((wallDir == 1 && moveX > 0) || (wallDir == -1 && moveX < 0));
 
@@ -472,11 +503,12 @@ private RuntimeAnimatorController cloneAnimatorController;
             normalDashCooldownTimer -= Time.deltaTime;
 
         // 점프 버퍼
-        if (Input.GetButtonDown("Jump"))
+        if (Input.GetButtonDown("Jump") && flow == null)
             jumpBufferTimer = jumpBuffer;
 
         // S+Space: 관통 타일 위면 아래로 통과, 그 외 공중이면 내려찍기 (통과가 우선)
-        if (Input.GetKey(KeyCode.S) && Input.GetButtonDown("Jump") && !IsActionLocked())
+        // 혈류 안의 S+Space는 아래쪽 이탈이므로 여기서 받지 않는다
+        if (flow == null && Input.GetKey(KeyCode.S) && Input.GetButtonDown("Jump") && !IsActionLocked())
         {
             if (currentOneWayPlatform != null)
             {
@@ -548,7 +580,7 @@ private RuntimeAnimatorController cloneAnimatorController;
         {
             if (allowWallJump && isWallSliding && wallDir != lastWallJumpDir && !isClone)
             {
-                rb.linearVelocity = new Vector2(-wallDir * wallJumpX, wallJumpY);
+                rb.linearVelocity = new Vector2(-wallDir * wallJumpX, wallJumpY * Traversal.JumpMultiplier);
                 jumpsLeft = maxJumps - 1;
                 lastWallJumpDir = wallDir;
                 wallJumpTimer = 0.25f;
@@ -560,7 +592,7 @@ private RuntimeAnimatorController cloneAnimatorController;
             // allowAirJump를 켜면 예전처럼 jumpsLeft만 보고 공중에서도 뛴다.
             else if (jumpsLeft > 0 && !isSlamming && (allowAirJump || isGrounded || coyoteTimer > 0f))
             {
-                rb.linearVelocity = new Vector2(rb.linearVelocity.x, jumpPower);
+                rb.linearVelocity = new Vector2(rb.linearVelocity.x, jumpPower * Traversal.JumpMultiplier);
                 jumpsLeft--;
                 coyoteTimer = 0f; // 한 번 뛰면 코요테 시간은 소진 — 뜨자마자 또 뛰는 것 방지
                 
@@ -608,6 +640,9 @@ private RuntimeAnimatorController cloneAnimatorController;
         if (isDead) { rb.linearVelocity = Vector2.zero; return; } // 사망 모션 중 완전 정지
         if (isReturning) return; // 회수 중엔 rb.simulated = false 라 물리 갱신 자체가 무의미
 
+        // 혈류 접촉 정리 — 대시 중에도 돌려야 Update의 CurrentFlow가 정확하다
+        BloodFlow flow = Traversal.UpdateFlow();
+
         // 공중에 있는 동안은 마찰을 0으로 둔다.
         // 마찰이 남아 있으면 벽 슬라이딩을 꺼놔도 벽 방향 키를 누르는 것만으로 벽에 매달린다
         // (좌우 이동은 velocity로 직접 제어하므로 공중에서 마찰이 필요한 곳이 없다).
@@ -627,6 +662,14 @@ private RuntimeAnimatorController cloneAnimatorController;
 
         // 내려찍기 중: SlamRoutine이 gravityScale·velocity 직접 제어
         if (isSlamming) return;
+
+        // 혈류: 흐름이 속도를 통째로 정한다 (분열체도 똑같이 떠내려간다)
+        if (flow != null)
+        {
+            rb.gravityScale = 0f;
+            rb.linearVelocity = flow.VelocityAt(rb.position);
+            return;
+        }
 
         // 던져진 분열체
         if (thrownTimer > 0f)
@@ -652,7 +695,7 @@ private RuntimeAnimatorController cloneAnimatorController;
         else if (wallJumpTimer > 0f)
             wallJumpTimer -= Time.fixedDeltaTime;
         else if (!isSlamming)
-            rb.linearVelocity = new Vector2(moveX * moveSpeed, rb.linearVelocity.y);
+            rb.linearVelocity = new Vector2(moveX * moveSpeed * Traversal.MoveMultiplier, rb.linearVelocity.y);
 
         // 벽 슬라이딩
         bool isWallSliding = allowWallSlide && isOnWall && !isGrounded && !isSlamming && wallJumpTimer <= 0f && !isClone &&
@@ -1104,9 +1147,35 @@ private RuntimeAnimatorController cloneAnimatorController;
         isInvincible = false;
     }
 
+    // 혈류 점프 이탈. 방향키 입력이 없으면 가로 흐름은 위로, 세로 흐름은 바라보는 쪽으로 뛰어나간다.
+    void ExitBloodFlow(BloodFlow flow)
+    {
+        Vector2 dir = flowFacing;
+        if (dir == Vector2.zero)
+        {
+            bool vertical = Mathf.Abs(flow.FlowDirection.y) > 0.5f;
+            bool facingLeft = spr != null && spr.flipX;
+            dir = vertical ? (facingLeft ? Vector2.left : Vector2.right) : Vector2.up;
+        }
+
+        Vector2 vel = dir * flow.exitSpeed;
+        if (Mathf.Abs(dir.y) < 0.01f)
+            vel.y = jumpPower * Traversal.JumpMultiplier * 0.6f; // 옆으로 나갈 때도 점프하듯 살짝 뜬다
+
+        Traversal.ExitFlow(flow.exitImmunity);
+        rb.gravityScale = 1f;
+        rb.linearVelocity = vel;
+        wallJumpTimer = 0.25f; // 벽점프와 같은 방식 — FixedUpdate가 이탈 속도를 곧바로 덮어쓰지 않게
+        jumpsLeft = maxJumps - 1;
+        coyoteTimer = 0f;
+        flowFacing = Vector2.zero;
+    }
+
     void TryNormalDash()
     {
         Vector2 dashDir = ((Vector2)(GetMouseWorld() - transform.position)).normalized;
+        if (Traversal.CurrentFlow != null)
+            dashDir = Traversal.CurrentFlow.ClampAgainstFlow(dashDir); // 혈류 역류 금지
         if (dashDir.sqrMagnitude < 0.001f) return;
 
         if (!isGrounded)
@@ -1142,7 +1211,8 @@ private RuntimeAnimatorController cloneAnimatorController;
         rb.gravityScale = 0f;
 
         Vector2 vel = dashDir * dashSpeed;
-        float calcDuration = dashDistance / dashSpeed;
+        // 거미줄 등은 속도가 아니라 거리를 줄인다 (대시 체감 속도는 유지)
+        float calcDuration = dashDistance * Traversal.DashMultiplier / dashSpeed;
 
         HashSet<MonsterBase> hitMonsters = new HashSet<MonsterBase>();
         float timer = 0f;
@@ -1180,6 +1250,28 @@ private RuntimeAnimatorController cloneAnimatorController;
                     rb.linearVelocity = knockDir * dashKnockbackSpeed;
                     knockbackTimer = knockbackDuration; // 이동 입력이 포물선을 곧바로 지우지 않도록 잠금
                     dashInvincibleTimer = dashInvincibleTime; // 튕겨나오는 동안 겹쳐 있어도 피해 없음
+                    knockedBack = true;
+                    break;
+                }
+            }
+
+            // 벽·둥지(DestructibleObject). 벽은 지형 레이어에 있어 monsterMask에 안 걸리므로 레이어 구분 없이 찾는다.
+            // 한 번 대시에 한 번만 맞고, 몬스터와 똑같이 튕겨나온다.
+            if (!knockedBack)
+            {
+                foreach (var hit in Physics2D.CircleCastAll(transform.position, castRadius, vel.normalized, castDist + 0.05f))
+                {
+                    DestructibleObject target = hit.collider.GetComponentInParent<DestructibleObject>();
+                    if (target == null || target.IsDestroyed) continue;
+
+                    target.TakeDamage(dashAttackDamage, dashDir);
+                    playerSFX?.PlayAttackSound();
+
+                    rb.gravityScale = originalGravity;
+                    Vector2 knockDir = (-dashDir + Vector2.up * dashKnockbackUpRatio).normalized;
+                    rb.linearVelocity = knockDir * dashKnockbackSpeed;
+                    knockbackTimer = knockbackDuration;
+                    dashInvincibleTimer = dashInvincibleTime;
                     knockedBack = true;
                     break;
                 }
@@ -1344,6 +1436,8 @@ private RuntimeAnimatorController cloneAnimatorController;
         if (PlayerManager.Instance != null && !PlayerManager.Instance.CanSpawnClone()) return; // 분열 대시도 분열체를 남기므로 하드 캡 적용
 
         Vector2 dashDir = ((Vector2)(GetMouseWorld() - transform.position)).normalized;
+        if (Traversal.CurrentFlow != null)
+            dashDir = Traversal.CurrentFlow.ClampAgainstFlow(dashDir); // 혈류 역류 금지
         if (dashDir.sqrMagnitude < 0.001f) return;
 
         currentFissionGauge -= fissionDashCost;
@@ -1367,7 +1461,7 @@ private RuntimeAnimatorController cloneAnimatorController;
         rb.gravityScale = 0f;
         rb.linearVelocity = dashDir * fissionDashSpeed;
         isFissionDashing = true;
-        fissionDashTimer = fissionDashDuration;
+        fissionDashTimer = fissionDashDuration * Traversal.DashMultiplier;
 
         Debug.Log("분열 대시!");
     }

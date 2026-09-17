@@ -62,7 +62,8 @@ public class GameSession : MonoBehaviour
         ResetRun();
     }
 
-    static bool IsMenuScene(string sceneName)
+    // GameProgress도 이 목록을 봐야 해서 공개해둔다 — 메뉴 씬 판정 기준이 두 벌이 되면 반드시 어긋난다.
+    public static bool IsMenuScene(string sceneName)
     {
         foreach (string s in menuScenes)
             if (string.Equals(s, sceneName, System.StringComparison.OrdinalIgnoreCase)) return true;

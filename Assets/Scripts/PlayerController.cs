@@ -1548,4 +1548,61 @@ private RuntimeAnimatorController cloneAnimatorController;
         if (groundCheck == null) return;
         Gizmos.DrawWireSphere(groundCheck.position, groundCheckRadius);
     }
+    public void RestoreAfterRespawn()
+    {
+        // 체력 / 게이지
+        currentHp = maxHp;
+        currentFissionGauge = maxFissionGauge;
+
+        // 사망 상태 해제
+        isDead = false;
+        isInvincible = false;
+        isStunned = false;
+        isReturning = false;
+
+        // 행동 상태 초기화
+        isSlamming = false;
+        isNormalDashing = false;
+        isFissionDashing = false;
+        isDashReady = false;
+        isConsuming = false;
+        isFissioning = false;
+
+        // 타이머 초기화
+        knockbackTimer = 0f;
+        dashInvincibleTimer = 0f;
+        normalDashCooldownTimer = 0f;
+        fissionDashTimer = 0f;
+        fissionDashHoldTimer = 0f;
+        fissionMotionTimer = 0f;
+        jumpBufferTimer = 0f;
+
+        // 이동 상태
+        moveX = 0f;
+        scriptedMoveX = 0f;
+
+        jumpsLeft = maxJumps;
+        airDashLeft = maxAirDash;
+
+        // 물리 복구
+        if (rb != null)
+        {
+            rb.simulated = true;
+            rb.gravityScale = 1f;
+            rb.linearVelocity = Vector2.zero;
+        }
+
+        // 대시하면서 회전했던 경우 대비
+        ClearDashRotation();
+
+        Debug.Log("[Player] 부활 상태 초기화 완료");
+        // Animator 부활 상태로 복구
+        if (animator != null)
+        {
+            animator.ResetTrigger("Death");
+            animator.Play("idle", 0, 0f);
+            animator.Update(0f);
+        }
+    }
+
 }

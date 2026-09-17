@@ -170,7 +170,7 @@ public class RespawnManager : MonoBehaviour
         PlayerController main = m.allPlayers[0];
         if (hasCheckpoint) main.transform.position = checkpointPos;
         else if (respawnUsedDefault) main.transform.position = defaultPos;
-        main.RestoreFromConsume(main.maxHp, main.maxFissionGauge); // 체력/분열 게이지 완전 회복
+        main.RestoreAfterRespawn(); // 체력/분열 게이지 완전 회복
 
         // 부활 위치로 옮긴 직후 카메라도 붙인다 — 안 하면 씬에 저장된 카메라 위치에서
         // 부활 지점까지 스르륵 따라오면서 화면이 흔들린 것처럼 보인다 (씬 이동과 같은 문제)

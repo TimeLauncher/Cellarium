@@ -3,61 +3,84 @@ using UnityEngine.SceneManagement;
 
 public class SaveSelectManager : MonoBehaviour
 {
+    [Header("Scene Settings")]
     [SerializeField] private string firstStageSceneName = "Heart A00";
     [SerializeField] private string titleSceneName = "MainTitle";
 
+
+    // ========================================
+    // 세이브 슬롯 선택
+    // ========================================
+
     public void SelectSlot(int slotIndex)
     {
-        PlayerPrefs.SetInt("SelectedSaveSlot", slotIndex);
-        PlayerPrefs.Save();
-
-        SaveData saveData;
-
-        if (SaveSystem.HasSave(slotIndex))
+        if (SaveManager.Instance == null)
         {
-            saveData = SaveSystem.Load(slotIndex);
-
-            Debug.Log($"기존 세이브 불러오기: 슬롯 {slotIndex}");
-        }
-        else
-        {
-            SaveSystem.CreateNewSave(slotIndex);
-            saveData = SaveSystem.Load(slotIndex);
-
-            Debug.Log($"새 게임 생성: 슬롯 {slotIndex}");
-        }
-
-        if (saveData == null)
-        {
-            Debug.LogError("세이브 데이터를 준비하지 못했습니다.");
+            Debug.LogError("[SaveSelectManager] SaveManager가 없습니다.");
             return;
         }
 
-        if (GameDataManager.Instance != null)
+        // 기존 세이브 파일이 있는 경우
+        if (SaveManager.Instance.HasSave(slotIndex))
         {
-            GameDataManager.Instance.SetCurrentSaveData(saveData);
+            ContinueGame(slotIndex);
         }
+        // 빈 슬롯인 경우
         else
         {
-            Debug.LogError("GameDataManager가 씬에 없습니다.");
-            return;
+            StartNewGame(slotIndex);
         }
-
-        string sceneToLoad = string.IsNullOrEmpty(saveData.currentSceneName)
-            ? firstStageSceneName
-            : saveData.currentSceneName;
-
-        SceneLoader.LoadScene(sceneToLoad);
     }
 
-    private void Update()
+
+    // ========================================
+    // 새 게임
+    // ========================================
+
+    private void StartNewGame(int slotIndex)
     {
-        // 세이브 선택 창에서 ESC를 누르면 메인 타이틀로 돌아간다
-        if (Input.GetKeyDown(KeyCode.Escape))
-        {
-            BackToTitle();
-        }
+        SaveManager.Instance.CreateNewGame(slotIndex);
+
+        Debug.Log(
+            $"[SaveSelectManager] 새 게임 시작 - Slot {slotIndex}"
+        );
+
+        SceneManager.LoadScene(firstStageSceneName);
     }
+
+
+    // ========================================
+    // 이어하기
+    // ========================================
+
+    private void ContinueGame(int slotIndex)
+    {
+        bool success =
+            SaveManager.Instance.LoadGame(slotIndex);
+
+        if (!success)
+        {
+            Debug.LogError(
+                $"[SaveSelectManager] Slot {slotIndex} 불러오기 실패"
+            );
+
+            return;
+        }
+
+        string sceneName =
+            SaveManager.Instance.CurrentData.sceneName;
+
+        Debug.Log(
+            $"[SaveSelectManager] 이어하기 - {sceneName}"
+        );
+
+        SceneManager.LoadScene(sceneName);
+    }
+
+
+    // ========================================
+    // 타이틀로 돌아가기
+    // ========================================
 
     public void BackToTitle()
     {

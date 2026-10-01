@@ -118,11 +118,13 @@ public static class GimmickTestSceneBuilder
         Flow("OBJ_BloodFlow_Left", new Vector2(x + 5.9f, 12f), new Vector2(12.8f, 1.6f), BloodFlow.Direction.Left);
         Flow("OBJ_BloodFlow_Down", new Vector2(x - 0.8f, 8.75f), new Vector2(1.6f, 7.5f), BloodFlow.Direction.Down);
 
-        var reverse = Button("OBJ_Button_ReverseFlow", new Vector2(x + 17f, 0.15f), true);
+        // 계속 스위칭할 수 있어야 하므로 래치가 아니라 토글 버튼이다 (밟을 때마다 방향이 뒤집힘)
+        var reverse = Button("OBJ_Button_ReverseFlow", new Vector2(x + 17f, 0.15f), false);
+        reverse.toggle = true;
         right.reverseActivators = new WorldActivator[] { reverse };
 
         Label("4 BloodFlow (R->U->L->D)", new Vector2(x + 6f, 15f));
-        Label("reverse (latch)", new Vector2(x + 17f, 1.5f));
+        Label("reverse (toggle)", new Vector2(x + 17f, 1.5f));
     }
 
     static void BuildVisionAreas(float x)

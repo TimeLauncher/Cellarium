@@ -102,7 +102,22 @@ public class MonsterBase : MonoBehaviour, IConsumable
     [Tooltip("셀이 좌우로 흩어지는 속도")]
     public float cellPopSideSpeed = 2.5f;
 
+    [Header("소환 직후 (둥지에서 소환된 개체)")]
+    [Tooltip("소환된 직후 이 시간 동안은 공격 등 '행동'을 하지 않는다. 이동/추적은 그대로 한다. " +
+             "둥지(MonsterNest)가 소환할 때 자기 값으로 덮어쓴다")]
+    [Min(0f)] public float actionStartDelay = 0f;
+
+    [Header("사망 기록 (씬 이동 시 리젠 방지)")]
+    [Tooltip("한 번 죽으면 씬을 나갔다 다시 들어와도 되살아나지 않는다. " +
+             "죽어서 부활할 때 되살릴지는 WorldStateSettings의 Monsters 정책이 정한다(기본: 되살림)")]
+    public bool persistDeath = true;
+    [Tooltip("사망 기록용 식별자. 비우면 계층 경로로 자동 생성된다 (오브젝트를 옮기면 바뀌므로 확정되면 적어둘 것)")]
+    public string persistentId = "";
+    [HideInInspector] public bool spawnedAtRuntime; // 둥지에서 소환된 개체 — 배치된 몬스터가 아니라 기록하지 않는다
+
     protected float currentHp;
+    protected float actionStartTimer;
+    string deathId;
     protected float attackCooldownTimer;
     protected bool isAttacking;
     protected Rigidbody2D rb;
@@ -154,6 +169,7 @@ public class MonsterBase : MonoBehaviour, IConsumable
         animator = GetComponent<Animator>();
         bodyCollider = GetComponent<Collider2D>();
         currentHp = maxHp;
+        actionStartTimer = actionStartDelay;
         patrolOrigin = transform.position;
         currentPatrolLegDistance = patrolDistance;
 
@@ -175,6 +191,16 @@ public class MonsterBase : MonoBehaviour, IConsumable
             gameObject.AddComponent<ConsumeIndicator>();
 
         if (spr != null) baseColor = spr.color; // 인스펙터에서 구분용으로 지정한 색 보존
+    }
+
+    // 씬을 다시 들어왔을 때, 이미 죽인 몬스터는 되살아나지 않는다 (Fix 문서 '씬 이동시 몬스터 리젠이 안 되도록 수정')
+    protected virtual void Start()
+    {
+        if (!persistDeath || spawnedAtRuntime) return;
+
+        deathId = WorldState.MakeId(this, persistentId);
+        if (WorldState.Has(WorldCategory.Monster, deathId))
+            Destroy(gameObject);
     }
 
     protected virtual void Update()
@@ -210,9 +236,11 @@ public class MonsterBase : MonoBehaviour, IConsumable
             knockbackTimer -= Time.deltaTime;
         if (turnPauseTimer > 0f)
             turnPauseTimer -= Time.deltaTime;
+        if (actionStartTimer > 0f)
+            actionStartTimer -= Time.deltaTime; // 소환 직후 행동 지연 (이동은 막지 않는다)
 
         // 넉백/공격후 딜레이 중이거나 원점 복귀 중엔 새 공격을 걸지 않는다
-        if (knockbackTimer <= 0f && actionPauseTimer <= 0f && !returningHome)
+        if (knockbackTimer <= 0f && actionPauseTimer <= 0f && actionStartTimer <= 0f && !returningHome)
             UpdateBehavior();
     }
 
@@ -615,6 +643,9 @@ public class MonsterBase : MonoBehaviour, IConsumable
             //     ② 안 먹고 시체가 사라질 때 → OnConsumableTimeout()
             //     ③ 자폭형이 터졌을 때      → FloaterGerm.Detonate()
             //   즉 '죽는 것'이 아니라 '시체가 정리되는 것'이 조건이다.
+            if (persistDeath && !spawnedAtRuntime)
+                WorldState.Record(WorldCategory.Monster, deathId ?? WorldState.MakeId(this, persistentId));
+
             OnDeath();
         }
     }
@@ -673,6 +704,16 @@ public class MonsterBase : MonoBehaviour, IConsumable
 
     // 사망(체력 0) 시점 훅 — 자폭 등 특수 사망 처리가 필요한 타입에서 override
     protected virtual void OnDeath() { }
+
+    // 둥지(MonsterNest)가 소환 직후 불러주는 설정.
+    // Awake는 Instantiate 안에서 이미 끝난 뒤라 타이머를 여기서 다시 건다.
+    public virtual void OnSpawnedFromNest(float actionDelay, bool dropCells)
+    {
+        spawnedAtRuntime = true;
+        actionStartDelay = Mathf.Max(0f, actionDelay);
+        actionStartTimer = actionStartDelay;
+        if (!dropCells) cellDropTotal = 0; // 소환된 몬스터는 셀을 떨구지 않는다 (무한 파밍 방지)
+    }
 
     protected virtual void OnDrawGizmosSelected()
     {

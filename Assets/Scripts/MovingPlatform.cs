@@ -6,7 +6,8 @@ public class MovingPlatform : MonoBehaviour
 {
     public WorldActivator[] activators = new WorldActivator[0];
     public Vector2 destinationOffset = new Vector2(0f, 4f);
-    [Min(0.01f)] public float speed = 2f;
+    // 기믹 테스트 피드백(9/22): 버튼 발판 속도 1.5배 (2 → 3)
+    [Min(0.01f)] public float speed = 3f;
     Vector2 origin;
     Rigidbody2D body;
     Collider2D surface;

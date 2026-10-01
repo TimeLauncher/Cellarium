@@ -7771,21 +7771,21 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerController
   moveSpeed: 5
-  jumpPower: 13.5
+  jumpPower: 20
   jumpBuffer: 0.12
   maxJumps: 1
   allowAirJump: 0
   coyoteTime: 0.25
-  fallMultiplier: 3
-  lowJumpMultiplier: 5.5
-  ascendMultiplier: 2
+  fallMultiplier: 5
+  lowJumpMultiplier: 9
+  ascendMultiplier: 4
   allowSlam: 0
   allowFissionDash: 0
   slamForce: 40
   slamPreDelay: 0.2
   slamPostDelay: 0.2
   dashSpeed: 25
-  dashDistance: 3
+  dashDistance: 2
   dashCooldown: 0.5
   dashExitPreserve: 0.35
   allowAirDash: 1
@@ -7808,11 +7808,11 @@ MonoBehaviour:
     m_Bits: 256
   playerPrefab: {fileID: 1181797107}
   fissionMotionLock: 0.5
-  fissionHoldDuration: 0.5
+  fissionHoldDuration: 0.6
   cloneScaleRatio: 0.75
   fissionSpawnMargin: 0.15
   cloneAnimatorController: {fileID: 9100000, guid: f50eddeee2fe6a440b8456713bee1ff6, type: 2}
-  consumeRange: 5
+  consumeRange: 2.5
   monsterMask:
     serializedVersion: 2
     m_Bits: 8

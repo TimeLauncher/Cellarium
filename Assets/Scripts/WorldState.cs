@@ -24,6 +24,7 @@ public enum WorldCategory
     Event,      // 이미 본 연출/이벤트 트리거 (EventTriggerZone)
     Destructible, // 파괴된 응고 조직 벽 / 둥지 (DestructibleObject)
     Vision,     // 암시야가 해제된 시야 제한 영역 (VisionArea)
+    Monster,    // 이미 죽인 몬스터 (MonsterBase) — 씬을 다시 들어와도 리젠되지 않게
 }
 
 public enum PersistMode
@@ -53,6 +54,11 @@ public class WorldState : MonoBehaviour
         // 기획서 A07~A09: 벽·둥지는 "파괴된 이후 재생성되지 않음". 벽이 없어지면 그 뒤 암시야도 같이 풀린 채로 남는다.
         { WorldCategory.Destructible, PersistMode.AlwaysPersist },
         { WorldCategory.Vision,       PersistMode.AlwaysPersist },
+
+        // Fix 문서 '씬 이동시 몬스터 리젠이 안 되도록 수정':
+        //   씬을 나갔다 들어오는 것만으로는 되살아나지 않고(= 기록이 남아 있다),
+        //   죽어서 부활할 때는 초기 상태로 되돌린다(= 맵을 다시 풀어야 하므로 몬스터도 다시 나온다).
+        { WorldCategory.Monster,   PersistMode.ResetOnRespawn },
     };
 
     readonly Dictionary<WorldCategory, HashSet<string>> live = NewTable();       // 지금 진행 중인 상태

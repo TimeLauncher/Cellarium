@@ -9,6 +9,10 @@ public class ButtonSwitch : WorldActivator
     public float detectMargin = 0.15f; // 버튼 위에 '올라선' 상태도 잡히도록 감지 범위를 살짝 넓힘
     [Tooltip("한 번 눌리면 발을 떼도 계속 눌린 상태로 유지 (해제하면 밟는 동안만 활성)")]
     public bool latch = true;
+    // 기믹 테스트 피드백(9/22): 혈류 방향 반전 버튼을 "계속 스위칭 할 수 있게".
+    // 래치는 한 번 누르면 끝이라 되돌릴 수가 없어서, 밟을 때마다 뒤집히는 모드를 따로 뒀다.
+    [Tooltip("밟을 때마다 켜짐/꺼짐이 번갈아 바뀐다 (발을 떼야 다음 전환). 켜면 위의 Latch는 무시된다")]
+    public bool toggle = false;
 
     [Header("눌림 표시 (스프라이트 없으면 색으로 대체)")]
     public Sprite normalSprite;
@@ -32,6 +36,7 @@ public class ButtonSwitch : WorldActivator
     private SpriteRenderer spr;
     private Color baseColor = Color.white;
     private Vector3 basePos;
+    private bool wasPressed; // 토글 모드에서 '밟는 순간'만 잡기 위한 직전 프레임 상태
 
     void Awake()
     {
@@ -64,13 +69,27 @@ public class ButtonSwitch : WorldActivator
 
     void Update()
     {
+        // 토글 모드: 밟는 순간마다 상태가 뒤집힌다. 발을 뗐다 다시 밟아야 다음 전환이 된다.
+        if (toggle)
+        {
+            bool nowPressed = DetectPlayer();
+            if (nowPressed && !wasPressed) SetActiveState(!IsActive);
+            wasPressed = nowPressed;
+            return;
+        }
+
         // 래치 모드: 한 번 눌린 뒤엔 계속 눌린 상태로 둔다 (발을 떼도 해제 안 됨)
         if (latch && IsActive) return;
 
         bool pressed = DetectPlayer();
         if (pressed == IsActive) return;
 
-        IsActive = pressed;
+        SetActiveState(pressed);
+    }
+
+    void SetActiveState(bool active)
+    {
+        IsActive = active;
 
         if (spr != null)
         {

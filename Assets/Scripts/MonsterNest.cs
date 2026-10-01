@@ -23,6 +23,12 @@ public class MonsterNest : DestructibleObject
     [Tooltip("첫 소환까지 대기(초)")]
     [Min(0f)] public float firstSpawnDelay = 1f;
 
+    // A07~A09 Fix (3): "소환된 몬스터가 소환 이후 즉시 공격 행동을 취함 / 셀을 드랍함"
+    [Tooltip("소환된 몬스터가 '행동'을 시작하기까지의 시간(초). 이동/추적은 이 시간에도 한다")]
+    [Min(0f)] public float spawnActionDelay = 1f;
+    [Tooltip("소환된 몬스터가 셀을 떨구게 할지. 끄면(기본) 둥지로 셀을 무한히 뽑을 수 없다")]
+    public bool spawnedMonstersDropCells = false;
+
     readonly List<GameObject> alive = new List<GameObject>();
     float timer;
 
@@ -56,7 +62,13 @@ public class MonsterNest : DestructibleObject
         {
             if (maxAlive > 0 && alive.Count >= maxAlive) break;
             Vector2 pos = (Vector2)HitBounds.center + Random.insideUnitCircle * spawnRadius;
-            alive.Add(Instantiate(spawnPrefab, pos, Quaternion.identity));
+            GameObject spawned = Instantiate(spawnPrefab, pos, Quaternion.identity);
+
+            // 소환 직후 행동 지연 + 셀 드랍 여부를 여기서 넣어준다 (프리팹 원본은 건드리지 않는다)
+            MonsterBase mb = spawned.GetComponent<MonsterBase>();
+            if (mb != null) mb.OnSpawnedFromNest(spawnActionDelay, spawnedMonstersDropCells);
+
+            alive.Add(spawned);
         }
     }
 

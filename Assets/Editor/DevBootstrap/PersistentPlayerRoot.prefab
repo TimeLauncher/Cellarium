@@ -518,6 +518,9 @@ MonoBehaviour:
   dashKnockbackSpeed: 7
   dashKnockbackUpRatio: 0.6
   dashInvincibleTime: 0.2
+  dashKnockbackControlLock: 0.12
+  dashRecoverTime: 0.08
+  groundDashConsumesAirDash: 1
   rotateOnDash: 1
   dashRotationMaxAngle: 70
   dashVisualRoot: {fileID: 0}
@@ -525,6 +528,8 @@ MonoBehaviour:
   fissionDashSpeed: 20
   fissionDashDuration: 0.2
   fissionDashHoldDuration: 0.3
+  allowCrushEscape: 1
+  crushEscapeSpeed: 8
   groundCheck: {fileID: 4674251629695538234}
   groundCheckRadius: 0.5
   groundMask:

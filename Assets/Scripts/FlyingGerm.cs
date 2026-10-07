@@ -12,6 +12,18 @@ public class FlyingGerm : MonsterBase
     public float diveWindup = 0.3f;
     public float diveMaxDuration = 1f; // 모션 미완성 대비 안전장치 (추후 애니메이션 이벤트로 대체 가능)
 
+    // Fix 문서 '일반비행균의 돌진 모션을 돌진 방향으로 재생되도록 수정'.
+    // 좌우 반전(FaceDirection)만으로는 위/아래 대각선 돌진이 표현되지 않고, 방향별 클립도 아직 없다.
+    // 클립이 나오기 전까지는 스프라이트를 돌진 방향으로 기울여서 방향을 보여준다 (PC 대시와 같은 방식).
+    [Header("돌진 모션 방향")]
+    [Tooltip("돌진하는 동안 스프라이트를 돌진 방향으로 기울인다. 방향별 돌진 클립이 생기면 꺼도 된다")]
+    public bool rotateOnDive = true;
+    [Range(0f, 90f)]
+    [Tooltip("기울일 수 있는 최대 각도. 90이면 돌진 방향을 그대로 본다")]
+    public float diveRotationMaxAngle = 70f;
+    [Tooltip("스프라이트가 든 자식 오브젝트를 넣으면 그것만 돌린다. 비우면 본체를 돌린다(콜라이더도 같이 돈다)")]
+    public Transform diveVisualRoot;
+
     private Vector2 diveDir;
     private bool isDiving;
 
@@ -63,6 +75,7 @@ public class FlyingGerm : MonsterBase
     {
         diveDir = ((Vector2)(target.position - transform.position)).normalized;
         FaceDirection(diveDir.x); // 돌진 모션이 돌진 방향으로 재생되도록 (UpdateMovement는 공격 중 방향을 안 잡는다)
+        ApplyDiveRotation(diveDir); // 위/아래 대각선까지 방향을 맞춘다
         isAttacking = true;
         isDiving = false;
         if (animator != null) animator.SetTrigger("Attack");
@@ -145,8 +158,28 @@ public class FlyingGerm : MonsterBase
         FaceDirection(toOrigin.x);
     }
 
+    // 돌진 방향으로 기울이기 (좌우는 flipX가 이미 처리했으므로 여기서는 위/아래 기울기만 만든다)
+    void ApplyDiveRotation(Vector2 dir)
+    {
+        if (!rotateOnDive) return;
+        Transform pivot = diveVisualRoot != null ? diveVisualRoot : transform;
+
+        float tilt = Mathf.Atan2(dir.y, Mathf.Abs(dir.x)) * Mathf.Rad2Deg;
+        tilt = Mathf.Clamp(tilt, -diveRotationMaxAngle, diveRotationMaxAngle);
+        if (spr != null && spr.flipX) tilt = -tilt;
+
+        pivot.localRotation = Quaternion.Euler(0f, 0f, tilt);
+    }
+
+    void ClearDiveRotation()
+    {
+        Transform pivot = diveVisualRoot != null ? diveVisualRoot : transform;
+        pivot.localRotation = Quaternion.identity;
+    }
+
     public override void StopAttack()
     {
+        ClearDiveRotation();
         CancelInvoke(nameof(StartDive));
         CancelInvoke(nameof(StopAttack));
         isAttacking = false;

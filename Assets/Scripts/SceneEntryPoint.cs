@@ -15,8 +15,37 @@ public class SceneEntryPoint : MonoBehaviour
         Left = -1,  // 입구 오른쪽 안쪽에서 시작해 왼쪽으로 걸어 나온다
     }
 
+    // 기획서 A07~A09 메모: "상단 진입 시 점프하여 착지, 하단 진입 시 추락 연출"
+    public enum ArrivalStyle
+    {
+        Walk,       // 옆 입구 — 안쪽에서 걸어 나온다 (기존)
+        JumpUp,     // 아래 지역에서 올라왔을 때 — 발밑 아래에서 뛰어올라 도착 지점에 착지
+        FallDown,   // 위 지역에서 내려왔을 때 — 도착 지점 위에서 떨어져 착지
+    }
+
     [Tooltip("AreaPortal의 Target Entry Id와 똑같이 맞출 것. 씬 안에서 겹치지 않게")]
     public string entryId = "";
+
+    [Tooltip("입장 방식. Walk=옆 입구, JumpUp=상단 지역 진입(아래에서 올라옴), FallDown=하단 지역 진입(위에서 떨어짐)")]
+    public ArrivalStyle arrivalStyle = ArrivalStyle.Walk;
+
+    [Header("상단 진입 (JumpUp)")]
+    [Tooltip("도착 지점보다 이만큼 아래에서 뛰어오른다. 이 위치는 바닥 구멍(수직 통로) 안이어야 한다")]
+    public float jumpInDepth = 2f;
+    [Tooltip("시작 위치를 걸어 나오는 방향 반대쪽으로 이만큼 비낀다. 0이면 수직으로 올라온다")]
+    public float jumpInSideOffset = 1f;
+    [Tooltip("뛰어오르는 초속도. 도착 지점보다 충분히 높이 떠야 착지 모습이 보인다")]
+    public float jumpInVelocity = 14f;
+
+    [Header("하단 진입 (FallDown)")]
+    [Tooltip("도착 지점보다 이만큼 위에서 떨어진다. 이 위치는 천장 구멍(수직 통로) 안이어야 한다")]
+    public float fallInHeight = 3f;
+
+    [Header("상단/하단 공통")]
+    [Tooltip("착지한 뒤 조작을 돌려주기까지 대기")]
+    public float landingPause = 0.25f;
+    [Tooltip("안전장치 — 착지를 못 해도 이 시간이 지나면 조작을 돌려준다")]
+    public float airArrivalMaxDuration = 3f;
 
     [Header("입장 연출")]
     // 씬이 바뀌자마자 플레이어가 도착 지점에 뿅 나타나면 두 맵이 끊겨 보인다.
@@ -101,6 +130,13 @@ public class SceneEntryPoint : MonoBehaviour
 
         Vector3 arrival = transform.position;
         int dir = (int)walkInDirection;
+
+        if (arrivalStyle != ArrivalStyle.Walk)
+        {
+            yield return AirArrival(main, arrival, dir);
+            yield break;
+        }
+
         bool doWalk = walkInOnArrival && walkInDistance > 0.01f;
 
         // 걸어 나올 거면 안쪽에서, 아니면 도착 지점에 바로 세운다
@@ -155,6 +191,78 @@ public class SceneEntryPoint : MonoBehaviour
         EndSequence();
     }
 
+    // 테스트용: 플레이 중 컴포넌트 우클릭(⋮) 메뉴에서 실행하면 씬 이동 없이 이 입장 연출을 재생한다
+    [ContextMenu("입장 연출 미리보기 (플레이 중)")]
+    void PreviewArrival()
+    {
+        if (!Application.isPlaying || EntrySequenceActive) return;
+        StartCoroutine(PlacePlayer());
+    }
+
+    Vector3 AirStart(Vector3 arrival, int dir)
+    {
+        return arrivalStyle == ArrivalStyle.JumpUp
+            ? arrival + Vector3.down * jumpInDepth - Vector3.right * (dir * jumpInSideOffset)
+            : arrival + Vector3.up * fallInHeight;
+    }
+
+    // 상단/하단 진입. 화면이 밝아질 때까지 시작 위치에 붙잡아 뒀다가 놓는다 —
+    // 그냥 두면 페이드 중에 이미 떨어져서 연출이 안 보인다.
+    IEnumerator AirArrival(PlayerController main, Vector3 arrival, int dir)
+    {
+        Rigidbody2D rb = main.GetComponent<Rigidbody2D>();
+        Vector3 start = AirStart(arrival, dir);
+
+        BeginSequence();
+        Hold(main, rb, start);
+        CameraSnap.SnapNow();
+
+        CanvasGroup fade = waitForFadeIn ? FindFadeCanvas() : null;
+        float waited = 0f;
+        while (main != null && fade != null && fade.alpha > walkStartScreenAlpha && waited < fadeWaitTimeout)
+        {
+            Hold(main, rb, start);
+            waited += Time.deltaTime;
+            yield return null;
+        }
+        for (float t = 0f; main != null && t < walkInDelay; t += Time.deltaTime)
+        {
+            Hold(main, rb, start);
+            yield return null;
+        }
+
+        if (main != null && rb != null)
+            rb.linearVelocity = arrivalStyle == ArrivalStyle.JumpUp ? new Vector2(0f, jumpInVelocity) : Vector2.zero;
+
+        float elapsed = 0f;
+        while (main != null && elapsed < airArrivalMaxDuration)
+        {
+            // 옆으로 비껴 뛰었으면 도착 지점 x까지 공중에서 옮겨 준다 (Rigidbody와 싸우지 않게 이동 입력으로)
+            float remaining = (arrival.x - main.transform.position.x) * dir;
+            main.SetScriptedMove(arrivalStyle == ArrivalStyle.JumpUp && remaining > 0.05f
+                ? dir * Mathf.Clamp(walkInSpeedRatio, 0.1f, 1f) : 0f);
+
+            bool falling = rb == null || rb.linearVelocity.y <= 0.01f;
+            if (elapsed > 0.1f && falling && main.IsGrounded) break;
+
+            elapsed += Time.deltaTime;
+            yield return null;
+        }
+
+        if (main != null) main.ClearScriptedMove();
+        if (landingPause > 0f) yield return new WaitForSeconds(landingPause);
+        EndSequence();
+    }
+
+    static void Hold(PlayerController main, Rigidbody2D rb, Vector3 pos)
+    {
+        if (main == null) return;
+        main.transform.position = pos;
+        if (rb == null) return;
+        rb.position = pos;
+        rb.linearVelocity = Vector2.zero;
+    }
+
     // 페이드 인이 끝나가는 것을 기다린다.
     // ScreenFadeManager가 검은 판(CanvasGroup)의 알파를 1 → 0으로 내리므로 그 값을 직접 본다.
     // (시간으로 맞추면 페이드 길이를 바꿀 때마다 여기도 같이 고쳐야 한다)
@@ -193,6 +301,16 @@ public class SceneEntryPoint : MonoBehaviour
     {
         Gizmos.color = new Color(1f, 0.8f, 0.2f, 0.9f);
         Gizmos.DrawWireCube(transform.position, new Vector3(0.8f, 1.6f, 0f));
+
+        if (arrivalStyle != ArrivalStyle.Walk)
+        {
+            // 공중 시작 위치 — 지형 안에 박히면 안 되므로 수직 통로 안에 있는지 눈으로 확인
+            Vector3 airStart = AirStart(transform.position, (int)walkInDirection);
+            Gizmos.color = new Color(0.4f, 0.8f, 1f, 0.8f);
+            Gizmos.DrawWireCube(airStart, new Vector3(0.8f, 1.6f, 0f));
+            Gizmos.DrawLine(airStart, transform.position);
+            return;
+        }
 
         if (!walkInOnArrival || walkInDistance <= 0.01f) return;
 

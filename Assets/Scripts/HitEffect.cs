@@ -112,9 +112,9 @@ public class HitEffect : MonoBehaviour
     static void SpawnPrefab(Settings settings, GameObject prefab, Vector3 position, Vector2 direction,
                             SpriteRenderer sortingRef)
     {
-        Quaternion rot = Quaternion.identity;
+        Quaternion rot = prefab.transform.rotation;
         if (settings.rotateToHitDirection && direction.sqrMagnitude > 0.0001f)
-            rot = Quaternion.Euler(0f, 0f, Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg);
+            rot = Quaternion.Euler(0f, 0f, Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg) * rot;
 
         // ★ 부모를 붙이지 않는다 — 몬스터는 섭취되면 Destroy되는데, 자식으로 달아두면
         //   이펙트가 재생 도중 같이 사라진다.

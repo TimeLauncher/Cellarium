@@ -217,6 +217,11 @@ public class PauseMenu : MonoBehaviour
 
     private void OnDestroy()
     {
+        if (instance == this)
+        {
+            instance = null;
+        }
+
         Time.timeScale = 1f;
 
         IsPaused = false;

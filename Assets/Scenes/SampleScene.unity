@@ -863,6 +863,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::CellChunk
   cellAmount: 50
   persistentId: 
+  pickupDelay: 0
+  popGravity: 14
+  maxPopDistanceX: 1.2
+  popBlockMask:
+    serializedVersion: 2
+    m_Bits: 0
 --- !u!58 &78813007
 CircleCollider2D:
   m_ObjectHideFlags: 0
@@ -1106,6 +1112,24 @@ MonoBehaviour:
   attackWindup: 0.2
   attackActiveTime: 0.3
   consumableLifetime: 5
+  showConsumeIndicator: 1
+  hitEffect:
+    prefab: {fileID: 0}
+    rotateToHitDirection: 0
+    scale: 0.9
+    lifetime: 0.3
+    fallbackColor: {r: 1, g: 0.85, b: 0.35, a: 1}
+    inheritSortingFromTarget: 1
+    sortingOrderOffset: 5
+    enabled: 1
+  hitFlashColor: {r: 1, g: 0.45, b: 0.45, a: 1}
+  hitFlashDuration: 0.12
+  cellDropTotal: 10
+  cellDropCount: 5
+  cellChunkPrefab: {fileID: 0}
+  cellPickupDelay: 0.45
+  cellPopUpSpeed: 4
+  cellPopSideSpeed: 2.5
   engageRange: 8
   projectilePrefab: {fileID: 4789779386128304187, guid: 54d88cc04de8449498db2f6aff1d7dee, type: 3}
   firePoint: {fileID: 190459090}
@@ -1259,7 +1283,7 @@ Transform:
   m_GameObject: {fileID: 103644126}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 6.86, y: 4.74, z: 0}
+  m_LocalPosition: {x: 31.68, y: 5.29, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -1267,6 +1291,144 @@ Transform:
   - {fileID: 190459090}
   m_Father: {fileID: 346769738}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &109183056
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 109183057}
+  - component: {fileID: 109183059}
+  - component: {fileID: 109183058}
+  m_Layer: 6
+  m_Name: Square (5)
+  m_TagString: Ground
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &109183057
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 109183056}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 3.55, y: 2.38, z: 0}
+  m_LocalScale: {x: 9.823341, y: 0.97634614, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1979121344}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!61 &109183058
+BoxCollider2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 109183056}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_ForceSendLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ForceReceiveLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ContactCaptureLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_CallbackLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_IsTrigger: 0
+  m_UsedByEffector: 0
+  m_CompositeOperation: 0
+  m_CompositeOrder: 0
+  m_Offset: {x: 0, y: 0}
+  m_SpriteTilingProperty:
+    border: {x: 0, y: 0, z: 0, w: 0}
+    pivot: {x: 0.5, y: 0.5}
+    oldSize: {x: 1, y: 1}
+    newSize: {x: 1, y: 1}
+    adaptiveTilingThreshold: 0.5
+    drawMode: 0
+    adaptiveTiling: 0
+  m_AutoTiling: 0
+  m_Size: {x: 1, y: 1}
+  m_EdgeRadius: 0
+--- !u!212 &109183059
+SpriteRenderer:
+  serializedVersion: 2
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 109183056}
+  m_Enabled: 1
+  m_CastShadows: 0
+  m_ReceiveShadows: 0
+  m_DynamicOccludee: 1
+  m_StaticShadowCaster: 0
+  m_MotionVectors: 1
+  m_LightProbeUsage: 1
+  m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 0
+  m_RayTraceProcedural: 0
+  m_RayTracingAccelStructBuildFlagsOverride: 0
+  m_RayTracingAccelStructBuildFlags: 1
+  m_SmallMeshCulling: 1
+  m_ForceMeshLod: -1
+  m_MeshLodSelectionBias: 0
+  m_RenderingLayerMask: 1
+  m_RendererPriority: 0
+  m_Materials:
+  - {fileID: 2100000, guid: a97c105638bdf8b4a8650670310a4cd3, type: 2}
+  m_StaticBatchInfo:
+    firstSubMesh: 0
+    subMeshCount: 0
+  m_StaticBatchRoot: {fileID: 0}
+  m_ProbeAnchor: {fileID: 0}
+  m_LightProbeVolumeOverride: {fileID: 0}
+  m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
+  m_PreserveUVs: 0
+  m_IgnoreNormalsForChartDetection: 0
+  m_ImportantGI: 0
+  m_StitchLightmapSeams: 1
+  m_SelectedEditorRenderState: 0
+  m_MinimumChartSize: 4
+  m_AutoUVMaxDistance: 0.5
+  m_AutoUVMaxAngle: 89
+  m_LightmapParameters: {fileID: 0}
+  m_GlobalIlluminationMeshLod: 0
+  m_SortingLayerID: 0
+  m_SortingLayer: 0
+  m_SortingOrder: 0
+  m_MaskInteraction: 0
+  m_Sprite: {fileID: -2090085841, guid: 4c0072ffc60a6104993edae2442c1934, type: 3}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_FlipX: 0
+  m_FlipY: 0
+  m_DrawMode: 0
+  m_Size: {x: 1, y: 1}
+  m_AdaptiveModeThreshold: 0.5
+  m_SpriteTileMode: 0
+  m_WasSpriteAssigned: 1
+  m_SpriteSortPoint: 0
 --- !u!1 &179665195
 GameObject:
   m_ObjectHideFlags: 0
@@ -1465,6 +1627,12 @@ MonoBehaviour:
   openSlideDistance: 5
   openSlideDuration: 0.6
   openSlideDir: {x: 0, y: 1}
+  focusCameraOnOpen: 0
+  cameraFocusTarget: {fileID: 0}
+  focusTravelTime: 0.8
+  focusHoldTime: 0.8
+  focusReturnTime: 0.8
+  focusLockInput: 1
   tintDoorByProgress: 0
   closedColor: {r: 1, g: 1, b: 1, a: 1}
   readyColor: {r: 0, g: 1, b: 1, a: 1}
@@ -3088,6 +3256,24 @@ MonoBehaviour:
   attackWindup: 0.2
   attackActiveTime: 0.3
   consumableLifetime: 5
+  showConsumeIndicator: 1
+  hitEffect:
+    prefab: {fileID: 0}
+    rotateToHitDirection: 0
+    scale: 0.9
+    lifetime: 0.3
+    fallbackColor: {r: 1, g: 0.85, b: 0.35, a: 1}
+    inheritSortingFromTarget: 1
+    sortingOrderOffset: 5
+    enabled: 1
+  hitFlashColor: {r: 1, g: 0.45, b: 0.45, a: 1}
+  hitFlashDuration: 0.12
+  cellDropTotal: 10
+  cellDropCount: 5
+  cellChunkPrefab: {fileID: 0}
+  cellPickupDelay: 0.45
+  cellPopUpSpeed: 4
+  cellPopSideSpeed: 2.5
   surfaceNormal: {x: 1, y: 0}
   stickRayDistance: 1
   surfaceSearchDistance: 3
@@ -3833,7 +4019,7 @@ Transform:
   m_GameObject: {fileID: 746293457}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 4.06, y: 4.67, z: 0}
+  m_LocalPosition: {x: 28.41, y: 3.73, z: 0}
   m_LocalScale: {x: 1.9136, y: 1.9136, z: 1.9136}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -3891,6 +4077,24 @@ MonoBehaviour:
   attackWindup: 0.2
   attackActiveTime: 0.3
   consumableLifetime: 5
+  showConsumeIndicator: 1
+  hitEffect:
+    prefab: {fileID: 0}
+    rotateToHitDirection: 0
+    scale: 0.9
+    lifetime: 0.3
+    fallbackColor: {r: 1, g: 0.85, b: 0.35, a: 1}
+    inheritSortingFromTarget: 1
+    sortingOrderOffset: 5
+    enabled: 1
+  hitFlashColor: {r: 1, g: 0.45, b: 0.45, a: 1}
+  hitFlashDuration: 0.12
+  cellDropTotal: 10
+  cellDropCount: 5
+  cellChunkPrefab: {fileID: 0}
+  cellPickupDelay: 0.45
+  cellPopUpSpeed: 4
+  cellPopSideSpeed: 2.5
   engageRange: 8
   projectilePrefab: {fileID: 4789779386128304187, guid: 54d88cc04de8449498db2f6aff1d7dee, type: 3}
   firePoint: {fileID: 858033775}
@@ -5189,6 +5393,15 @@ MonoBehaviour:
   hintOffset: {x: 0, y: 1.5, z: 0}
   hintScale: 0.5
   interactKey: 101
+  leaveAfterTalk: 0
+  rewardCell: 100
+  rewardCellPrefab: {fileID: 0}
+  leaveDelay: 0.3
+  leaveFadeDuration: 0.8
+  blackoutOnLeave: 0
+  blackoutHold: 0.4
+  rewardPickupDelay: 1.2
+  persistentId: 
 --- !u!1 &924752043
 GameObject:
   m_ObjectHideFlags: 0
@@ -5672,6 +5885,24 @@ MonoBehaviour:
   attackWindup: 0.2
   attackActiveTime: 0.3
   consumableLifetime: 5
+  showConsumeIndicator: 1
+  hitEffect:
+    prefab: {fileID: 0}
+    rotateToHitDirection: 0
+    scale: 0.9
+    lifetime: 0.3
+    fallbackColor: {r: 1, g: 0.85, b: 0.35, a: 1}
+    inheritSortingFromTarget: 1
+    sortingOrderOffset: 5
+    enabled: 1
+  hitFlashColor: {r: 1, g: 0.45, b: 0.45, a: 1}
+  hitFlashDuration: 0.12
+  cellDropTotal: 10
+  cellDropCount: 5
+  cellChunkPrefab: {fileID: 0}
+  cellPickupDelay: 0.45
+  cellPopUpSpeed: 4
+  cellPopSideSpeed: 2.5
 --- !u!1 &1060490050
 GameObject:
   m_ObjectHideFlags: 0
@@ -7110,6 +7341,24 @@ MonoBehaviour:
   attackWindup: 0.2
   attackActiveTime: 0.3
   consumableLifetime: 5
+  showConsumeIndicator: 1
+  hitEffect:
+    prefab: {fileID: 0}
+    rotateToHitDirection: 0
+    scale: 0.9
+    lifetime: 0.3
+    fallbackColor: {r: 1, g: 0.85, b: 0.35, a: 1}
+    inheritSortingFromTarget: 1
+    sortingOrderOffset: 5
+    enabled: 1
+  hitFlashColor: {r: 1, g: 0.45, b: 0.45, a: 1}
+  hitFlashDuration: 0.12
+  cellDropTotal: 10
+  cellDropCount: 5
+  cellChunkPrefab: {fileID: 0}
+  cellPickupDelay: 0.45
+  cellPopUpSpeed: 4
+  cellPopSideSpeed: 2.5
   dashWindup: 0.5
   dashSpeed: 13
   dashMaxDuration: 3.5
@@ -7259,7 +7508,7 @@ Transform:
   m_GameObject: {fileID: 1447688274}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 12.13, y: -5.44, z: 0}
+  m_LocalPosition: {x: 24.7, y: -5.67, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -7512,7 +7761,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 2.581037, y: 2.581037, z: 1}
+  m_LocalScale: {x: 2.5822785, y: 2.5822785, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
@@ -7725,6 +7974,24 @@ MonoBehaviour:
   attackWindup: 0.2
   attackActiveTime: 0.3
   consumableLifetime: 5
+  showConsumeIndicator: 1
+  hitEffect:
+    prefab: {fileID: 0}
+    rotateToHitDirection: 0
+    scale: 0.9
+    lifetime: 0.3
+    fallbackColor: {r: 1, g: 0.85, b: 0.35, a: 1}
+    inheritSortingFromTarget: 1
+    sortingOrderOffset: 5
+    enabled: 1
+  hitFlashColor: {r: 1, g: 0.45, b: 0.45, a: 1}
+  hitFlashDuration: 0.12
+  cellDropTotal: 10
+  cellDropCount: 5
+  cellChunkPrefab: {fileID: 0}
+  cellPickupDelay: 0.45
+  cellPopUpSpeed: 4
+  cellPopSideSpeed: 2.5
   chaseSpeed: 2.6
   diveAttackRange: 4
   diveSpeed: 10
@@ -7871,7 +8138,7 @@ Transform:
   m_GameObject: {fileID: 1630602705}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 10.32, y: 3.92, z: 0}
+  m_LocalPosition: {x: 31.87, y: 1.76, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -7914,6 +8181,8 @@ MonoBehaviour:
   jumpPower: 13.5
   jumpBuffer: 0.12
   maxJumps: 1
+  allowAirJump: 0
+  coyoteTime: 0.25
   fallMultiplier: 8
   lowJumpMultiplier: 5.5
   ascendMultiplier: 2
@@ -7932,6 +8201,9 @@ MonoBehaviour:
   dashKnockbackSpeed: 7
   dashKnockbackUpRatio: 0.6
   dashInvincibleTime: 0.4
+  rotateOnDash: 1
+  dashRotationMaxAngle: 70
+  dashVisualRoot: {fileID: 0}
   dashMonsterKnockback: 8
   fissionDashSpeed: 20
   fissionDashDuration: 0.2
@@ -7951,6 +8223,7 @@ MonoBehaviour:
   monsterMask:
     serializedVersion: 2
     m_Bits: 8
+  consumePickRadius: 0.6
   consumeMoveSpeed: 15
   wallCheckDistance: 0.15
   wallSlideSpeed: 1.5
@@ -7978,6 +8251,8 @@ MonoBehaviour:
   returnTimeout: 4
   returnTriggerName: ReturnReady
   shrinkWhileReturning: 0
+  returnShrinkStrength: 1
+  returnMinScale: 0.4
   isControlled: 1
   isClone: 0
   forceSortingOrder: 1
@@ -7985,6 +8260,15 @@ MonoBehaviour:
   uncontrolledAlpha: 0.5
   hitFlashColor: {r: 1, g: 0.3, b: 0.3, a: 1}
   invincibleBlinkInterval: 0.08
+  hitEffect:
+    prefab: {fileID: 0}
+    rotateToHitDirection: 0
+    scale: 1.1
+    lifetime: 0.32
+    fallbackColor: {r: 1, g: 0.35, b: 0.35, a: 1}
+    inheritSortingFromTarget: 1
+    sortingOrderOffset: 5
+    enabled: 1
   thrownTimer: 0
 --- !u!61 &1656173080
 BoxCollider2D:
@@ -8675,6 +8959,8 @@ MonoBehaviour:
   hardFissionCap: 0
   cellCurrency: 0
   darkCellCurrency: 0
+  cycleControlKey: 9
+  cycleIncludesMainBody: 1
   fissionUnlocked: 0
   cinemachineCamera: {fileID: 0}
 --- !u!4 &1850083896
@@ -9033,11 +9319,29 @@ MonoBehaviour:
   knockbackAlwaysUp: 1
   stunDuration: 0.3
   attackHitbox: {fileID: 754318926}
-  showHitbox: 0
+  showHitbox: 1
   attackFrontOnly: 1
   attackWindup: 0.2
   attackActiveTime: 0.3
   consumableLifetime: 5
+  showConsumeIndicator: 1
+  hitEffect:
+    prefab: {fileID: 0}
+    rotateToHitDirection: 0
+    scale: 0.9
+    lifetime: 0.3
+    fallbackColor: {r: 1, g: 0.85, b: 0.35, a: 1}
+    inheritSortingFromTarget: 1
+    sortingOrderOffset: 5
+    enabled: 1
+  hitFlashColor: {r: 1, g: 0.45, b: 0.45, a: 1}
+  hitFlashDuration: 0.12
+  cellDropTotal: 10
+  cellDropCount: 5
+  cellChunkPrefab: {fileID: 0}
+  cellPickupDelay: 0.45
+  cellPopUpSpeed: 4
+  cellPopSideSpeed: 2.5
   surfaceNormal: {x: 0, y: 1}
   stickRayDistance: 1
   surfaceSearchDistance: 3
@@ -9051,8 +9355,8 @@ MonoBehaviour:
   slashWindup: 1
   slashActiveTime: 0.2
   pounceMinRange: 3
-  pounceMaxRange: 6
-  pounceWindup: 1
+  pounceMaxRange: 9
+  pounceWindup: 1.5
   pounceAirTime: 0.5
   pounceCooldown: 6
   pounceDamage: 100
@@ -9199,7 +9503,7 @@ Transform:
   m_GameObject: {fileID: 1897398193}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 28.27, y: -6.38, z: 0}
+  m_LocalPosition: {x: 10.87, y: -5.75, z: 0}
   m_LocalScale: {x: 2, y: 2, z: 2}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -9531,6 +9835,7 @@ Transform:
   - {fileID: 1725188547}
   - {fileID: 1686187403}
   - {fileID: 513303870}
+  - {fileID: 109183057}
   - {fileID: 1105983992}
   - {fileID: 243173005}
   m_Father: {fileID: 0}

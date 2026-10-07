@@ -8,7 +8,9 @@ public class PlayerController : MonoBehaviour
     public float moveSpeed = 8f;
 
     [Header("점프")]
-    public float jumpPower = 10f;
+    // 기본값은 A07~A09 Fix 문서의 '점프 수치값 참고 이미지' 기준.
+    // ※ 이미 씬/프리팹에 배치된 PC는 저장된 값을 쓰므로 여기 기본값을 바꿔도 반영되지 않는다.
+    public float jumpPower = 20f;
     public float jumpBuffer = 0.12f;
     public int maxJumps =1;
 
@@ -22,9 +24,9 @@ public class PlayerController : MonoBehaviour
     // 조작이 답답하지 않다. 0으로 두면 완전히 지면에서만 점프된다.
     [Tooltip("발판을 떠난 직후 이 시간까지는 점프 입력을 받아준다 (코요테 점프). 0.2~0.3 권장")]
     public float coyoteTime = 0.25f;
-    public float fallMultiplier = 3f;
-    public float lowJumpMultiplier = 2f;
-    public float ascendMultiplier = 1f;
+    public float fallMultiplier = 5f;
+    public float lowJumpMultiplier = 9f;
+    public float ascendMultiplier = 4f;
 
     // 튜토리얼 구간에서는 아직 안 배운 동작을 잠가둔다. 개발 중엔 인스펙터에서 켜서 그대로 테스트 가능.
     // (씬마다 플레이어가 개별 배치돼 있으므로 씬별로 따로 설정해야 한다)
@@ -40,7 +42,7 @@ public class PlayerController : MonoBehaviour
 
     [Header("일반 대시 (좌클릭)")]
     public float dashSpeed = 20f;
-    public float dashDistance = 3f;
+    public float dashDistance = 2f;
     public float dashCooldown = 0.5f;
     public float dashExitPreserve = 0.35f;
     public bool allowAirDash = true;
@@ -49,6 +51,15 @@ public class PlayerController : MonoBehaviour
     public float dashKnockbackSpeed = 7f;
     public float dashKnockbackUpRatio = 0.6f; // 넉백에 섞는 위쪽 성분 비율 — 클수록 포물선이 높아짐
     public float dashInvincibleTime = 0.4f;   // 대시로 박은 뒤 튕겨나오는 동안 접촉 데미지 면역
+
+    // Fix 문서 '대시 넉백으로 인한 이동 조작감 수정' — 튕겨나오는 동안 조작을 얼마나 막을지.
+    // 피격 넉백(knockbackDuration)과 값을 분리해서, 대시 반동만 따로 짧게 줄 수 있게 했다.
+    [Tooltip("대시로 박고 튕겨나오는 동안 이동 입력을 막는 시간. 작게 줄수록 튕기자마자 다시 조종된다")]
+    public float dashKnockbackControlLock = 0.12f;
+    [Tooltip("대시가 끝난 뒤 이 시간 동안 점프·대시·섭취 입력을 받지 않는다 (대시 직후 점프가 새어나가는 문제 방지)")]
+    public float dashRecoverTime = 0.08f;
+    [Tooltip("지상에서 시작한 대시가 공중에서 끝나면 공중 대시 1회를 소모한다 (대시→점프→대시 연속 방지)")]
+    public bool groundDashConsumesAirDash = true;
 
     // 기획서 기타 메모 '대시 시전 방향으로 모션 재생'.
     // 좌우 반전만으로는 위/아래 대각선 대시가 표현되지 않는데, 방향별 대시 클립은 아직 없다.
@@ -69,6 +80,12 @@ public class PlayerController : MonoBehaviour
     public float fissionDashDuration = 0.2f;
     public float fissionDashHoldDuration = 0.3f; // 이 시간 이상 누르고 떼야 발동 (톡 누르면 취소)
 
+    [Header("끼임 탈출")]
+    [Tooltip("이동 발판·이동 타일 등에 몸이 끼면 가까운 바깥쪽으로 밀어내 탈출시킨다 (CrushEscape.cs)")]
+    public bool allowCrushEscape = true;
+    [Tooltip("끼었을 때 옆으로 밀려나는 속도(초당 타일)")]
+    [Min(0f)] public float crushEscapeSpeed = 8f;
+
     [Header("지면 감지")]
     public Transform groundCheck;
     public float groundCheckRadius = 0.18f;
@@ -79,8 +96,8 @@ public class PlayerController : MonoBehaviour
     [Tooltip("Q를 누른 뒤 이 시간 동안 제자리 고정 + 다른 조작 차단 (분열 모션 길이에 맞출 것). " +
              "분열체가 나오는 시점 자체는 split2 클립의 SpawnFissionClone 애니메이션 이벤트가 정한다")]
     public float fissionMotionLock = 0.4f;
-    [Tooltip("사용 안 함 — 예전 '홀드해서 차징' 방식의 잔재. 지금은 Q를 누르는 즉시 발동한다")]
-    public float fissionHoldDuration = 0.5f;
+    [Tooltip("Q를 이 시간만큼 누르고 있으면 (떼지 않아도) 그 순간 분열이 발동한다. 기획 권장 0.5~0.7")]
+    public float fissionHoldDuration = 0.6f;
     [Tooltip("분열체 크기 배율 (본체 대비)")]
     public float cloneScaleRatio = 0.75f;
     [Tooltip("분열체를 몸 밖에 생성할 때 두는 여유 간격. 0이면 콜라이더가 딱 맞닿은 채로 생성된다")]
@@ -89,7 +106,7 @@ public class PlayerController : MonoBehaviour
 private RuntimeAnimatorController cloneAnimatorController;
 
     [Header("섭취")]
-    public float consumeRange = 2f;
+    public float consumeRange = 2.5f;
     public LayerMask monsterMask;
     [Tooltip("마우스 커서 판정의 여유 반경. 커서가 대상에 정확히 안 올라가도 이 반경 안이면 섭취로 친다. " +
              "0이면 픽셀 단위로 정확히 눌러야 하고, 빗나가면 대시가 나간다")]
@@ -187,6 +204,9 @@ private RuntimeAnimatorController cloneAnimatorController;
     // 일반 대시
     private bool isNormalDashing;
     private float normalDashCooldownTimer;
+    private float dashRecoverTimer; // 대시 직후 입력을 잠깐 막는 시간
+    private float fissionHoldTimer; // Q 홀드 누적 시간
+    private bool fissionHoldUsed;   // 이번 홀드로 이미 발동했는지 (떼기 전 연속 발동 방지)
     private int airDashLeft;
 
     // 분열 대시
@@ -291,10 +311,12 @@ private RuntimeAnimatorController cloneAnimatorController;
     //   예전 코드는 자동회복만 '분열체가 있으면 아예 중단'으로 근사하고, 섭취는 그냥 최대치까지 채웠다.
     //   이제 자동회복·섭취가 같은 상한을 공유한다. 분열체를 회수하면 상한이 도로 올라간다.
     public float FissionGaugeCap => Mathf.Max(0f, maxFissionGauge - CloneCount * fissionCost);
-    // 분열 모션 진행도 (0→1). 홀드 차징이 없어졌으므로 이제 '모션이 도는 동안'을 나타낸다.
-    // FissionChargeIndicator가 이 값을 쓰는데, 즉시 발동이라 차지 게이지로서의 의미는 사라졌다.
+    // 분열 진행도 (0→1). Q를 누르고 있는 동안은 홀드 차징 진행도,
+    // 발동한 뒤에는 분열 모션 진행도를 그대로 이어서 보여준다 (FissionChargeIndicator가 사용).
     public float FissionHoldProgress =>
-        fissionMotionTimer > 0f && fissionMotionLock > 0f ? 1f - (fissionMotionTimer / fissionMotionLock) : 0f;
+        fissionHoldTimer > 0f && fissionHoldDuration > 0f
+            ? Mathf.Clamp01(fissionHoldTimer / fissionHoldDuration)
+            : (fissionMotionTimer > 0f && fissionMotionLock > 0f ? 1f - (fissionMotionTimer / fissionMotionLock) : 0f);
     public float FissionDashHoldProgress => isDashReady ? Mathf.Clamp01(fissionDashHoldTimer / fissionDashHoldDuration) : 0f;
     public float DashCooldownProgress => normalDashCooldownTimer > 0f ? normalDashCooldownTimer / dashCooldown : 0f;
 
@@ -316,6 +338,12 @@ private RuntimeAnimatorController cloneAnimatorController;
 
     //SFX
     private PlayerSFX playerSFX;
+
+    // 거미줄 등 지형 기믹이 거는 이동/점프/대시 배율 (PlayerTraversal.cs)
+    public PlayerTraversal Traversal { get; } = new PlayerTraversal();
+    public bool IsGrounded => isGrounded; // 상하단 진입 연출(SceneEntryPoint)이 착지 판정에 사용
+    private Vector2 flowFacing; // 혈류 안에서 마지막으로 누른 방향키 = 점프 이탈 방향
+
     void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
@@ -364,6 +392,8 @@ private RuntimeAnimatorController cloneAnimatorController;
         if (isDead) return; // 사망 모션 중엔 입력·물리 판정 모두 정지
         if (isReturning) return; // 회수 비행 중엔 ReturnRoutine이 위치를 직접 옮긴다
         if (isSaving) { UpdateSaveMotion(); return; }
+
+        Traversal.Tick();
 
         if (thrownTimer > 0f)
             thrownTimer -= Time.deltaTime;
@@ -465,18 +495,47 @@ private RuntimeAnimatorController cloneAnimatorController;
 
         moveX = Input.GetAxisRaw("Horizontal");
 
+        // 혈류 안: 좌우 이동 대신 방향키로 바라보는 방향(=이탈 방향)만 정하고, 점프로 이탈한다.
+        // 대시는 쓸 수 있지만 역류 방향 성분은 TryNormalDash/FissionDash에서 지운다.
+        BloodFlow flow = Traversal.CurrentFlow;
+        if (flow != null)
+        {
+            float moveY = Input.GetAxisRaw("Vertical");
+            if (Mathf.Abs(moveX) > 0.01f || Mathf.Abs(moveY) > 0.01f)
+                flowFacing = Mathf.Abs(moveX) >= Mathf.Abs(moveY)
+                    ? new Vector2(Mathf.Sign(moveX), 0f)
+                    : new Vector2(0f, Mathf.Sign(moveY));
+            if (spr != null && Mathf.Abs(moveX) > 0.01f)
+                spr.flipX = moveX < 0f;
+
+            moveX = 0f;
+            jumpBufferTimer = 0f;
+            airDashLeft = maxAirDash;
+
+            if (Input.GetButtonDown("Jump") && !IsActionLocked())
+                ExitBloodFlow(flow);
+        }
+        else
+            flowFacing = Vector2.zero; // 끝까지 흘러 나간 경우 — 다음 혈류에 이전 방향이 남지 않게
+
         bool isWallSliding = isOnWall && !isGrounded && wallJumpTimer <= 0f &&
             ((wallDir == 1 && moveX > 0) || (wallDir == -1 && moveX < 0));
 
         if (normalDashCooldownTimer > 0f)
             normalDashCooldownTimer -= Time.deltaTime;
+        if (dashRecoverTimer > 0f)
+            dashRecoverTimer -= Time.deltaTime;
 
         // 점프 버퍼
-        if (Input.GetButtonDown("Jump"))
+        // ★ Fix 문서 '대시 이후 바로 점프키를 누르면 점프가 되는 문제':
+        //   예전엔 대시 중에 누른 점프도 버퍼에 쌓여서, 대시가 끝나는 순간 공중에서 점프가 튀어나갔다.
+        //   조작이 잠긴 동안(대시/섭취/경직 등)의 점프 입력은 아예 받지 않는다.
+        if (Input.GetButtonDown("Jump") && flow == null && !IsActionLocked() && dashRecoverTimer <= 0f)
             jumpBufferTimer = jumpBuffer;
 
         // S+Space: 관통 타일 위면 아래로 통과, 그 외 공중이면 내려찍기 (통과가 우선)
-        if (Input.GetKey(KeyCode.S) && Input.GetButtonDown("Jump") && !IsActionLocked())
+        // 혈류 안의 S+Space는 아래쪽 이탈이므로 여기서 받지 않는다
+        if (flow == null && Input.GetKey(KeyCode.S) && Input.GetButtonDown("Jump") && !IsActionLocked())
         {
             if (currentOneWayPlatform != null)
             {
@@ -497,14 +556,33 @@ private RuntimeAnimatorController cloneAnimatorController;
         if (fissionMotionTimer > 0f) fissionMotionTimer -= Time.deltaTime;
         isFissioning = fissionMotionTimer > 0f;
 
-        if (!isClone && !isFissionDashing && FissionUnlocked && Input.GetKeyDown(KeyCode.Q) && !isFissioning)
+        // Fix 문서 '분열 시전(Q) 입력 시 키다운 없이 그냥 시전 / 0.5~0.7초 정도의 키홀드 시전으로 수정':
+        //   Q를 fissionHoldDuration만큼 누르고 있으면 '시간이 되는 순간' 발동한다 (떼는 시점이 아니다).
+        //   시간을 채우기 전에 떼면 취소되고, 누적 시간은 0으로 돌아간다.
+        bool canFission = !isClone && !isFissionDashing && FissionUnlocked && !isFissioning;
+        bool holdingQ = Input.GetKey(KeyCode.Q);
+
+        if (!holdingQ)
         {
-            if (Fission())
+            fissionHoldTimer = 0f;
+            fissionHoldUsed = false; // 손을 떼야 다음 시전을 다시 차징할 수 있다
+        }
+        else if (canFission && !fissionHoldUsed)
+        {
+            fissionHoldTimer += Time.deltaTime;
+            if (fissionHoldTimer >= fissionHoldDuration)
             {
-                fissionMotionTimer = fissionMotionLock;
-                isFissioning = true; // 누른 프레임부터 바로 고정
+                fissionHoldTimer = 0f;
+                fissionHoldUsed = true;
+                if (Fission())
+                {
+                    fissionMotionTimer = fissionMotionLock;
+                    isFissioning = true;
+                }
             }
         }
+        else
+            fissionHoldTimer = 0f;
 
         // 차징 중엔 이동 입력을 무시해 제자리에 고정 (점프/대시 등은 IsActionLocked로 차단됨)
         if (isFissioning)
@@ -548,7 +626,7 @@ private RuntimeAnimatorController cloneAnimatorController;
         {
             if (allowWallJump && isWallSliding && wallDir != lastWallJumpDir && !isClone)
             {
-                rb.linearVelocity = new Vector2(-wallDir * wallJumpX, wallJumpY);
+                rb.linearVelocity = new Vector2(-wallDir * wallJumpX, wallJumpY * Traversal.JumpMultiplier);
                 jumpsLeft = maxJumps - 1;
                 lastWallJumpDir = wallDir;
                 wallJumpTimer = 0.25f;
@@ -560,7 +638,7 @@ private RuntimeAnimatorController cloneAnimatorController;
             // allowAirJump를 켜면 예전처럼 jumpsLeft만 보고 공중에서도 뛴다.
             else if (jumpsLeft > 0 && !isSlamming && (allowAirJump || isGrounded || coyoteTimer > 0f))
             {
-                rb.linearVelocity = new Vector2(rb.linearVelocity.x, jumpPower);
+                rb.linearVelocity = new Vector2(rb.linearVelocity.x, jumpPower * Traversal.JumpMultiplier);
                 jumpsLeft--;
                 coyoteTimer = 0f; // 한 번 뛰면 코요테 시간은 소진 — 뜨자마자 또 뛰는 것 방지
                 
@@ -608,6 +686,13 @@ private RuntimeAnimatorController cloneAnimatorController;
         if (isDead) { rb.linearVelocity = Vector2.zero; return; } // 사망 모션 중 완전 정지
         if (isReturning) return; // 회수 중엔 rb.simulated = false 라 물리 갱신 자체가 무의미
 
+        // 혈류 접촉 정리 — 대시 중에도 돌려야 Update의 CurrentFlow가 정확하다
+        BloodFlow flow = Traversal.UpdateFlow();
+
+        // 이동 발판·이동 타일 등에 몸이 끼면 가까운 바깥쪽으로 밀어내 빼준다 (CrushEscape.cs)
+        if (allowCrushEscape)
+            CrushEscape.Resolve(rb, bodyColliders, crushEscapeSpeed);
+
         // 공중에 있는 동안은 마찰을 0으로 둔다.
         // 마찰이 남아 있으면 벽 슬라이딩을 꺼놔도 벽 방향 키를 누르는 것만으로 벽에 매달린다
         // (좌우 이동은 velocity로 직접 제어하므로 공중에서 마찰이 필요한 곳이 없다).
@@ -628,12 +713,19 @@ private RuntimeAnimatorController cloneAnimatorController;
         // 내려찍기 중: SlamRoutine이 gravityScale·velocity 직접 제어
         if (isSlamming) return;
 
+        // 혈류: 흐름이 속도를 통째로 정한다 (분열체도 똑같이 떠내려간다)
+        if (flow != null)
+        {
+            rb.gravityScale = 0f;
+            rb.linearVelocity = flow.VelocityAt(rb.position);
+            return;
+        }
+
         // 던져진 분열체
         if (thrownTimer > 0f)
         {
             rb.gravityScale = 1f;
-            if (rb.linearVelocity.y < 0)
-                rb.linearVelocity += Vector2.up * Physics2D.gravity.y * (fallMultiplier - 1) * Time.fixedDeltaTime;
+            ApplyAirGravity(false);
             return;
         }
 
@@ -642,6 +734,7 @@ private RuntimeAnimatorController cloneAnimatorController;
         {
             rb.gravityScale = 1f;
             rb.linearVelocity = new Vector2(0f, rb.linearVelocity.y);
+            ApplyAirGravity(false); // 조종 중과 같은 중력 보정 — 아래 ApplyAirGravity 주석 참고
             return;
         }
 
@@ -652,7 +745,7 @@ private RuntimeAnimatorController cloneAnimatorController;
         else if (wallJumpTimer > 0f)
             wallJumpTimer -= Time.fixedDeltaTime;
         else if (!isSlamming)
-            rb.linearVelocity = new Vector2(moveX * moveSpeed, rb.linearVelocity.y);
+            rb.linearVelocity = new Vector2(moveX * moveSpeed * Traversal.MoveMultiplier, rb.linearVelocity.y);
 
         // 벽 슬라이딩
         bool isWallSliding = allowWallSlide && isOnWall && !isGrounded && !isSlamming && wallJumpTimer <= 0f && !isClone &&
@@ -670,12 +763,26 @@ private RuntimeAnimatorController cloneAnimatorController;
         {
             // 넉백 중엔 기본 중력만 적용 — 아무것도 더하지 않는다
         }
-        else if (rb.linearVelocity.y < 0)
-            rb.linearVelocity += Vector2.up * Physics2D.gravity.y * (fallMultiplier - 1) * Time.fixedDeltaTime;
-        else if (rb.linearVelocity.y > 0 && !Input.GetButton("Jump"))
-            rb.linearVelocity += Vector2.up * Physics2D.gravity.y * (lowJumpMultiplier - 1) * Time.fixedDeltaTime;
-        else if (rb.linearVelocity.y > 0 && ascendMultiplier > 1f)
-            rb.linearVelocity += Vector2.up * Physics2D.gravity.y * (ascendMultiplier - 1) * Time.fixedDeltaTime;
+        else
+            ApplyAirGravity(Input.GetButton("Jump"));
+    }
+
+    // 공중 수직 가속 보정. 조종 중이든 아니든 똑같은 값을 쓴다.
+    //
+    // ★ Fix 문서 Bug Report '화이트셀 및 추후 몬스터 등의 중력값 수정':
+    //   예전에는 비조종 분열체·던져진 분열체가 이 보정을 전혀 받지 않아서
+    //     ① 조종 중인 본체보다 훨씬 천천히 떨어지고(중력값이 다름),
+    //     ② 아래에서 뭔가가 밀어 올리면 상승 속도가 깎이지 않아 위로 붕 떴다
+    //        (아래 화이트셀이 위로 대시 / 버튼 발판이 빠르게 상승하는 경우).
+    //   비조종 상태는 '점프 키를 누르지 않은 것'으로 쳐서 lowJumpMultiplier가 상승을 빠르게 죽인다.
+    void ApplyAirGravity(bool holdingJump)
+    {
+        if (rb.linearVelocity.y < 0f)
+            rb.linearVelocity += Vector2.up * Physics2D.gravity.y * (fallMultiplier - 1f) * Time.fixedDeltaTime;
+        else if (rb.linearVelocity.y > 0f && !holdingJump)
+            rb.linearVelocity += Vector2.up * Physics2D.gravity.y * (lowJumpMultiplier - 1f) * Time.fixedDeltaTime;
+        else if (rb.linearVelocity.y > 0f && ascendMultiplier > 1f)
+            rb.linearVelocity += Vector2.up * Physics2D.gravity.y * (ascendMultiplier - 1f) * Time.fixedDeltaTime;
     }
 
     // 몸통 콜라이더가 여러 개일 수 있으므로 머티리얼은 전부에 적용해야 한다
@@ -1104,9 +1211,37 @@ private RuntimeAnimatorController cloneAnimatorController;
         isInvincible = false;
     }
 
+    // 혈류 점프 이탈. 방향키 입력이 없으면 가로 흐름은 위로, 세로 흐름은 바라보는 쪽으로 뛰어나간다.
+    void ExitBloodFlow(BloodFlow flow)
+    {
+        Vector2 dir = flowFacing;
+        if (dir == Vector2.zero)
+        {
+            bool vertical = Mathf.Abs(flow.FlowDirection.y) > 0.5f;
+            bool facingLeft = spr != null && spr.flipX;
+            dir = vertical ? (facingLeft ? Vector2.left : Vector2.right) : Vector2.up;
+        }
+
+        Vector2 vel = dir * flow.exitSpeed;
+        if (Mathf.Abs(dir.y) < 0.01f)
+            vel.y = jumpPower * Traversal.JumpMultiplier * 0.6f; // 옆으로 나갈 때도 점프하듯 살짝 뜬다
+
+        Traversal.ExitFlow(flow.exitImmunity);
+        rb.gravityScale = 1f;
+        rb.linearVelocity = vel;
+        wallJumpTimer = 0.25f; // 벽점프와 같은 방식 — FixedUpdate가 이탈 속도를 곧바로 덮어쓰지 않게
+        jumpsLeft = maxJumps - 1;
+        coyoteTimer = 0f;
+        flowFacing = Vector2.zero;
+    }
+
     void TryNormalDash()
     {
+        if (dashRecoverTimer > 0f) return; // 대시 직후 후딜 — 대시만 막고 섭취는 그대로 받는다
+
         Vector2 dashDir = ((Vector2)(GetMouseWorld() - transform.position)).normalized;
+        if (Traversal.CurrentFlow != null)
+            dashDir = Traversal.CurrentFlow.ClampAgainstFlow(dashDir); // 혈류 역류 금지
         if (dashDir.sqrMagnitude < 0.001f) return;
 
         if (!isGrounded)
@@ -1142,7 +1277,8 @@ private RuntimeAnimatorController cloneAnimatorController;
         rb.gravityScale = 0f;
 
         Vector2 vel = dashDir * dashSpeed;
-        float calcDuration = dashDistance / dashSpeed;
+        // 거미줄 등은 속도가 아니라 거리를 줄인다 (대시 체감 속도는 유지)
+        float calcDuration = dashDistance * Traversal.DashMultiplier / dashSpeed;
 
         HashSet<MonsterBase> hitMonsters = new HashSet<MonsterBase>();
         float timer = 0f;
@@ -1178,8 +1314,30 @@ private RuntimeAnimatorController cloneAnimatorController;
                     rb.gravityScale = originalGravity;
                     Vector2 knockDir = (-dashDir + Vector2.up * dashKnockbackUpRatio).normalized;
                     rb.linearVelocity = knockDir * dashKnockbackSpeed;
-                    knockbackTimer = knockbackDuration; // 이동 입력이 포물선을 곧바로 지우지 않도록 잠금
+                    knockbackTimer = dashKnockbackControlLock; // 이동 입력이 포물선을 곧바로 지우지 않도록 잠금 (대시 전용 값)
                     dashInvincibleTimer = dashInvincibleTime; // 튕겨나오는 동안 겹쳐 있어도 피해 없음
+                    knockedBack = true;
+                    break;
+                }
+            }
+
+            // 벽·둥지(DestructibleObject). 벽은 지형 레이어에 있어 monsterMask에 안 걸리므로 레이어 구분 없이 찾는다.
+            // 한 번 대시에 한 번만 맞고, 몬스터와 똑같이 튕겨나온다.
+            if (!knockedBack)
+            {
+                foreach (var hit in Physics2D.CircleCastAll(transform.position, castRadius, vel.normalized, castDist + 0.05f))
+                {
+                    DestructibleObject target = hit.collider.GetComponentInParent<DestructibleObject>();
+                    if (target == null || target.IsDestroyed) continue;
+
+                    target.TakeDamage(dashAttackDamage, dashDir);
+                    playerSFX?.PlayAttackSound();
+
+                    rb.gravityScale = originalGravity;
+                    Vector2 knockDir = (-dashDir + Vector2.up * dashKnockbackUpRatio).normalized;
+                    rb.linearVelocity = knockDir * dashKnockbackSpeed;
+                    knockbackTimer = dashKnockbackControlLock;
+                    dashInvincibleTimer = dashInvincibleTime;
                     knockedBack = true;
                     break;
                 }
@@ -1197,6 +1355,12 @@ private RuntimeAnimatorController cloneAnimatorController;
 
         ClearDashRotation();
         isNormalDashing = false;
+
+        // Fix 문서: 대시 직후 점프가 새어나가거나(버퍼), 대시→점프→대시가 바로 이어지는 문제 방지.
+        dashRecoverTimer = dashRecoverTime;
+        jumpBufferTimer = 0f;
+        if (groundDashConsumesAirDash && !isGrounded)
+            airDashLeft = Mathf.Min(airDashLeft, Mathf.Max(0, maxAirDash - 1));
     }
 
     // 대시 방향으로 스프라이트를 기울인다.
@@ -1344,6 +1508,8 @@ private RuntimeAnimatorController cloneAnimatorController;
         if (PlayerManager.Instance != null && !PlayerManager.Instance.CanSpawnClone()) return; // 분열 대시도 분열체를 남기므로 하드 캡 적용
 
         Vector2 dashDir = ((Vector2)(GetMouseWorld() - transform.position)).normalized;
+        if (Traversal.CurrentFlow != null)
+            dashDir = Traversal.CurrentFlow.ClampAgainstFlow(dashDir); // 혈류 역류 금지
         if (dashDir.sqrMagnitude < 0.001f) return;
 
         currentFissionGauge -= fissionDashCost;
@@ -1367,7 +1533,7 @@ private RuntimeAnimatorController cloneAnimatorController;
         rb.gravityScale = 0f;
         rb.linearVelocity = dashDir * fissionDashSpeed;
         isFissionDashing = true;
-        fissionDashTimer = fissionDashDuration;
+        fissionDashTimer = fissionDashDuration * Traversal.DashMultiplier;
 
         Debug.Log("분열 대시!");
     }

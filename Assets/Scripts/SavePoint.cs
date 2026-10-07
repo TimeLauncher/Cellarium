@@ -42,6 +42,7 @@ public class SavePoint : MonoBehaviour
     private SpriteRenderer spr;
     private WorldTooltip hint;
     private string id;
+    public string SavePointId => id;
 
     void Awake()
     {
@@ -98,6 +99,38 @@ public class SavePoint : MonoBehaviour
         // 체크포인트 저장 — 사망 시 이 지점/이 시점의 진행상황으로 되돌아온다 (몬스터/버튼은 씬 리로드로 초기화)
         if (RespawnManager.Instance != null)
             RespawnManager.Instance.SaveCheckpoint(transform.position);
+        // 실제 세이브 파일 저장
+        if (SaveManager.Instance != null &&
+    SaveManager.Instance.CurrentData != null)
+        {
+            SaveData data = SaveManager.Instance.CurrentData;
+
+            // 저장 위치
+            data.sceneName = gameObject.scene.name;
+            data.savePointID = id;
+
+            // 플레이어 진행 데이터
+            if (PlayerManager.Instance != null)
+            {
+                data.cellCurrency =
+                    PlayerManager.Instance.cellCurrency;
+
+                data.darkCellCurrency =
+                    PlayerManager.Instance.darkCellCurrency;
+
+                data.maxFissionCount =
+                    PlayerManager.Instance.maxFissionCount;
+
+                data.fissionUnlocked =
+                    PlayerManager.Instance.fissionUnlocked;
+            }
+
+            SaveManager.Instance.SaveGame();
+
+            Debug.Log(
+                $"[SavePoint] 게임 저장 완료 - Scene: {data.sceneName}, Point: {data.savePointID}"
+            );
+        }
 
         // 활성화되면 이미지 교체 (한 번만, 이후 계속 활성 이미지 유지)
         if (!IsActivated)

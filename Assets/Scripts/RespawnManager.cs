@@ -180,4 +180,24 @@ public class RespawnManager : MonoBehaviour
         RespawnInProgress = false;
         if (GameProgress.Instance != null) GameProgress.Instance.CaptureNow();
     }
+    // 세이브 파일을 불러왔을 때 체크포인트 상태를 복원
+    public void LoadCheckpointFromSave(
+        string sceneName,
+        Vector3 position,
+        SaveData data)
+    {
+        hasCheckpoint = true;
+
+        checkpointScene = sceneName;
+        checkpointPos = position;
+
+        savedCell = data.cellCurrency;
+        savedDarkCell = data.darkCellCurrency;
+        savedMaxFission = data.maxFissionCount;
+        savedFissionUnlocked = data.fissionUnlocked;
+
+        Debug.Log(
+            $"[RespawnManager] 세이브 체크포인트 복원 - {sceneName} / {position}"
+        );
+    }
 }

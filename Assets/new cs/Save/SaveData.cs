@@ -34,6 +34,11 @@ public class SaveData
     public int currentHP;
     public int maxHP;
 
+    public int cellCurrency;
+    public int darkCellCurrency;
+    public int maxFissionCount;
+    public bool fissionUnlocked;
+
 
     // =========================
     // 게임 진행도
@@ -66,12 +71,16 @@ public class SaveData
         playTime = 0f;
         lastSaveTime = "";
 
-        // 새 게임 시작 위치
         sceneName = "Heart A00";
         savePointID = "";
 
         currentHP = 0;
         maxHP = 0;
+
+        cellCurrency = 0;
+        darkCellCurrency = 0;
+        maxFissionCount = 0;
+        fissionUnlocked = false;
 
         progress = 0;
     }

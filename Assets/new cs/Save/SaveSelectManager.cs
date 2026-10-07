@@ -41,11 +41,9 @@ public class SaveSelectManager : MonoBehaviour
     {
         SaveManager.Instance.CreateNewGame(slotIndex);
 
-        Debug.Log(
-            $"[SaveSelectManager] 새 게임 시작 - Slot {slotIndex}"
-        );
+        Debug.Log($"[SaveSelectManager] 새 게임 시작 - Slot {slotIndex}");
 
-        SceneManager.LoadScene(firstStageSceneName);
+        SceneLoader.LoadScene(firstStageSceneName);
     }
 
 
@@ -74,7 +72,7 @@ public class SaveSelectManager : MonoBehaviour
             $"[SaveSelectManager] 이어하기 - {sceneName}"
         );
 
-        SceneManager.LoadScene(sceneName);
+        SceneLoader.LoadScene(sceneName);
     }
 
 

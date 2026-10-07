@@ -232,14 +232,14 @@ RectTransform:
   m_LocalScale: {x: 0, y: 0, z: 0}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 8853587}
   - {fileID: 1488432958}
   - {fileID: 1351550288}
   - {fileID: 443255978}
   - {fileID: 1094679078}
   - {fileID: 614319363}
   - {fileID: 1765083837}
-  m_Father: {fileID: 0}
+  - {fileID: 8853587}
+  m_Father: {fileID: 1318532823}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
@@ -2372,14 +2372,14 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 480260605}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -3.31534, y: 1.48438, z: 0}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: -779.8348, y: -518.17096, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1181797115}
   - {fileID: 1050265156}
-  m_Father: {fileID: 0}
+  m_Father: {fileID: 1318532823}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &482280752
 GameObject:
@@ -6942,6 +6942,9 @@ MonoBehaviour:
   darkCells: 1
   savePoints: 2
   events: 2
+  destructibles: 2
+  visionAreas: 2
+  monsters: 0
 --- !u!4 &1073827793
 Transform:
   m_ObjectHideFlags: 0
@@ -7275,6 +7278,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SceneEntryPoint
   entryId: from_A01
+  arrivalStyle: 0
+  jumpInDepth: 2
+  jumpInSideOffset: 1
+  jumpInVelocity: 14
+  fallInHeight: 3
+  landingPause: 0.25
+  airArrivalMaxDuration: 3
   walkInOnArrival: 1
   walkInDistance: 2.5
   walkInDirection: -1
@@ -7794,6 +7804,9 @@ MonoBehaviour:
   dashKnockbackSpeed: 7
   dashKnockbackUpRatio: 0.6
   dashInvincibleTime: 0.2
+  dashKnockbackControlLock: 0.12
+  dashRecoverTime: 0.08
+  groundDashConsumesAirDash: 1
   rotateOnDash: 1
   dashRotationMaxAngle: 70
   dashVisualRoot: {fileID: 0}
@@ -7801,6 +7814,8 @@ MonoBehaviour:
   fissionDashSpeed: 20
   fissionDashDuration: 0.2
   fissionDashHoldDuration: 0.3
+  allowCrushEscape: 1
+  crushEscapeSpeed: 8
   groundCheck: {fileID: 528872402}
   groundCheckRadius: 0.5
   groundMask:
@@ -8937,6 +8952,52 @@ Transform:
   m_Children: []
   m_Father: {fileID: 142097115}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1318532822
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1318532823}
+  - component: {fileID: 1318532824}
+  m_Layer: 0
+  m_Name: GameSessionRoot
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1318532823
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1318532822}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 776.5194, y: 519.65533, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 480260607}
+  - {fileID: 116251}
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1318532824
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1318532822}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 055894af2ea920e44a5500fc410f23f4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::GameSessionRoot
 --- !u!1 &1323018632
 GameObject:
   m_ObjectHideFlags: 0
@@ -14332,8 +14393,6 @@ RectTransform:
 SceneRoots:
   m_ObjectHideFlags: 0
   m_Roots:
-  - {fileID: 116251}
-  - {fileID: 480260607}
   - {fileID: 623770268}
   - {fileID: 1980764082}
   - {fileID: 1785171960}
@@ -14344,3 +14403,4 @@ SceneRoots:
   - {fileID: 2031881137}
   - {fileID: 220544374}
   - {fileID: 2131700321}
+  - {fileID: 1318532823}

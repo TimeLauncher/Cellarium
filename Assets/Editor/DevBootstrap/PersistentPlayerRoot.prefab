@@ -227,7 +227,7 @@ MonoBehaviour:
   darkCellCurrency: 100
   cycleControlKey: 9
   cycleIncludesMainBody: 1
-  fissionUnlocked: 0
+  fissionUnlocked: 1
   cinemachineCamera: {fileID: 0}
 --- !u!1 &3654071157505418367
 GameObject:
@@ -518,6 +518,10 @@ MonoBehaviour:
   dashKnockbackSpeed: 7
   dashKnockbackUpRatio: 0.6
   dashInvincibleTime: 0.2
+  dashKnockbackControlLock: 0.12
+  dashRecoverTime: 0.08
+  dashHitStopTime: 0.06
+  groundDashConsumesAirDash: 1
   rotateOnDash: 1
   dashRotationMaxAngle: 70
   dashVisualRoot: {fileID: 0}
@@ -525,6 +529,8 @@ MonoBehaviour:
   fissionDashSpeed: 20
   fissionDashDuration: 0.2
   fissionDashHoldDuration: 0.3
+  allowCrushEscape: 1
+  crushEscapeSpeed: 8
   groundCheck: {fileID: 4674251629695538234}
   groundCheckRadius: 0.5
   groundMask:
@@ -561,6 +567,9 @@ MonoBehaviour:
   fissionDashCost: 100
   deathMotionDuration: 3
   defaultRespawnPosition: {x: 0, y: 0, z: 0}
+  dropCellsOnDeath: 1
+  deathCellDropPercent: 100
+  deathCellChunkPrefab: {fileID: 0}
   returnStartSpeed: 6
   returnMaxSpeed: 22
   returnAcceleration: 45
@@ -687,6 +696,11 @@ MonoBehaviour:
   damageSound: {fileID: 8300000, guid: f57c0181f1eea3941a3ac723e603d002, type: 3}
   eatSound: {fileID: 8300000, guid: 19a4767f4e4993f4eb371701e11a38f5, type: 3}
   jumpSound: {fileID: 8300000, guid: 3ce62d5e95e7c9246b083861ffddd9bd, type: 3}
+  moveSound: {fileID: 0}
+  footstepInterval: 0.3
+  footstepPitchVariance: 0.08
+  landingSound: {fileID: 0}
+  landingMinFallSpeed: 4
 --- !u!1 &7002482042086480010
 GameObject:
   m_ObjectHideFlags: 0

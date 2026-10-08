@@ -21,6 +21,9 @@ public class RespawnManager : MonoBehaviour
     string defaultScene;
     Vector3 defaultPos;
 
+    // 사망 셀 덩어리(DeathCellStash)를 떨군 뒤 남은 셀. 0 이상이면 이번 부활은 세이브 시점 셀 수 대신 이 값을 쓴다
+    int carriedCells = -1;
+
     bool pendingRespawn;
     bool respawnUsedDefault; // 이번 부활이 '기본 지점' 부활인지 (체크포인트 부활과 위치 적용이 다르다)
 
@@ -88,6 +91,15 @@ public class RespawnManager : MonoBehaviour
         pendingRespawn = false;
         respawnUsedDefault = false;
         RespawnInProgress = false;
+        carriedCells = -1;
+    }
+
+    // 화이트셀이 죽으면서 셀을 덩어리로 떨궜을 때 호출 (PlayerController.DropCellsOnDeath).
+    // 떨구고 남은 셀을 부활 후에도 그대로 들게 한다 — 세이브 시점 셀 수로 되돌리면
+    // 떨군 덩어리를 주웠을 때 같은 셀을 두 번 받는다.
+    public void CarryCellsThroughRespawn(int cells)
+    {
+        carriedCells = Mathf.Max(0, cells);
     }
 
     // DefaultRespawnPoint 마커가 Awake에서 호출 — 세이브 없을 때 돌아갈 지점 등록
@@ -110,8 +122,10 @@ public class RespawnManager : MonoBehaviour
 
         // ★ 반드시 LoadScene 이전. 새 씬 오브젝트의 Awake가 sceneLoaded 콜백보다 먼저 돌기 때문에,
         //   로드 후에 정리하면 문·코인이 낡은 상태를 읽고 시작한다.
+        // 셀을 들고 부활하는 경우엔 맵에 놓인 셀 덩어리도 '먹은 그대로' 둔다.
+        // 셀 수는 안 되돌리면서 덩어리만 세이브 시점으로 되살리면 죽을 때마다 다시 주워 무한히 불릴 수 있다.
         if (WorldState.Instance != null)
-            WorldState.Instance.ApplyRespawnPolicy();
+            WorldState.Instance.ApplyRespawnPolicy(keepPickups: carriedCells >= 0);
 
         string scene;
         if (hasCheckpoint)
@@ -156,6 +170,11 @@ public class RespawnManager : MonoBehaviour
             m.fissionUnlocked = savedFissionUnlocked || WorldState.AnyDarkCellConsumed();
         }
 
+        // 사망 셀 덩어리를 떨구고 남은 셀 (세이브가 없어 기본 지점으로 부활해도 적용)
+        if (m != null && carriedCells >= 0)
+            m.cellCurrency = carriedCells;
+        carriedCells = -1;
+
         // 플레이어 위치는 등록(Start)이 끝난 뒤 한 프레임 후 적용
         StartCoroutine(ApplyPositionAfterLoad());
     }
@@ -170,6 +189,7 @@ public class RespawnManager : MonoBehaviour
         PlayerController main = m.allPlayers[0];
         if (hasCheckpoint) main.transform.position = checkpointPos;
         else if (respawnUsedDefault) main.transform.position = defaultPos;
+        main.ReviveAfterRespawn(); // 플레이어가 씬을 넘어 유지되므로 사망 상태를 직접 풀어야 한다
         main.RestoreFromConsume(main.maxHp, main.maxFissionGauge); // 체력/분열 게이지 완전 회복
 
         // 부활 위치로 옮긴 직후 카메라도 붙인다 — 안 하면 씬에 저장된 카메라 위치에서

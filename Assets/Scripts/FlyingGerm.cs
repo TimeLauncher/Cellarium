@@ -24,6 +24,11 @@ public class FlyingGerm : MonsterBase
     [Tooltip("스프라이트가 든 자식 오브젝트를 넣으면 그것만 돌린다. 비우면 본체를 돌린다(콜라이더도 같이 돈다)")]
     public Transform diveVisualRoot;
 
+    [Header("바라보는 방향")]
+    [Tooltip("PC와의 가로 거리가 이보다 가까우면 좌우를 바꾸지 않는다. " +
+             "PC 바로 위/아래에서 x가 조금만 흔들려도 좌우가 계속 뒤집혀 엉뚱한 쪽을 보며 날아가던 문제 방지")]
+    [Min(0f)] public float faceDeadZone = 0.3f;
+
     private Vector2 diveDir;
     private bool isDiving;
 
@@ -74,7 +79,9 @@ public class FlyingGerm : MonsterBase
     protected override void TryStartAttack()
     {
         diveDir = ((Vector2)(target.position - transform.position)).normalized;
-        FaceDirection(diveDir.x); // 돌진 모션이 돌진 방향으로 재생되도록 (UpdateMovement는 공격 중 방향을 안 잡는다)
+        // 거의 수직 돌진이면 좌우는 지금 보던 쪽을 유지한다 (아주 작은 x로 좌우가 뒤집히지 않게)
+        if (Mathf.Abs(target.position.x - transform.position.x) > faceDeadZone * 0.5f)
+            FaceDirection(diveDir.x); // 돌진 모션이 돌진 방향으로 재생되도록 (UpdateMovement는 공격 중 방향을 안 잡는다)
         ApplyDiveRotation(diveDir); // 위/아래 대각선까지 방향을 맞춘다
         isAttacking = true;
         isDiving = false;
@@ -121,7 +128,8 @@ public class FlyingGerm : MonsterBase
         {
             // 추적 중 PC가 반대편으로 넘어가 이동 방향이 급전환되면 잠깐 멈췄다가 따라간다 (QA: 0.5초 내외)
             float dx = target.position.x - transform.position.x;
-            int hdir = dx > 0.02f ? 1 : (dx < -0.02f ? -1 : 0);
+            // 바로 위/아래에서 x가 살짝 흔들리는 것까지 '반대편으로 넘어감'으로 치면 멈칫+뒤돌기를 반복한다
+            int hdir = dx > faceDeadZone ? 1 : (dx < -faceDeadZone ? -1 : 0);
             if (hdir != 0 && lastChaseDir != 0 && hdir != lastChaseDir)
                 turnPauseTimer = turnPauseDuration;
             if (hdir != 0) lastChaseDir = hdir;
@@ -129,13 +137,13 @@ public class FlyingGerm : MonsterBase
             if (turnPauseTimer > 0f)
             {
                 rb.linearVelocity = Vector2.zero;
-                FaceDirection(dx);
+                if (Mathf.Abs(dx) > faceDeadZone) FaceDirection(dx);
                 return;
             }
 
             Vector2 dir = ((Vector2)(target.position - transform.position)).normalized;
             rb.linearVelocity = dir * chaseSpeed;
-            FaceDirection(dir.x);
+            if (Mathf.Abs(dx) > faceDeadZone) FaceDirection(dx);
         }
         else
         {
@@ -155,10 +163,16 @@ public class FlyingGerm : MonsterBase
             return;
         }
         rb.linearVelocity = toOrigin.normalized * chaseSpeed;
-        FaceDirection(toOrigin.x);
+        if (Mathf.Abs(toOrigin.x) > faceDeadZone) FaceDirection(toOrigin.x);
     }
 
-    // 돌진 방향으로 기울이기 (좌우는 flipX가 이미 처리했으므로 여기서는 위/아래 기울기만 만든다)
+    // 돌진 방향으로 기울이기 (좌우는 FaceDirection이 이미 처리했으므로 여기서는 위/아래 기울기만 만든다)
+    //
+    // ★ 기타 메모 '돌진 모션 방향이 이상하게 출력됨':
+    //   예전엔 PC 대시와 똑같이 'flipX면 각도 반전'으로 계산했다. 그런데 비행균 그림은 원래 왼쪽을 보고 있어서
+    //   flipX의 의미가 PC와 반대다(위 FaceDirection 참고: 오른쪽을 볼 때 flipX = true).
+    //   그 결과 위로 돌진하면 머리가 아래로, 아래로 돌진하면 위로 기울었다.
+    //   그림 방향과 상관없이 '지금 바라보는 쪽(facingDir)'으로 판단한다 — 오른쪽을 보면 반시계(+)가 머리 위쪽.
     void ApplyDiveRotation(Vector2 dir)
     {
         if (!rotateOnDive) return;
@@ -166,7 +180,7 @@ public class FlyingGerm : MonsterBase
 
         float tilt = Mathf.Atan2(dir.y, Mathf.Abs(dir.x)) * Mathf.Rad2Deg;
         tilt = Mathf.Clamp(tilt, -diveRotationMaxAngle, diveRotationMaxAngle);
-        if (spr != null && spr.flipX) tilt = -tilt;
+        if (facingDir < 0) tilt = -tilt;
 
         pivot.localRotation = Quaternion.Euler(0f, 0f, tilt);
     }

@@ -2347,7 +2347,7 @@ MonoBehaviour:
   pounceMinRange: 2
   pounceMaxRange: 999
   pounceWindup: 0.4
-  pounceAirTime: 0.7
+  pounceAirTime: 0.8
   pounceCooldown: 0
   pounceDamage: 50
   pounceLandRadius: 1.5
@@ -2377,11 +2377,11 @@ MonoBehaviour:
   tentaclePriority: 2
   tentacleTriggerRange: 5
   tentacleWindup: 1.5
-  tentacleActiveTime: 0.7
+  tentacleActiveTime: 0.35
   tentacleRecovery: 1
   tentacleCooldown: 8
   tentacleReach: 7
-  tentacleHeight: 3
+  tentacleHeight: 2.5
   tentacleDamage: 100
   wallMovePriority: 1
   wallMoveCooldown: 15

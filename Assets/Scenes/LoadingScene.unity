@@ -617,6 +617,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c8988c0ae63352c488587e45357e6100, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::LoadingManager
+  gameSessionPrefab: {fileID: 7619710995923343421, guid: 845075c41c0f57c4f93218ea3ec3fde4, type: 3}
 --- !u!4 &1488588283
 Transform:
   m_ObjectHideFlags: 0

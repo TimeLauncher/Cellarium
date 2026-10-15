@@ -1,41 +1,54 @@
+
 using System.Collections;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
 public class LoadingManager : MonoBehaviour
 {
+    [Header("Game Session")]
+    [SerializeField] private GameSessionRoot gameSessionPrefab;
+
     private void Start()
     {
         Time.timeScale = 1f;
 
-        // 메인 타이틀로 돌아가는 경우에만
-        // 인게임 영속 오브젝트 정리
         if (SceneLoader.nextSceneName == "maintitle")
         {
             CleanupGameObjects();
+        }
+        else
+        {
+            PrepareGameSession();
         }
 
         StartCoroutine(LoadAsync());
     }
 
-    private void CleanupGameObjects()
+    private void PrepareGameSession()
     {
-        // 플레이어 관련 영속 오브젝트 제거
-        PersistentPlayerRoot playerRoot =
-            FindFirstObjectByType<PersistentPlayerRoot>();
+        if (GameSessionRoot.Instance != null)
+            return;
 
-        if (playerRoot != null)
+        if (gameSessionPrefab == null)
         {
-            Destroy(playerRoot.gameObject);
+            Debug.LogError(
+                "[LoadingManager] GameSessionRoot Prefab이 연결되지 않았습니다."
+            );
+            return;
         }
 
-        // 인게임 Pause / Option / Map UI 제거
-        PauseMenu pauseMenu =
-            FindFirstObjectByType<PauseMenu>();
+        Instantiate(gameSessionPrefab);
 
-        if (pauseMenu != null)
+        Debug.Log("[LoadingManager] GameSessionRoot 생성 완료");
+    }
+
+    private void CleanupGameObjects()
+    {
+        if (GameSessionRoot.Instance != null)
         {
-            Destroy(pauseMenu.gameObject);
+            Destroy(GameSessionRoot.Instance.gameObject);
+
+            Debug.Log("[LoadingManager] GameSessionRoot 정리 완료");
         }
     }
 

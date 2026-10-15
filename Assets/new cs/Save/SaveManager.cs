@@ -51,6 +51,7 @@ public class SaveManager : MonoBehaviour
         // 새 게임용 데이터만 메모리에 생성한다.
         // 실제 파일 저장은 SavePoint를 활성화했을 때 한다.
         CurrentData = new SaveData();
+        GameStartPoint.ResetStartPosition();
 
         Debug.Log($"[SaveManager] 새 게임 시작 - Slot {slotIndex} (아직 저장되지 않음)");
     }

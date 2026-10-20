@@ -361,6 +361,8 @@ MonoBehaviour:
   cellPickupDelay: 0.45
   cellPopUpSpeed: 4
   cellPopSideSpeed: 2.5
+  absorbCellsOnConsume: 1
+  cellAbsorbDelay: 0.2
   actionStartDelay: 0
   persistDeath: 1
   persistentId: 
@@ -800,6 +802,8 @@ MonoBehaviour:
   cellPickupDelay: 0.45
   cellPopUpSpeed: 4
   cellPopSideSpeed: 2.5
+  absorbCellsOnConsume: 1
+  cellAbsorbDelay: 0.2
   actionStartDelay: 0
   persistDeath: 1
   persistentId: 
@@ -6002,6 +6006,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellChunk
   cellAmount: 50
+  isDarkCell: 0
   persistentId: 
   pickupDelay: 0
   popGravity: 14
@@ -6009,6 +6014,9 @@ MonoBehaviour:
   popBlockMask:
     serializedVersion: 2
     m_Bits: 0
+  attractStartSpeed: 4
+  attractAcceleration: 40
+  attractArriveDistance: 0.3
 --- !u!58 &235446872
 CircleCollider2D:
   m_ObjectHideFlags: 0
@@ -6163,6 +6171,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellChunk
   cellAmount: 50
+  isDarkCell: 0
   persistentId: 
   pickupDelay: 0
   popGravity: 14
@@ -6170,6 +6179,9 @@ MonoBehaviour:
   popBlockMask:
     serializedVersion: 2
     m_Bits: 0
+  attractStartSpeed: 4
+  attractAcceleration: 40
+  attractArriveDistance: 0.3
 --- !u!58 &243189399
 CircleCollider2D:
   m_ObjectHideFlags: 0
@@ -6315,7 +6327,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ParallaxBackground
   targetCamera: {fileID: 700540138}
-  parallaxFactor: 0.2
+  parallaxFactorX: 0.2
+  parallaxFactorY: 0.2
+  parallaxYMigrated: 1
   followX: 1
   followY: 1
   centerOnCamera: 1
@@ -6428,7 +6442,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ParallaxBackground
   targetCamera: {fileID: 700540138}
-  parallaxFactor: 0.3
+  parallaxFactorX: 0.3
+  parallaxFactorY: 0.3
+  parallaxYMigrated: 1
   followX: 1
   followY: 1
   centerOnCamera: 1
@@ -11559,233 +11575,6 @@ SpriteRenderer:
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
   m_SpriteSortPoint: 0
---- !u!1 &400464176
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 400464179}
-  - component: {fileID: 400464178}
-  - component: {fileID: 400464177}
-  m_Layer: 0
-  m_Name: "ChatGPT \uC774\uBBF8\uC9C0 2026\uB144 9\uC6D4 30\uC77C \uC624\uD6C4 02_48_40_0"
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!114 &400464177
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 400464176}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4f7b0a61e76ac76459e2da9f45ca0496, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::ParallaxBackground
-  targetCamera: {fileID: 700540138}
-  parallaxFactor: 0.3
-  followX: 1
-  followY: 1
-  centerOnCamera: 0
-  sortingOrder: -50
-  zDepth: 10
-  fitToCamera: 0
-  fitPadding: 0.9
---- !u!212 &400464178
-SpriteRenderer:
-  serializedVersion: 2
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 400464176}
-  m_Enabled: 1
-  m_CastShadows: 0
-  m_ReceiveShadows: 0
-  m_DynamicOccludee: 1
-  m_StaticShadowCaster: 0
-  m_MotionVectors: 1
-  m_LightProbeUsage: 1
-  m_ReflectionProbeUsage: 1
-  m_RayTracingMode: 0
-  m_RayTraceProcedural: 0
-  m_RayTracingAccelStructBuildFlagsOverride: 0
-  m_RayTracingAccelStructBuildFlags: 1
-  m_SmallMeshCulling: 1
-  m_ForceMeshLod: -1
-  m_MeshLodSelectionBias: 0
-  m_RenderingLayerMask: 1
-  m_RendererPriority: 0
-  m_Materials:
-  - {fileID: 2100000, guid: a97c105638bdf8b4a8650670310a4cd3, type: 2}
-  m_StaticBatchInfo:
-    firstSubMesh: 0
-    subMeshCount: 0
-  m_StaticBatchRoot: {fileID: 0}
-  m_ProbeAnchor: {fileID: 0}
-  m_LightProbeVolumeOverride: {fileID: 0}
-  m_ScaleInLightmap: 1
-  m_ReceiveGI: 1
-  m_PreserveUVs: 0
-  m_IgnoreNormalsForChartDetection: 0
-  m_ImportantGI: 0
-  m_StitchLightmapSeams: 1
-  m_SelectedEditorRenderState: 0
-  m_MinimumChartSize: 4
-  m_AutoUVMaxDistance: 0.5
-  m_AutoUVMaxAngle: 89
-  m_LightmapParameters: {fileID: 0}
-  m_GlobalIlluminationMeshLod: 0
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
-  m_SortingOrder: -50
-  m_MaskInteraction: 0
-  m_Sprite: {fileID: 5037578196611480154, guid: 2e0a2582505da2e448449b233f4a22e6, type: 3}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_FlipX: 0
-  m_FlipY: 0
-  m_DrawMode: 0
-  m_Size: {x: 19.64, y: 8.01}
-  m_AdaptiveModeThreshold: 0.5
-  m_SpriteTileMode: 0
-  m_WasSpriteAssigned: 1
-  m_SpriteSortPoint: 0
---- !u!4 &400464179
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 400464176}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 17.3, y: 90.7, z: 0}
-  m_LocalScale: {x: 2.022472, y: 2.022472, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1 &436911603
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 436911606}
-  - component: {fileID: 436911605}
-  - component: {fileID: 436911604}
-  m_Layer: 0
-  m_Name: "ChatGPT \uC774\uBBF8\uC9C0 2026\uB144 9\uC6D4 30\uC77C \uC624\uD6C4 03_00_47_0
-    (4)"
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!114 &436911604
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 436911603}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4f7b0a61e76ac76459e2da9f45ca0496, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::ParallaxBackground
-  targetCamera: {fileID: 700540138}
-  parallaxFactor: 0.2
-  followX: 1
-  followY: 1
-  centerOnCamera: 0
-  sortingOrder: -41
-  zDepth: 10
-  fitToCamera: 0
-  fitPadding: 0.3
---- !u!212 &436911605
-SpriteRenderer:
-  serializedVersion: 2
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 436911603}
-  m_Enabled: 1
-  m_CastShadows: 0
-  m_ReceiveShadows: 0
-  m_DynamicOccludee: 1
-  m_StaticShadowCaster: 0
-  m_MotionVectors: 1
-  m_LightProbeUsage: 1
-  m_ReflectionProbeUsage: 1
-  m_RayTracingMode: 0
-  m_RayTraceProcedural: 0
-  m_RayTracingAccelStructBuildFlagsOverride: 0
-  m_RayTracingAccelStructBuildFlags: 1
-  m_SmallMeshCulling: 1
-  m_ForceMeshLod: -1
-  m_MeshLodSelectionBias: 0
-  m_RenderingLayerMask: 1
-  m_RendererPriority: 0
-  m_Materials:
-  - {fileID: 2100000, guid: a97c105638bdf8b4a8650670310a4cd3, type: 2}
-  m_StaticBatchInfo:
-    firstSubMesh: 0
-    subMeshCount: 0
-  m_StaticBatchRoot: {fileID: 0}
-  m_ProbeAnchor: {fileID: 0}
-  m_LightProbeVolumeOverride: {fileID: 0}
-  m_ScaleInLightmap: 1
-  m_ReceiveGI: 1
-  m_PreserveUVs: 0
-  m_IgnoreNormalsForChartDetection: 0
-  m_ImportantGI: 0
-  m_StitchLightmapSeams: 1
-  m_SelectedEditorRenderState: 0
-  m_MinimumChartSize: 4
-  m_AutoUVMaxDistance: 0.5
-  m_AutoUVMaxAngle: 89
-  m_LightmapParameters: {fileID: 0}
-  m_GlobalIlluminationMeshLod: 0
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
-  m_SortingOrder: -41
-  m_MaskInteraction: 0
-  m_Sprite: {fileID: 4224253742138748897, guid: 371c6c85aec825d4a9ce27710eae3b27, type: 3}
-  m_Color: {r: 0.2830189, g: 0.2830189, b: 0.2830189, a: 1}
-  m_FlipX: 0
-  m_FlipY: 0
-  m_DrawMode: 0
-  m_Size: {x: 7.18, y: 19.83}
-  m_AdaptiveModeThreshold: 0.5
-  m_SpriteTileMode: 0
-  m_WasSpriteAssigned: 1
-  m_SpriteSortPoint: 0
---- !u!4 &436911606
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 436911603}
-  serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: 0.45855138, w: 0.888668}
-  m_LocalPosition: {x: 58.3, y: 89.6, z: 0}
-  m_LocalScale: {x: 0.3600576, y: 3.4596608, z: 1.9044218}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 54.587}
 --- !u!1 &451646310
 GameObject:
   m_ObjectHideFlags: 0
@@ -12049,119 +11838,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 466181153}
   m_CullTransparentMesh: 1
---- !u!1 &470010167
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 470010170}
-  - component: {fileID: 470010169}
-  - component: {fileID: 470010168}
-  m_Layer: 0
-  m_Name: "ChatGPT \uC774\uBBF8\uC9C0 2026\uB144 9\uC6D4 30\uC77C \uC624\uD6C4 03_00_47_0"
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!114 &470010168
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 470010167}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4f7b0a61e76ac76459e2da9f45ca0496, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::ParallaxBackground
-  targetCamera: {fileID: 700540138}
-  parallaxFactor: 0.7
-  followX: 1
-  followY: 1
-  centerOnCamera: 0
-  sortingOrder: -40
-  zDepth: 10
-  fitToCamera: 0
-  fitPadding: 0.3
---- !u!212 &470010169
-SpriteRenderer:
-  serializedVersion: 2
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 470010167}
-  m_Enabled: 1
-  m_CastShadows: 0
-  m_ReceiveShadows: 0
-  m_DynamicOccludee: 1
-  m_StaticShadowCaster: 0
-  m_MotionVectors: 1
-  m_LightProbeUsage: 1
-  m_ReflectionProbeUsage: 1
-  m_RayTracingMode: 0
-  m_RayTraceProcedural: 0
-  m_RayTracingAccelStructBuildFlagsOverride: 0
-  m_RayTracingAccelStructBuildFlags: 1
-  m_SmallMeshCulling: 1
-  m_ForceMeshLod: -1
-  m_MeshLodSelectionBias: 0
-  m_RenderingLayerMask: 1
-  m_RendererPriority: 0
-  m_Materials:
-  - {fileID: 2100000, guid: a97c105638bdf8b4a8650670310a4cd3, type: 2}
-  m_StaticBatchInfo:
-    firstSubMesh: 0
-    subMeshCount: 0
-  m_StaticBatchRoot: {fileID: 0}
-  m_ProbeAnchor: {fileID: 0}
-  m_LightProbeVolumeOverride: {fileID: 0}
-  m_ScaleInLightmap: 1
-  m_ReceiveGI: 1
-  m_PreserveUVs: 0
-  m_IgnoreNormalsForChartDetection: 0
-  m_ImportantGI: 0
-  m_StitchLightmapSeams: 1
-  m_SelectedEditorRenderState: 0
-  m_MinimumChartSize: 4
-  m_AutoUVMaxDistance: 0.5
-  m_AutoUVMaxAngle: 89
-  m_LightmapParameters: {fileID: 0}
-  m_GlobalIlluminationMeshLod: 0
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
-  m_SortingOrder: -40
-  m_MaskInteraction: 0
-  m_Sprite: {fileID: 4224253742138748897, guid: 371c6c85aec825d4a9ce27710eae3b27, type: 3}
-  m_Color: {r: 0.4716981, g: 0.4716981, b: 0.4716981, a: 1}
-  m_FlipX: 0
-  m_FlipY: 0
-  m_DrawMode: 0
-  m_Size: {x: 7.18, y: 19.83}
-  m_AdaptiveModeThreshold: 0.5
-  m_SpriteTileMode: 0
-  m_WasSpriteAssigned: 1
-  m_SpriteSortPoint: 0
---- !u!4 &470010170
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 470010167}
-  serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: -0.14746915, w: 0.98906666}
-  m_LocalPosition: {x: 71.4, y: 92.5, z: 0}
-  m_LocalScale: {x: 0.6866744, y: 2.2435246, z: 1.6779693}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: -16.961}
 --- !u!1 &484465136
 GameObject:
   m_ObjectHideFlags: 0
@@ -12193,7 +11869,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ParallaxBackground
   targetCamera: {fileID: 700540138}
-  parallaxFactor: 0
+  parallaxFactorX: 0
+  parallaxFactorY: 0
+  parallaxYMigrated: 1
   followX: 0
   followY: 0
   centerOnCamera: 0
@@ -12908,6 +12586,8 @@ MonoBehaviour:
   cellPickupDelay: 0.45
   cellPopUpSpeed: 4
   cellPopSideSpeed: 2.5
+  absorbCellsOnConsume: 1
+  cellAbsorbDelay: 0.2
   actionStartDelay: 0
   persistDeath: 1
   persistentId: 
@@ -13188,120 +12868,6 @@ MonoBehaviour:
   walkInSpeedRatio: 0.7
   walkInDelay: 0
   walkInMaxDuration: 2.5
---- !u!1 &621745510
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 621745513}
-  - component: {fileID: 621745512}
-  - component: {fileID: 621745511}
-  m_Layer: 0
-  m_Name: "ChatGPT \uC774\uBBF8\uC9C0 2026\uB144 9\uC6D4 30\uC77C \uC624\uD6C4 03_00_47_0
-    (1)"
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!114 &621745511
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 621745510}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4f7b0a61e76ac76459e2da9f45ca0496, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::ParallaxBackground
-  targetCamera: {fileID: 700540138}
-  parallaxFactor: 0.7
-  followX: 1
-  followY: 1
-  centerOnCamera: 0
-  sortingOrder: -40
-  zDepth: 10
-  fitToCamera: 0
-  fitPadding: 0.3
---- !u!212 &621745512
-SpriteRenderer:
-  serializedVersion: 2
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 621745510}
-  m_Enabled: 1
-  m_CastShadows: 0
-  m_ReceiveShadows: 0
-  m_DynamicOccludee: 1
-  m_StaticShadowCaster: 0
-  m_MotionVectors: 1
-  m_LightProbeUsage: 1
-  m_ReflectionProbeUsage: 1
-  m_RayTracingMode: 0
-  m_RayTraceProcedural: 0
-  m_RayTracingAccelStructBuildFlagsOverride: 0
-  m_RayTracingAccelStructBuildFlags: 1
-  m_SmallMeshCulling: 1
-  m_ForceMeshLod: -1
-  m_MeshLodSelectionBias: 0
-  m_RenderingLayerMask: 1
-  m_RendererPriority: 0
-  m_Materials:
-  - {fileID: 2100000, guid: a97c105638bdf8b4a8650670310a4cd3, type: 2}
-  m_StaticBatchInfo:
-    firstSubMesh: 0
-    subMeshCount: 0
-  m_StaticBatchRoot: {fileID: 0}
-  m_ProbeAnchor: {fileID: 0}
-  m_LightProbeVolumeOverride: {fileID: 0}
-  m_ScaleInLightmap: 1
-  m_ReceiveGI: 1
-  m_PreserveUVs: 0
-  m_IgnoreNormalsForChartDetection: 0
-  m_ImportantGI: 0
-  m_StitchLightmapSeams: 1
-  m_SelectedEditorRenderState: 0
-  m_MinimumChartSize: 4
-  m_AutoUVMaxDistance: 0.5
-  m_AutoUVMaxAngle: 89
-  m_LightmapParameters: {fileID: 0}
-  m_GlobalIlluminationMeshLod: 0
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
-  m_SortingOrder: -40
-  m_MaskInteraction: 0
-  m_Sprite: {fileID: 4224253742138748897, guid: 371c6c85aec825d4a9ce27710eae3b27, type: 3}
-  m_Color: {r: 0.8207547, g: 0.8207547, b: 0.8207547, a: 1}
-  m_FlipX: 0
-  m_FlipY: 1
-  m_DrawMode: 0
-  m_Size: {x: 7.18, y: 19.83}
-  m_AdaptiveModeThreshold: 0.5
-  m_SpriteTileMode: 0
-  m_WasSpriteAssigned: 1
-  m_SpriteSortPoint: 0
---- !u!4 &621745513
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 621745510}
-  serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: 0.030027347, w: 0.9995491}
-  m_LocalPosition: {x: 97.4, y: 101.1, z: 0}
-  m_LocalScale: {x: 0.6866744, y: 2.2435246, z: 1.6779693}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 3.441}
 --- !u!1 &633278248
 GameObject:
   m_ObjectHideFlags: 0
@@ -13416,7 +12982,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 78c4e6d1405929042a6ef82062fecad8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerController
-  moveSpeed: 5
+  moveSpeed: 6
   jumpPower: 13.5
   jumpBuffer: 0.12
   maxJumps: 1
@@ -13442,6 +13008,7 @@ MonoBehaviour:
   dashInvincibleTime: 0.2
   dashKnockbackControlLock: 0.12
   dashRecoverTime: 0.08
+  dashHitStopTime: 0.06
   groundDashConsumesAirDash: 1
   rotateOnDash: 1
   dashRotationMaxAngle: 70
@@ -13488,6 +13055,9 @@ MonoBehaviour:
   fissionDashCost: 100
   deathMotionDuration: 3
   defaultRespawnPosition: {x: 0, y: 0, z: 0}
+  dropCellsOnDeath: 1
+  deathCellDropPercent: 100
+  deathCellChunkPrefab: {fileID: 0}
   returnStartSpeed: 6
   returnMaxSpeed: 22
   returnAcceleration: 45
@@ -13532,6 +13102,11 @@ MonoBehaviour:
   damageSound: {fileID: 8300000, guid: f57c0181f1eea3941a3ac723e603d002, type: 3}
   eatSound: {fileID: 8300000, guid: 19a4767f4e4993f4eb371701e11a38f5, type: 3}
   jumpSound: {fileID: 8300000, guid: 3ce62d5e95e7c9246b083861ffddd9bd, type: 3}
+  moveSound: {fileID: 0}
+  footstepInterval: 0.3
+  footstepPitchVariance: 0.08
+  landingSound: {fileID: 0}
+  landingMinFallSpeed: 4
 --- !u!58 &685714995
 CircleCollider2D:
   m_ObjectHideFlags: 0
@@ -14241,7 +13816,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ParallaxBackground
   targetCamera: {fileID: 700540138}
-  parallaxFactor: 0.1
+  parallaxFactorX: 0.1
+  parallaxFactorY: 0.1
+  parallaxYMigrated: 1
   followX: 1
   followY: 1
   centerOnCamera: 1
@@ -14450,6 +14027,8 @@ MonoBehaviour:
   cellPickupDelay: 0.45
   cellPopUpSpeed: 4
   cellPopSideSpeed: 2.5
+  absorbCellsOnConsume: 1
+  cellAbsorbDelay: 0.2
   actionStartDelay: 0
   persistDeath: 1
   persistentId: 
@@ -114003,7 +113582,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ParallaxBackground
   targetCamera: {fileID: 700540138}
-  parallaxFactor: 0.05
+  parallaxFactorX: 0.05
+  parallaxFactorY: 0.05
+  parallaxYMigrated: 1
   followX: 1
   followY: 1
   centerOnCamera: 1
@@ -119607,7 +119188,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ParallaxBackground
   targetCamera: {fileID: 700540138}
-  parallaxFactor: 0
+  parallaxFactorX: 0
+  parallaxFactorY: 0
+  parallaxYMigrated: 1
   followX: 0
   followY: 0
   centerOnCamera: 0
@@ -119949,6 +119532,7 @@ MonoBehaviour:
   hintScale: 0.5
   hideHintAfterActivate: 0
   persistentId: 
+  respawnMonstersOnSave: 1
 --- !u!61 &1250499644
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -120212,6 +119796,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellChunk
   cellAmount: 200
+  isDarkCell: 0
   persistentId: 
   pickupDelay: 0
   popGravity: 14
@@ -120219,6 +119804,9 @@ MonoBehaviour:
   popBlockMask:
     serializedVersion: 2
     m_Bits: 0
+  attractStartSpeed: 4
+  attractAcceleration: 40
+  attractArriveDistance: 0.3
 --- !u!58 &1318126217
 CircleCollider2D:
   m_ObjectHideFlags: 0
@@ -120550,6 +120138,8 @@ MonoBehaviour:
   cellPickupDelay: 0.45
   cellPopUpSpeed: 4
   cellPopSideSpeed: 2.5
+  absorbCellsOnConsume: 1
+  cellAbsorbDelay: 0.2
   actionStartDelay: 0
   persistDeath: 1
   persistentId: 
@@ -121715,120 +121305,6 @@ Camera:
   m_OcclusionCulling: 1
   m_StereoConvergence: 10
   m_StereoSeparation: 0.022
---- !u!1 &1826275747
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1826275750}
-  - component: {fileID: 1826275749}
-  - component: {fileID: 1826275748}
-  m_Layer: 0
-  m_Name: "ChatGPT \uC774\uBBF8\uC9C0 2026\uB144 9\uC6D4 30\uC77C \uC624\uD6C4 03_00_47_0
-    (3)"
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!114 &1826275748
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1826275747}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4f7b0a61e76ac76459e2da9f45ca0496, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::ParallaxBackground
-  targetCamera: {fileID: 700540138}
-  parallaxFactor: 0.3
-  followX: 1
-  followY: 1
-  centerOnCamera: 0
-  sortingOrder: -41
-  zDepth: 10
-  fitToCamera: 0
-  fitPadding: 0.3
---- !u!212 &1826275749
-SpriteRenderer:
-  serializedVersion: 2
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1826275747}
-  m_Enabled: 1
-  m_CastShadows: 0
-  m_ReceiveShadows: 0
-  m_DynamicOccludee: 1
-  m_StaticShadowCaster: 0
-  m_MotionVectors: 1
-  m_LightProbeUsage: 1
-  m_ReflectionProbeUsage: 1
-  m_RayTracingMode: 0
-  m_RayTraceProcedural: 0
-  m_RayTracingAccelStructBuildFlagsOverride: 0
-  m_RayTracingAccelStructBuildFlags: 1
-  m_SmallMeshCulling: 1
-  m_ForceMeshLod: -1
-  m_MeshLodSelectionBias: 0
-  m_RenderingLayerMask: 1
-  m_RendererPriority: 0
-  m_Materials:
-  - {fileID: 2100000, guid: a97c105638bdf8b4a8650670310a4cd3, type: 2}
-  m_StaticBatchInfo:
-    firstSubMesh: 0
-    subMeshCount: 0
-  m_StaticBatchRoot: {fileID: 0}
-  m_ProbeAnchor: {fileID: 0}
-  m_LightProbeVolumeOverride: {fileID: 0}
-  m_ScaleInLightmap: 1
-  m_ReceiveGI: 1
-  m_PreserveUVs: 0
-  m_IgnoreNormalsForChartDetection: 0
-  m_ImportantGI: 0
-  m_StitchLightmapSeams: 1
-  m_SelectedEditorRenderState: 0
-  m_MinimumChartSize: 4
-  m_AutoUVMaxDistance: 0.5
-  m_AutoUVMaxAngle: 89
-  m_LightmapParameters: {fileID: 0}
-  m_GlobalIlluminationMeshLod: 0
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
-  m_SortingOrder: -41
-  m_MaskInteraction: 0
-  m_Sprite: {fileID: 4224253742138748897, guid: 371c6c85aec825d4a9ce27710eae3b27, type: 3}
-  m_Color: {r: 0.4433962, g: 0.4433962, b: 0.4433962, a: 1}
-  m_FlipX: 0
-  m_FlipY: 0
-  m_DrawMode: 0
-  m_Size: {x: 7.18, y: 19.83}
-  m_AdaptiveModeThreshold: 0.5
-  m_SpriteTileMode: 0
-  m_WasSpriteAssigned: 1
-  m_SpriteSortPoint: 0
---- !u!4 &1826275750
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1826275747}
-  serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: -0.15985715, w: 0.9871402}
-  m_LocalPosition: {x: 93.3, y: 91.6, z: 0}
-  m_LocalScale: {x: 0.3600576, y: 2.546302, z: 1.9044218}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: -18.397}
 --- !u!1 &1838005971
 GameObject:
   m_ObjectHideFlags: 0
@@ -121934,7 +121410,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ParallaxBackground
   targetCamera: {fileID: 700540138}
-  parallaxFactor: 0
+  parallaxFactorX: 0
+  parallaxFactorY: 0
+  parallaxYMigrated: 1
   followX: 0
   followY: 0
   centerOnCamera: 0
@@ -122571,6 +122049,8 @@ MonoBehaviour:
   cellPickupDelay: 0.45
   cellPopUpSpeed: 4
   cellPopSideSpeed: 2.5
+  absorbCellsOnConsume: 1
+  cellAbsorbDelay: 0.2
   actionStartDelay: 0
   persistDeath: 1
   persistentId: 
@@ -122774,7 +122254,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ParallaxBackground
   targetCamera: {fileID: 700540138}
-  parallaxFactor: 0
+  parallaxFactorX: 0
+  parallaxFactorY: 0
+  parallaxYMigrated: 1
   followX: 0
   followY: 0
   centerOnCamera: 0
@@ -128615,6 +128097,8 @@ MonoBehaviour:
   cellPickupDelay: 0.45
   cellPopUpSpeed: 4
   cellPopSideSpeed: 2.5
+  absorbCellsOnConsume: 1
+  cellAbsorbDelay: 0.2
   actionStartDelay: 0
   persistDeath: 1
   persistentId: 
@@ -128806,11 +128290,6 @@ SceneRoots:
   - {fileID: 2040721372}
   - {fileID: 121411326}
   - {fileID: 756426162}
-  - {fileID: 470010170}
-  - {fileID: 621745513}
-  - {fileID: 1826275750}
-  - {fileID: 436911606}
-  - {fileID: 400464179}
   - {fileID: 931044837}
   - {fileID: 1235028099}
   - {fileID: 484465139}

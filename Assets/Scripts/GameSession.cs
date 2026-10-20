@@ -86,6 +86,9 @@ public class GameSession : MonoBehaviour
         // 세이브포인트 위치 (static이라 씬 로드로는 안 지워진다)
         SavePoint.ClearSave();
 
+        // 화이트셀이 죽으면서 떨군 셀 덩어리 (static이라 씬 로드로는 안 지워진다)
+        DeathCellStash.Clear();
+
         // 포탈로 이동하다 메뉴로 나간 경우 남아 있을 수 있는 도착 지점 예약
         SceneEntryPoint.ClearEntry();
 

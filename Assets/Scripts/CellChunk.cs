@@ -6,6 +6,9 @@ public class CellChunk : MonoBehaviour
 {
     public int cellAmount = 50; // 지역/상황별로 인스펙터에서 조정
 
+    [Tooltip("켜면 셀 대신 다크셀이 오른다 (침식 거미균 처치 보상 '다크셀 조각' 등)")]
+    public bool isDarkCell = false;
+
     [Tooltip("부활 후에도 '이미 먹음'을 기억할 때 쓰는 식별자. 비우면 계층 경로로 자동 생성된다")]
     public string persistentId = "";
 
@@ -35,6 +38,22 @@ public class CellChunk : MonoBehaviour
     // 팀원이 만든 Bigcell 프리팹처럼 CellChunk가 자식에 붙어 있는 구조에서는
     // 자기 자신만 움직이면 껍데기(빛/파티클)가 제자리에 남는다. Spawn이 루트를 넣어준다.
     [System.NonSerialized] public Transform popRoot;
+
+    // 획득됐을 때 알려줄 곳 (화이트셀 사망 셀 덩어리가 기록을 지우는 데 쓴다 — DeathCellStash)
+    [System.NonSerialized] public System.Action onCollected;
+
+    [Header("빨려 들어가기 (몬스터를 섭취했을 때)")]
+    [Tooltip("PC에게 날아가기 시작할 때의 속도")]
+    public float attractStartSpeed = 4f;
+    [Tooltip("날아가는 동안 초당 속도 증가량")]
+    public float attractAcceleration = 40f;
+    [Tooltip("PC와 이 거리 안이 되면 획득")]
+    public float attractArriveDistance = 0.3f;
+
+    Transform attractTarget;
+    float attractDelay;
+    float attractSpeed;
+    bool attracting;
 
     float aliveTimer;
     Vector2 popVelocity;
@@ -79,6 +98,8 @@ public class CellChunk : MonoBehaviour
     {
         aliveTimer += Time.deltaTime;
 
+        if (attracting && UpdateAttract()) return;
+
         if (!popping) return;
 
         Transform root = PopRoot;
@@ -111,6 +132,41 @@ public class CellChunk : MonoBehaviour
             root.position = p;
             popping = false;
         }
+    }
+
+    // 튀어나온 뒤 delay초가 지나면 target(섭취한 PC)에게 가속하며 날아가 자동으로 획득된다.
+    // 지형은 무시하고 통과한다 — 벽 너머로 튄 셀도 놓치지 않게.
+    public void AttractTo(Transform target, float delay)
+    {
+        if (target == null) return;
+        attractTarget = target;
+        attractDelay = delay;
+        attractSpeed = attractStartSpeed;
+        attracting = true;
+    }
+
+    // 빨려 들어가는 중이면 true (튀어오르기 연출은 건너뛴다)
+    bool UpdateAttract()
+    {
+        if (attractTarget == null) { attracting = false; return false; } // PC가 사라지면 평범한 덩어리로 남는다
+        if (aliveTimer < attractDelay) return false; // 아직은 튀어오르는 중
+
+        popping = false;
+        Transform root = PopRoot;
+        Rigidbody2D body = root.GetComponent<Rigidbody2D>();
+        if (body != null) body.simulated = false; // 프리팹 물리가 끌어당기는 이동과 싸우지 않게
+
+        attractSpeed += attractAcceleration * Time.deltaTime;
+        Vector3 to = attractTarget.position - root.position;
+        to.z = 0f;
+        float step = attractSpeed * Time.deltaTime;
+        if (to.magnitude <= step + attractArriveDistance)
+        {
+            Collect();
+            return true;
+        }
+        root.position += to.normalized * step;
+        return true;
     }
 
     // 몬스터가 떨굴 때 살짝 튀어나오는 연출. 프리팹에 Rigidbody2D가 있으면 그쪽을 쓴다.
@@ -166,10 +222,24 @@ public class CellChunk : MonoBehaviour
         PlayerController pc = other.GetComponent<PlayerController>();
         if (pc == null) return;
 
+        Collect();
+    }
+
+    bool collected;
+
+    void Collect()
+    {
+        if (collected) return; // 트리거와 빨려 들어가기가 같은 프레임에 겹쳐도 한 번만
+        collected = true;
+
         if (PlayerManager.Instance != null)
-            PlayerManager.Instance.AddCell(cellAmount);
+        {
+            if (isDarkCell) PlayerManager.Instance.AddDarkCell(cellAmount);
+            else PlayerManager.Instance.AddCell(cellAmount);
+        }
 
         if (!isRuntimeDrop) WorldState.Record(WorldCategory.Pickup, id);
+        onCollected?.Invoke();
         Destroy(PopRoot.gameObject); // 프리팹 구조상 껍데기(빛/파티클)가 부모일 수 있어 루트째 지운다
     }
 

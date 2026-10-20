@@ -38,6 +38,9 @@ public class SavePoint : MonoBehaviour
     [Tooltip("부활 후에도 '이미 활성화됨'을 기억할 때 쓰는 식별자. 비우면 계층 경로로 자동 생성된다")]
     public string persistentId = "";
 
+    [Tooltip("상호작용하면 모든 씬의 죽인 몬스터가 리젠된다 (지금 씬은 다시 들어올 때부터)")]
+    public bool respawnMonstersOnSave = true;
+
     private Collider2D interactionCollider;
     private SpriteRenderer spr;
     private WorldTooltip hint;
@@ -94,6 +97,13 @@ public class SavePoint : MonoBehaviour
     {
         LastSavePosition = transform.position;
         HasSave = true;
+
+        // 기타 메모 '세이브 포인트 상호작용 후 몬스터 리젠(모든 씬의 몬스터가 전부 리젠)'.
+        // 죽인 몬스터 기록(MonsterBase.persistDeath)을 전부 지운다 → 어느 씬이든 다시 들어가면 몬스터가 다시 있다.
+        // ★ 반드시 SaveCheckpoint보다 먼저 — 체크포인트 스냅샷에 지운 상태가 찍혀야 죽어서 부활해도 리젠된 상태가 유지된다.
+        // 지금 서 있는 씬에서 이미 죽인 몬스터는 오브젝트가 없어져서 즉시 되살아나지는 않고, 씬을 다시 들어오면 나온다.
+        if (respawnMonstersOnSave)
+            WorldState.ClearCategory(WorldCategory.Monster);
 
         // 체크포인트 저장 — 사망 시 이 지점/이 시점의 진행상황으로 되돌아온다 (몬스터/버튼은 씬 리로드로 초기화)
         if (RespawnManager.Instance != null)

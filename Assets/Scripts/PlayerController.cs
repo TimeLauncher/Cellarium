@@ -58,6 +58,13 @@ public class PlayerController : MonoBehaviour
     public float dashKnockbackControlLock = 0.12f;
     [Tooltip("대시가 끝난 뒤 이 시간 동안 점프·대시·섭취 입력을 받지 않는다 (대시 직후 점프가 새어나가는 문제 방지)")]
     public float dashRecoverTime = 0.08f;
+
+    // 기타 메모 '몬스터 대쉬로 때리고 나서 떨어질 때 공중에 좀 있다가 천천히 떨어지기' (화이트셀 쪽 연출).
+    // 처음엔 튕겨 오른 꼭대기에서 멈췄다가 천천히 떨어지게 했는데, 테스트 결과 너무 오래 떠 있어서
+    // '공격 피드백' 느낌의 히트스톱으로 바꿨다: 맞히는 순간 화이트셀이 아주 짧게 그 자리에 멈췄다가(애니메이션도 정지)
+    // 원래 튕겨나갈 속도 그대로 날아간다. 점프·대시·피격 등 다른 행동을 하면 바로 끝난다.
+    [Tooltip("대시로 맞힌 순간 화이트셀이 멈춰 있는 시간(히트스톱). 0이면 멈추지 않는다. 0.04~0.1 사이 추천")]
+    [Min(0f)] public float dashHitStopTime = 0.06f;
     [Tooltip("지상에서 시작한 대시가 공중에서 끝나면 공중 대시 1회를 소모한다 (대시→점프→대시 연속 방지)")]
     public bool groundDashConsumesAirDash = true;
 
@@ -93,10 +100,11 @@ public class PlayerController : MonoBehaviour
 
     [Header("분열 시스템")]
     public GameObject playerPrefab;
-    [Tooltip("Q를 누른 뒤 이 시간 동안 제자리 고정 + 다른 조작 차단 (분열 모션 길이에 맞출 것). " +
-             "분열체가 나오는 시점 자체는 split2 클립의 SpawnFissionClone 애니메이션 이벤트가 정한다")]
+    [Tooltip("분열이 확정된 뒤(홀드 완료) 추가로 제자리 고정 + 다른 조작 차단하는 시간. " +
+             "애니메이터가 있으면 분열체가 실제로 나올 때(SpawnFissionClone 이벤트)까지는 이와 상관없이 계속 고정된다")]
     public float fissionMotionLock = 0.4f;
-    [Tooltip("Q를 이 시간만큼 누르고 있으면 (떼지 않아도) 그 순간 분열이 발동한다. 기획 권장 0.5~0.7")]
+    [Tooltip("Q를 이 시간만큼 누르고 있으면 (떼지 않아도) 그 순간 분열이 확정된다. 기획 권장 0.5~0.7.\n" +
+             "분열 모션은 Q를 누르는 즉시 시작되고, 이 시간 전에 떼면 모션이 취소된다")]
     public float fissionHoldDuration = 0.6f;
     [Tooltip("분열체 크기 배율 (본체 대비)")]
     public float cloneScaleRatio = 0.75f;
@@ -138,6 +146,13 @@ private RuntimeAnimatorController cloneAnimatorController;
     [Header("사망/부활")]
     public float deathMotionDuration = 3f;                 // 사망 모션 길이(2~4초). 이 동안 조작 불가·무적
     public Vector3 defaultRespawnPosition = Vector3.zero;  // 세이브포인트가 없을 때 부활 위치 (A00 중앙). 인스펙터에서 설정
+    [Tooltip("죽으면 들고 있던 셀을 죽은 자리에 덩어리로 떨군다. 주우면 되찾고, 안 줍고 또 죽어도 사라지지 않는다 (DeathCellStash).\n" +
+             "끄면 예전처럼 마지막 세이브 시점의 셀 수로 되돌아간다")]
+    public bool dropCellsOnDeath = true;
+    [Tooltip("죽을 때 떨구는 셀 비율(%). 100 = 전부 떨굼, 30 = 30%만 떨구고 나머지는 그대로 들고 부활")]
+    [Range(0, 100)] public int deathCellDropPercent = 100;
+    [Tooltip("사망 셀 덩어리 모습. 비우면 기본 셀 덩어리(Resources/Effects/CellDrop)로 표시")]
+    public GameObject deathCellChunkPrefab;
 
     [Header("분열체 회수")]
     // R 회수 / 분열체 사망 시 그냥 사라지지 않고 본체까지 날아와서 흡수된다.
@@ -205,8 +220,13 @@ private RuntimeAnimatorController cloneAnimatorController;
     private bool isNormalDashing;
     private float normalDashCooldownTimer;
     private float dashRecoverTimer; // 대시 직후 입력을 잠깐 막는 시간
+    private float dashHitStopTimer;      // 대시 적중 히트스톱 남은 시간
+    private Vector2 dashHitStopVelocity; // 히트스톱이 끝나면 돌려줄 튕겨나가는 속도
     private float fissionHoldTimer; // Q 홀드 누적 시간
-    private bool fissionHoldUsed;   // 이번 홀드로 이미 발동했는지 (떼기 전 연속 발동 방지)
+    private bool isFissionCharging;       // Q를 누르고 있는 중 — 분열 모션은 이미 재생 중이고, 홀드가 끝나면 확정
+    private bool fissionCommitted;        // 홀드가 끝나 분열이 확정됐고 클립의 SpawnFissionClone 이벤트를 기다리는 중
+    private bool fissionCloneEventPending; // 홀드가 끝나기 전에 이벤트가 먼저 온 경우 (확정되는 순간 바로 생성)
+    private float fissionSpawnWaitTimer;  // 이벤트가 끝내 안 오는 경우(전이 누락 등)를 위한 안전 타이머
     private int airDashLeft;
 
     // 분열 대시
@@ -338,6 +358,7 @@ private RuntimeAnimatorController cloneAnimatorController;
 
     //SFX
     private PlayerSFX playerSFX;
+    private float airMaxFallSpeed; // 이번 공중 체류 중 가장 빨랐던 낙하 속도 (착지음 세기 판정)
 
     // 거미줄 등 지형 기믹이 거는 이동/점프/대시 배율 (PlayerTraversal.cs)
     public PlayerTraversal Traversal { get; } = new PlayerTraversal();
@@ -408,11 +429,18 @@ private RuntimeAnimatorController cloneAnimatorController;
         bool contactGrounded = HasGroundContact();
 
         isGrounded = overlapGrounded || contactGrounded;
+
+        // 착지음 판정용 — 착지한 프레임엔 이미 속도가 0일 수 있어서 공중에 있는 동안 가장 빨랐던 낙하 속도를 기억한다
+        if (!isGrounded) airMaxFallSpeed = Mathf.Max(airMaxFallSpeed, -rb.linearVelocity.y);
+
         if (!wasGrounded && isGrounded)
         {
             jumpsLeft = maxJumps;
             lastWallJumpDir = 0;
             airDashLeft = maxAirDash;
+
+            if (playerSFX != null) playerSFX.PlayLandingSound(airMaxFallSpeed); // SFX003 착지
+            airMaxFallSpeed = 0f;
         }
         wasGrounded = isGrounded;
 
@@ -469,6 +497,10 @@ private RuntimeAnimatorController cloneAnimatorController;
 
             animator.SetBool("isDashing", isNormalDashing);
         }
+
+        // SFX001 걷기 — 걷기 모션('move')이 나오는 조건과 같게 맞춘다
+        if (playerSFX != null)
+            playerSFX.TickFootsteps(isControlled && isGrounded && Mathf.Abs(moveX) > 0.01f && !isNormalDashing);
 
         // 조종 대상이 아니거나, 대화·연출로 조작이 잠겨 있으면 입력 처리를 통째로 건너뛴다.
         // 위쪽 애니메이터 갱신은 이미 끝났고 FixedUpdate의 중력도 계속 돌기 때문에,
@@ -549,42 +581,56 @@ private RuntimeAnimatorController cloneAnimatorController;
             }
         }
 
-        // 분열 (Q를 누르는 즉시 발동, 분열체/분열대시 중 불가, 분열 능력 해금 전엔 불가)
-        // - 준비동작은 split2 애니메이션 자체가 담당한다. 분열체가 나오는 타이밍은
-        //   클립의 SpawnFissionClone 애니메이션 이벤트 위치로 조절한다 (코드 타이머 아님).
-        // - 모션이 끝날 때까지(fissionMotionLock) 제자리 고정 + 다른 조작 차단.
+        // 분열 (Q 홀드, 분열체/분열대시 중 불가, 분열 능력 해금 전엔 불가)
+        // - 분열체가 나오는 타이밍은 split2 클립의 SpawnFissionClone 애니메이션 이벤트 위치로 조절한다 (코드 타이머 아님).
+        //
+        // ★ 기타 메모 8 '분열 누르고 있을 때 분열하는 모션 나오게 (지금은 차징하는 모션이 나중에 나옴)':
+        //   예전엔 Q를 fissionHoldDuration만큼 다 누른 '뒤에야' Fission 트리거를 넣어서, 누르고 있는 동안은
+        //   가만히 서 있다가 홀드가 끝나고 나서야 힘주는(차징) 모션이 시작됐다.
+        //   이제 Q를 누르는 즉시 모션을 시작하고, 홀드가 끝나면 분열을 확정한다. 중간에 떼면 모션을 취소한다.
+        //   클립의 이벤트는 '확정된 분열'에서만 분열체를 만든다 (SpawnFissionClone 참고).
+        // ★ 같은 메모 '움직이면서 누르면 반응 없게': 이동 키를 누르고 있는 상태에서 Q를 누르면 아예 시작하지 않는다.
+        //   (게이지가 부족해도 차징 모션은 나오지만, 홀드가 끝나는 순간 시전은 되지 않고 모션이 취소된다 — 기획 메모)
         if (fissionMotionTimer > 0f) fissionMotionTimer -= Time.deltaTime;
-        isFissioning = fissionMotionTimer > 0f;
-
-        // Fix 문서 '분열 시전(Q) 입력 시 키다운 없이 그냥 시전 / 0.5~0.7초 정도의 키홀드 시전으로 수정':
-        //   Q를 fissionHoldDuration만큼 누르고 있으면 '시간이 되는 순간' 발동한다 (떼는 시점이 아니다).
-        //   시간을 채우기 전에 떼면 취소되고, 누적 시간은 0으로 돌아간다.
-        bool canFission = !isClone && !isFissionDashing && FissionUnlocked && !isFissioning;
-        bool holdingQ = Input.GetKey(KeyCode.Q);
-
-        if (!holdingQ)
+        if (fissionSpawnWaitTimer > 0f)
         {
-            fissionHoldTimer = 0f;
-            fissionHoldUsed = false; // 손을 떼야 다음 시전을 다시 차징할 수 있다
-        }
-        else if (canFission && !fissionHoldUsed)
-        {
-            fissionHoldTimer += Time.deltaTime;
-            if (fissionHoldTimer >= fissionHoldDuration)
+            fissionSpawnWaitTimer -= Time.deltaTime;
+            if (fissionSpawnWaitTimer <= 0f && fissionCommitted)
             {
-                fissionHoldTimer = 0f;
-                fissionHoldUsed = true;
-                if (Fission())
+                // 이벤트가 끝내 안 왔다 — 게이지는 이미 냈으니 분열체는 만들어준다
+                fissionCommitted = false;
+                DoSpawnFissionClone();
+            }
+        }
+        isFissioning = isFissionCharging || fissionCommitted || fissionMotionTimer > 0f;
+
+        bool canStartFission = !isClone && !isFissionDashing && FissionUnlocked && !IsActionLocked();
+        if (Input.GetKeyDown(KeyCode.Q) && canStartFission && Mathf.Abs(moveX) < 0.01f)
+            BeginFissionCharge();
+
+        if (isFissionCharging)
+        {
+            if (!Input.GetKey(KeyCode.Q))
+            {
+                CancelFissionCharge(); // 홀드 시간을 못 채우고 뗐다
+            }
+            else
+            {
+                fissionHoldTimer += Time.deltaTime;
+                if (fissionHoldTimer >= fissionHoldDuration)
                 {
-                    fissionMotionTimer = fissionMotionLock;
-                    isFissioning = true;
+                    isFissionCharging = false;
+                    fissionHoldTimer = 0f;
+                    if (Fission())
+                        fissionMotionTimer = fissionMotionLock;
+                    else
+                        CancelFissionMotion(); // 게이지 부족·분열 횟수 초과 — 시전되지 않는다
                 }
             }
         }
-        else
-            fissionHoldTimer = 0f;
+        isFissioning = isFissionCharging || fissionCommitted || fissionMotionTimer > 0f;
 
-        // 차징 중엔 이동 입력을 무시해 제자리에 고정 (점프/대시 등은 IsActionLocked로 차단됨)
+        // 분열 모션 중엔 이동 입력을 무시해 제자리에 고정 (점프/대시 등은 IsActionLocked로 차단됨)
         if (isFissioning)
             moveX = 0f;
 
@@ -631,7 +677,7 @@ private RuntimeAnimatorController cloneAnimatorController;
                 lastWallJumpDir = wallDir;
                 wallJumpTimer = 0.25f;
                 coyoteTimer = 0f;
-                
+                EndDashHitStop();
                 jumpBufferTimer = 0f;
             }
             // 공중 점프 차단: 지면에 있거나 방금 떠난 직후(코요테)에만 점프가 나간다.
@@ -641,7 +687,7 @@ private RuntimeAnimatorController cloneAnimatorController;
                 rb.linearVelocity = new Vector2(rb.linearVelocity.x, jumpPower * Traversal.JumpMultiplier);
                 jumpsLeft--;
                 coyoteTimer = 0f; // 한 번 뛰면 코요테 시간은 소진 — 뜨자마자 또 뛰는 것 방지
-                
+                EndDashHitStop();
                 jumpBufferTimer = 0f;
             }
         }
@@ -740,6 +786,9 @@ private RuntimeAnimatorController cloneAnimatorController;
 
         rb.gravityScale = 1f;
 
+        // 대시 적중 히트스톱 — 멈춰 있는 동안엔 넉백 잠금 시간도 흐르지 않는다 (멈춤이 끝난 뒤부터 튕겨나감)
+        if (UpdateDashHitStop()) return;
+
         if (knockbackTimer > 0f)
             knockbackTimer -= Time.fixedDeltaTime; // 넉백 중엔 속도를 건드리지 않고 그대로 날아가게 둠
         else if (wallJumpTimer > 0f)
@@ -752,6 +801,7 @@ private RuntimeAnimatorController cloneAnimatorController;
             ((wallDir == 1 && moveX > 0) || (wallDir == -1 && moveX < 0));
         if (isWallSliding)
         {
+            EndDashHitStop(); // 벽에 붙으면 히트스톱은 끝
             rb.gravityScale = 0f;
             rb.linearVelocity = new Vector2(0f, -wallSlideSpeed);
             return;
@@ -765,6 +815,43 @@ private RuntimeAnimatorController cloneAnimatorController;
         }
         else
             ApplyAirGravity(Input.GetButton("Jump"));
+    }
+
+    // 대시 적중 순간 호출 — 방금 넣은 튕겨나가는 속도를 보관하고 잠깐 멈춘다
+    void StartDashHitStop()
+    {
+        if (dashHitStopTime <= 0f) return;
+        dashHitStopTimer = dashHitStopTime;
+        dashHitStopVelocity = rb.linearVelocity;
+        rb.linearVelocity = Vector2.zero;
+        if (animator != null) animator.speed = 0f;
+    }
+
+    // 다른 행동(점프·대시·피격 등)으로 히트스톱을 끊을 때
+    void EndDashHitStop()
+    {
+        if (dashHitStopTimer <= 0f) return;
+        dashHitStopTimer = 0f;
+        if (animator != null) animator.speed = 1f;
+    }
+
+    // 히트스톱 중이면 true — 이번 물리 프레임은 제자리에 고정한다. 끝나는 프레임에 보관한 속도로 튕겨나간다.
+    bool UpdateDashHitStop()
+    {
+        if (dashHitStopTimer <= 0f) return false;
+
+        dashHitStopTimer -= Time.fixedDeltaTime;
+        if (dashHitStopTimer > 0f)
+        {
+            rb.gravityScale = 0f;
+            rb.linearVelocity = Vector2.zero;
+            return true;
+        }
+
+        dashHitStopTimer = 0f;
+        if (animator != null) animator.speed = 1f;
+        rb.linearVelocity = dashHitStopVelocity;
+        return false;
     }
 
     // 공중 수직 가속 보정. 조종 중이든 아니든 똑같은 값을 쓴다.
@@ -964,6 +1051,8 @@ private RuntimeAnimatorController cloneAnimatorController;
 
         // A hit interrupts saving; restore the body before applying knockback/death.
         EndSaveMotion();
+        CancelFissionCharge(); // 홀드 중 맞으면 분열 차징도 끊긴다 (확정된 분열은 그대로 진행)
+        EndDashHitStop();
 
         // 분열체는 피격 시 사망 (QA (4). 추후 1회 무효화 등 추가 예정)
         // 그 자리에서 사라지지 않고 본체까지 날아와 흡수된다 — 도착 시 Destroy,
@@ -1018,6 +1107,7 @@ private RuntimeAnimatorController cloneAnimatorController;
     {
         isDead = true;
         isInvincible = true; // 모션 중 추가 피격 방지
+        EndDashHitStop();
         moveX = 0f;
         rb.linearVelocity = Vector2.zero;
         rb.gravityScale = 0f;
@@ -1027,6 +1117,8 @@ private RuntimeAnimatorController cloneAnimatorController;
         // 분열체 전부 자동 사망 (본체만 남기고 회수)
         if (PlayerManager.Instance != null)
             PlayerManager.Instance.RecallAllClones();
+
+        DropCellsOnDeath();
 
         yield return new WaitForSeconds(deathMotionDuration);
 
@@ -1054,15 +1146,57 @@ private RuntimeAnimatorController cloneAnimatorController;
         // 상태 초기화 후 완전 회복
         currentHp = maxHp;
         currentFissionGauge = maxFissionGauge;
+        ReviveAfterRespawn();
+        Debug.Log("부활!");
+    }
+
+    // 사망 상태를 풀고 기본 자세로 되돌린다.
+    // ★ 플레이어는 PersistentPlayerRoot(DontDestroyOnLoad)에 있어서 부활 씬 리로드 때 새로 만들어지지 않는다.
+    //   예전엔 리로드로 새 플레이어가 생겨 isDead가 저절로 풀렸지만, 지금은 누군가 풀어주지 않으면
+    //   isDead=true·DEAD 애니메이션 그대로 남아 '부활해도 계속 죽어 있는' 상태가 된다 → RespawnManager가 호출.
+    public void ReviveAfterRespawn()
+    {
+        if (!isDead) return;
+        isDead = false;
+        isInvincible = false;
+        isStunned = false;
+        knockbackTimer = 0f;
+        EndDashHitStop();
         rb.linearVelocity = Vector2.zero;
         rb.gravityScale = 1f;
         jumpsLeft = maxJumps;
         airDashLeft = maxAirDash;
-        isStunned = false;
-        knockbackTimer = 0f;
-        isDead = false;
-        isInvincible = false;
-        Debug.Log("부활!");
+
+        if (HasAnimatorController && animator.isActiveAndEnabled)
+        {
+            animator.ResetTrigger("Death");
+            int idle = Animator.StringToHash("idle");
+            if (animator.HasState(0, idle))
+                animator.Play(idle, 0, 0f);
+        }
+    }
+
+    // 들고 있던 셀의 deathCellDropPercent%를 죽은 자리에 기록해둔다. 덩어리는 부활(씬 리로드) 시점에 생긴다.
+    // 남은 셀은 RespawnManager가 부활 후에도 그대로 들려준다 — 세이브 시점 셀 수로 되돌리면
+    // 떨군 셀을 주웠을 때 이중으로 돌려받게 되기 때문.
+    void DropCellsOnDeath()
+    {
+        if (!dropCellsOnDeath || isClone) return;
+        PlayerManager m = PlayerManager.Instance;
+        if (m == null) return;
+
+        int amount = Mathf.Clamp(Mathf.RoundToInt(m.cellCurrency * deathCellDropPercent / 100f), 0, m.cellCurrency);
+        if (amount > 0)
+        {
+            Vector3 pos = col != null ? col.bounds.center : transform.position;
+            // 플레이어가 DontDestroyOnLoad(PersistentPlayerRoot)에 있을 수 있어 자기 씬 대신 활성 씬을 쓴다
+            DeathCellStash.Add(UnityEngine.SceneManagement.SceneManager.GetActiveScene().name,
+                               pos, amount, deathCellChunkPrefab);
+            m.AddCell(-amount);
+        }
+
+        if (RespawnManager.Instance != null)
+            RespawnManager.Instance.CarryCellsThroughRespawn(m.cellCurrency);
     }
 
     // R 회수 / 분열체 사망의 공통 진입점.
@@ -1256,6 +1390,7 @@ private RuntimeAnimatorController cloneAnimatorController;
     IEnumerator DashRoutine(Vector2 dashDir)
     {
         isNormalDashing = true;
+        EndDashHitStop(); // 새 대시가 이전 적중의 히트스톱을 끊는다 (이번에 또 맞으면 다시 걸림)
         normalDashCooldownTimer = dashCooldown;
 
         // 대시 방향으로 스프라이트 전환
@@ -1315,6 +1450,7 @@ private RuntimeAnimatorController cloneAnimatorController;
                     Vector2 knockDir = (-dashDir + Vector2.up * dashKnockbackUpRatio).normalized;
                     rb.linearVelocity = knockDir * dashKnockbackSpeed;
                     knockbackTimer = dashKnockbackControlLock; // 이동 입력이 포물선을 곧바로 지우지 않도록 잠금 (대시 전용 값)
+                    StartDashHitStop();
                     dashInvincibleTimer = dashInvincibleTime; // 튕겨나오는 동안 겹쳐 있어도 피해 없음
                     knockedBack = true;
                     break;
@@ -1337,6 +1473,7 @@ private RuntimeAnimatorController cloneAnimatorController;
                     Vector2 knockDir = (-dashDir + Vector2.up * dashKnockbackUpRatio).normalized;
                     rb.linearVelocity = knockDir * dashKnockbackSpeed;
                     knockbackTimer = dashKnockbackControlLock;
+                    StartDashHitStop();
                     dashInvincibleTimer = dashInvincibleTime;
                     knockedBack = true;
                     break;
@@ -1462,11 +1599,66 @@ private RuntimeAnimatorController cloneAnimatorController;
 
         currentFissionGauge -= fissionCost;
 
-        // 여기서 모션이 시작되고, 분열체는 split2 클립의 애니메이션 이벤트가 생성한다
-        if (animator != null) animator.SetTrigger("Fission");
-        if (!HasAnimatorController) SpawnFissionClone(); // 애니 컨트롤러가 없으면 이벤트가 안 오므로 즉시 생성
+        // 모션은 Q를 누른 순간(BeginFissionCharge) 이미 시작됐다. 분열체는 split2 클립의 애니메이션 이벤트가 생성한다
+        if (!HasAnimatorController)
+        {
+            DoSpawnFissionClone(); // 애니 컨트롤러가 없으면 이벤트가 안 오므로 즉시 생성
+        }
+        else if (fissionCloneEventPending)
+        {
+            // 홀드 시간을 클립의 이벤트 시점보다 길게 잡은 경우 — 이벤트는 이미 지나갔으니 지금 만든다
+            fissionCloneEventPending = false;
+            DoSpawnFissionClone();
+        }
+        else
+        {
+            fissionCommitted = true;
+            fissionSpawnWaitTimer = 2f;
+        }
 
         return true;
+    }
+
+    // Q를 누른 순간 — 분열 모션을 바로 시작한다
+    void BeginFissionCharge()
+    {
+        isFissionCharging = true;
+        fissionHoldTimer = 0f;
+        fissionCloneEventPending = false;
+        fissionCommitted = false;
+        moveX = 0f;
+        if (!HasAnimatorController) return;
+
+        // 컨트롤러의 Fission 전이는 idle에서만 나가서, 착지·이동 모션이 덜 끝난 순간 Q를 누르면 모션이 안 나왔다.
+        // 분열 상태(split2)로 바로 넘긴다. 상태가 없으면 예전처럼 트리거.
+        int split = Animator.StringToHash("split2");
+        if (animator.isActiveAndEnabled && animator.HasState(0, split))
+            animator.CrossFadeInFixedTime(split, 0.05f, 0);
+        else
+            animator.SetTrigger("Fission");
+    }
+
+    // 홀드 도중 손을 뗐거나 피격 등으로 끊겼을 때
+    void CancelFissionCharge()
+    {
+        if (!isFissionCharging) return;
+        isFissionCharging = false;
+        fissionHoldTimer = 0f;
+        CancelFissionMotion();
+    }
+
+    // 재생 중인 분열 모션을 끊고 기본 자세로 돌린다
+    void CancelFissionMotion()
+    {
+        fissionCloneEventPending = false;
+        fissionCommitted = false;
+        fissionSpawnWaitTimer = 0f;
+        if (!HasAnimatorController || !animator.isActiveAndEnabled) return;
+
+        animator.ResetTrigger("Fission");
+        int idle = Animator.StringToHash("idle");
+        if (animator.HasState(0, idle))
+            animator.CrossFadeInFixedTime(idle, 0.05f, 0);
     }
 
     // 분열체를 본체 콜라이더 밖에 생성하기 위한 거리.
@@ -1479,8 +1671,22 @@ private RuntimeAnimatorController cloneAnimatorController;
         return half * (1f + cloneScaleRatio) + fissionSpawnMargin;
     }
 
-    // 분열 애니메이션의 Animation Event에서 호출 (애니 없으면 Fission이 직접 호출)
+    // 분열 애니메이션(split2)의 Animation Event에서 호출.
+    // 모션은 Q를 누르자마자 재생되므로, 이벤트가 왔다고 무조건 만들면 안 된다 — 확정된 분열에서만 만든다.
     public void SpawnFissionClone()
+    {
+        if (isFissionCharging)
+        {
+            fissionCloneEventPending = true; // 아직 홀드 중 — 홀드가 끝나 확정되는 순간 만든다
+            return;
+        }
+        if (!fissionCommitted) return; // 취소된 분열 모션에서 남은 이벤트
+        fissionCommitted = false;
+        fissionSpawnWaitTimer = 0f;
+        DoSpawnFissionClone();
+    }
+
+    void DoSpawnFissionClone()
     {
         if (playerPrefab == null) return;
         if (PlayerManager.Instance != null && !PlayerManager.Instance.CanSpawnClone()) return; // 하드 캡 도달 시 애니 이벤트 경로도 차단
@@ -1513,6 +1719,7 @@ private RuntimeAnimatorController cloneAnimatorController;
         if (dashDir.sqrMagnitude < 0.001f) return;
 
         currentFissionGauge -= fissionDashCost;
+        EndDashHitStop();
 
         // 분열체를 원래 위치(대시 반대방향 약간 오프셋)에 남기고 본체가 마우스 방향으로 대시
         if (playerPrefab != null)
@@ -1569,6 +1776,7 @@ private RuntimeAnimatorController cloneAnimatorController;
     void Slam()
     {
         if (!allowSlam) return;
+        EndDashHitStop();
         StartCoroutine(SlamRoutine());
     }
 

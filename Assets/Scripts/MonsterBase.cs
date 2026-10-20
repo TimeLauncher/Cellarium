@@ -102,6 +102,12 @@ public class MonsterBase : MonoBehaviour, IConsumable
     [Tooltip("셀이 좌우로 흩어지는 속도")]
     public float cellPopSideSpeed = 2.5f;
 
+    [Tooltip("섭취하면 셀이 바닥에 흩어지지 않고 잠깐 튀어나왔다가 PC에게 빨려 들어가 자동으로 획득된다. " +
+             "끄면 예전처럼 바닥에 떨어져 직접 주워야 한다 (안 먹고 방치해 시체가 사라질 때는 항상 바닥에 떨어진다)")]
+    public bool absorbCellsOnConsume = true;
+    [Tooltip("튀어나온 셀이 PC 쪽으로 날아가기 시작할 때까지의 시간")]
+    [Min(0f)] public float cellAbsorbDelay = 0.2f;
+
     [Header("소환 직후 (둥지에서 소환된 개체)")]
     [Tooltip("소환된 직후 이 시간 동안은 공격 등 '행동'을 하지 않는다. 이동/추적은 그대로 한다. " +
              "둥지(MonsterNest)가 소환할 때 자기 값으로 덮어쓴다")]
@@ -341,8 +347,8 @@ public class MonsterBase : MonoBehaviour, IConsumable
         consumer.RestoreFromConsume(100f, 100f);
 
         // ★ 셀은 죽자마자가 아니라 '섭취하고 나서' 나온다.
-        //   섭취 안 하고 방치해 consumableLifetime으로 사라지면 셀도 안 나온다(의도된 동작).
-        DropCells();
+        // 기타 메모 '몬스터 먹으면 셀 안 떨구고 자동으로 먹어지는 효과로': 바닥에 흩어지는 대신 섭취한 PC에게 빨려 들어간다.
+        DropCells(absorbCellsOnConsume && consumer != null ? consumer.transform : null);
     }
 
     protected virtual void UpdateDetection()
@@ -662,7 +668,8 @@ public class MonsterBase : MonoBehaviour, IConsumable
     }
 
     // 셀 드랍. 몸통(피격) 콜라이더 범위 안에 무작위로 흩뿌린다.
-    protected virtual void DropCells()
+    // absorbTarget을 넣으면 떨어진 셀이 그 대상(섭취한 PC)에게 날아가 자동으로 획득된다
+    protected virtual void DropCells(Transform absorbTarget = null)
     {
         if (cellDropTotal <= 0 || cellDropCount <= 0) return;
 
@@ -683,11 +690,11 @@ public class MonsterBase : MonoBehaviour, IConsumable
                 Random.Range(area.min.y, area.max.y),
                 transform.position.z);
 
-            SpawnCellChunk(pos, amount);
+            SpawnCellChunk(pos, amount, absorbTarget);
         }
     }
 
-    void SpawnCellChunk(Vector3 position, int amount)
+    void SpawnCellChunk(Vector3 position, int amount, Transform absorbTarget)
     {
         // 어떤 모습으로 나올지는 CellChunk.Spawn이 정한다
         // (인스펙터 프리팹 → Resources/Effects/CellDrop → 런타임 임시 원 순).
@@ -700,6 +707,9 @@ public class MonsterBase : MonoBehaviour, IConsumable
         chunk.pickupDelay = cellPickupDelay;
         chunk.Launch(new Vector2(Random.Range(-cellPopSideSpeed, cellPopSideSpeed),
                                  Random.Range(cellPopUpSpeed * 0.6f, cellPopUpSpeed)));
+
+        if (absorbTarget != null)
+            chunk.AttractTo(absorbTarget, cellAbsorbDelay);
     }
 
     // 사망(체력 0) 시점 훅 — 자폭 등 특수 사망 처리가 필요한 타입에서 override

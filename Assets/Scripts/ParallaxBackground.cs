@@ -1,13 +1,19 @@
 using UnityEngine;
+using UnityEngine.Serialization;
 
 // 배경 스프라이트용 헬퍼.
 // 빈 게임오브젝트에 SpriteRenderer + 이 스크립트를 붙이고 배경 이미지를 넣으면
 // ① 항상 다른 오브젝트 뒤에 그려지고 ② 카메라를 따라다니며 ③ 원하면 화면에 꽉 차게 맞춰준다.
 //
-// parallaxFactor
+// parallaxFactorX / parallaxFactorY (가로·세로 따로)
 //   0   = 카메라에 완전히 고정 (하늘/먼 배경처럼 아무리 움직여도 안 흐름)
 //   0.3 = 카메라보다 30%만 따라감 (원근감 있는 중간 배경)
 //   1   = 월드에 고정 (일반 오브젝트와 동일. 이 스크립트가 필요 없는 경우)
+//
+// ★ 화면 전체 배경이 아니라 '배경 오브젝트'(멀리 있는 건물·기둥 등)를 놓을 때는
+//   Center On Camera / Fit To Camera를 둘 다 끌 것. 켜두면 시작하자마자 카메라 중앙으로 끌려오고
+//   화면 크기로 늘어나서 놓은 자리와 달라진다. 둘 다 끄면 '카메라가 그 오브젝트를 정면으로 볼 때'
+//   씬에 놓은 위치·크기 그대로 보인다.
 // ★ DefaultExecutionOrder(1000) — 반드시 카메라가 움직인 뒤에 배경을 옮겨야 한다.
 //    CameraFollow / CinemachineBrain 둘 다 LateUpdate에서 카메라를 옮기는데, 실행 순서를 지정하지 않으면
 //    배경이 먼저 돌아 '한 프레임 전 카메라 위치'를 기준으로 따라간다. 카메라가 Lerp로 부드럽게 움직이는 동안
@@ -20,12 +26,17 @@ public class ParallaxBackground : MonoBehaviour
     [Header("따라다니기")]
     [Tooltip("비우면 MainCamera를 자동으로 찾는다")]
     public Transform targetCamera;
-    [Range(0f, 1f)] public float parallaxFactor = 0f;
+    [Tooltip("가로 시차. 0 = 카메라에 고정, 1 = 월드에 고정")]
+    [FormerlySerializedAs("parallaxFactor")]
+    [Range(0f, 1f)] public float parallaxFactorX = 0f;
+    [Tooltip("세로 시차. 0 = 카메라에 고정, 1 = 월드에 고정")]
+    [Range(0f, 1f)] public float parallaxFactorY = 0f;
+    // 예전 단일 parallaxFactor 값을 세로에도 한 번 복사했는지 (기존 씬 값 이전용)
+    [SerializeField, HideInInspector] bool parallaxYMigrated;
     public bool followX = true;
     public bool followY = true;
-    [Tooltip("플레이 시작 시 배경을 카메라 정중앙으로 끌어온다. " +
-             "끄면 씬에 놓아둔 위치와 카메라 시작 위치의 차이가 그대로 유지돼, " +
-             "시작 지점이 원점에서 멀면 배경이 화면 밖에 남는다")]
+    [Tooltip("켜면: 플레이 시작 시 배경을 카메라 정중앙으로 끌어온다 (화면 전체 배경용).\n" +
+             "끄면: 씬에 놓은 위치를 기준으로 시차를 준다 — 카메라가 그 지점을 볼 때 놓은 자리에 정확히 보인다 (배경 오브젝트용)")]
     public bool centerOnCamera = true;
 
     [Header("그리는 순서")]
@@ -50,9 +61,21 @@ public class ParallaxBackground : MonoBehaviour
 
     void OnEnable()
     {
+        MigrateParallaxY();
         spr = GetComponent<SpriteRenderer>();
         anchored = false;
         ApplyLook();
+    }
+
+    void OnValidate() => MigrateParallaxY();
+
+    // 예전엔 parallaxFactor 하나로 가로·세로를 같이 썼다. 가로는 FormerlySerializedAs로 넘어오지만
+    // 세로는 새 칸이라 0이 되므로, 처음 한 번만 가로 값을 복사해 기존 씬의 움직임을 그대로 유지한다.
+    void MigrateParallaxY()
+    {
+        if (parallaxYMigrated) return;
+        parallaxFactorY = parallaxFactorX;
+        parallaxYMigrated = true;
     }
 
     void ResolveCamera()
@@ -89,23 +112,31 @@ public class ParallaxBackground : MonoBehaviour
 
         if (!anchored)
         {
-            anchorCamPos = cam.transform.position;
-
-            // 씬에 배경을 어디에 놓아뒀든 시작 시점엔 화면 정중앙에 오게 맞춘다.
-            // (A01처럼 플레이어 시작 지점이 원점에서 멀리 떨어진 씬은, 이걸 안 하면
-            //  배경이 놓인 자리와 카메라 사이의 간격이 그대로 유지돼 화면 밖에 남는다)
-            anchorPos = centerOnCamera
-                ? new Vector3(anchorCamPos.x, anchorCamPos.y, transform.position.z)
-                : transform.position;
+            if (centerOnCamera)
+            {
+                // 씬에 배경을 어디에 놓아뒀든 시작 시점엔 화면 정중앙에 오게 맞춘다.
+                // (A01처럼 플레이어 시작 지점이 원점에서 멀리 떨어진 씬은, 이걸 안 하면
+                //  배경이 놓인 자리와 카메라 사이의 간격이 그대로 유지돼 화면 밖에 남는다)
+                anchorCamPos = cam.transform.position;
+                anchorPos = new Vector3(anchorCamPos.x, anchorCamPos.y, transform.position.z);
+            }
+            else
+            {
+                // 배경 오브젝트: 기준 카메라 위치를 '오브젝트가 놓인 자리'로 잡는다.
+                // ★ 예전엔 첫 프레임의 카메라 위치를 기준으로 삼았는데, 그 직후 카메라가 플레이어에게
+                //   순간이동(CameraSnap)하면 그 이동량만큼 오브젝트가 같이 밀려 놓은 자리와 어긋났다.
+                anchorPos = transform.position;
+                anchorCamPos = new Vector3(anchorPos.x, anchorPos.y, cam.transform.position.z);
+            }
 
             anchored = true;
         }
 
-        // 카메라가 움직인 만큼의 (1 - parallaxFactor)를 배경도 같이 움직여 상대적으로 덜 흐르게 만든다.
+        // 카메라가 움직인 만큼의 (1 - 시차)를 배경도 같이 움직여 상대적으로 덜 흐르게 만든다.
         Vector3 camDelta = cam.transform.position - anchorCamPos;
         Vector3 p = anchorPos;
-        if (followX) p.x = anchorPos.x + camDelta.x * (1f - parallaxFactor);
-        if (followY) p.y = anchorPos.y + camDelta.y * (1f - parallaxFactor);
+        if (followX) p.x = anchorPos.x + camDelta.x * (1f - parallaxFactorX);
+        if (followY) p.y = anchorPos.y + camDelta.y * (1f - parallaxFactorY);
 
         transform.position = new Vector3(p.x, p.y, cam.transform.position.z + zDepth);
     }

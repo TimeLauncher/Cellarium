@@ -12,6 +12,7 @@ public class PlayerTraversal
     {
         public float expireAt;
         public float move, jump, dash;
+        public float fall, maxFall; // 낙하 중력 배율 / 최대 낙하 속도 (거미줄)
     }
 
     readonly Dictionary<Object, Effect> effects = new Dictionary<Object, Effect>();
@@ -20,18 +21,25 @@ public class PlayerTraversal
     public float MoveMultiplier { get; private set; } = 1f;
     public float JumpMultiplier { get; private set; } = 1f;
     public float DashMultiplier { get; private set; } = 1f;
+    // 낙하 감속 (A10~A11 Fix (2) 거미줄 바닥). FallMultiplier < 1이면 내려가는 동안 중력이 그만큼만 걸리고,
+    // 낙하 속도는 MaxFallSpeed를 넘지 않는다. 효과가 없으면 1 / 무한대.
+    public float FallMultiplier { get; private set; } = 1f;
+    public float MaxFallSpeed { get; private set; } = float.PositiveInfinity;
+    public bool SlowsFall => FallMultiplier < 1f || !float.IsPositiveInfinity(MaxFallSpeed);
 
     // 상태 '거미줄' — 애니메이션/이펙트에서 참고용
     public bool IsWebbed { get; private set; }
 
     // 거미줄 접촉. 닿아 있는 동안 매 FixedUpdate 갱신되므로 상태가 상시 유지되고,
     // 벗어나면 duration 뒤에 풀린다.
-    public void ApplyWeb(SpiderWeb source, float duration, float move, float jump, float dash)
+    public void ApplyWeb(SpiderWeb source, float duration, float move, float jump, float dash,
+        float fall = 1f, float maxFall = float.PositiveInfinity)
     {
-        Apply(source, duration, move, jump, dash);
+        Apply(source, duration, move, jump, dash, fall, maxFall);
     }
 
-    public void Apply(Object source, float duration, float move, float jump, float dash)
+    public void Apply(Object source, float duration, float move, float jump, float dash,
+        float fall = 1f, float maxFall = float.PositiveInfinity)
     {
         if (source == null) return;
         effects[source] = new Effect
@@ -40,6 +48,8 @@ public class PlayerTraversal
             move = Mathf.Clamp01(move),
             jump = Mathf.Clamp01(jump),
             dash = Mathf.Clamp01(dash),
+            fall = Mathf.Clamp01(fall),
+            maxFall = Mathf.Max(0f, maxFall),
         };
         Recalculate();
     }
@@ -117,18 +127,22 @@ public class PlayerTraversal
 
     void Recalculate()
     {
-        float move = 1f, jump = 1f, dash = 1f;
+        float move = 1f, jump = 1f, dash = 1f, fall = 1f, maxFall = float.PositiveInfinity;
         bool webbed = false;
         foreach (var pair in effects)
         {
             move = Mathf.Min(move, pair.Value.move);
             jump = Mathf.Min(jump, pair.Value.jump);
             dash = Mathf.Min(dash, pair.Value.dash);
+            fall = Mathf.Min(fall, pair.Value.fall);
+            maxFall = Mathf.Min(maxFall, pair.Value.maxFall);
             if (pair.Key is SpiderWeb) webbed = true;
         }
         MoveMultiplier = move;
         JumpMultiplier = jump;
         DashMultiplier = dash;
+        FallMultiplier = fall;
+        MaxFallSpeed = maxFall;
         IsWebbed = webbed;
     }
 }

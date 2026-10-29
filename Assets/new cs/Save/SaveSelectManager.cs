@@ -41,7 +41,8 @@ public class SaveSelectManager : MonoBehaviour
     {
         SaveManager.Instance.CreateNewGame(slotIndex);
 
-        Debug.Log($"[SaveSelectManager] 새 게임 시작 - Slot {slotIndex}");
+        GameStartPoint.ResetStartPosition();
+        SaveLoadHandler.CancelLoad();
 
         SceneLoader.LoadScene(firstStageSceneName);
     }
@@ -53,24 +54,17 @@ public class SaveSelectManager : MonoBehaviour
 
     private void ContinueGame(int slotIndex)
     {
-        bool success =
-            SaveManager.Instance.LoadGame(slotIndex);
+        bool success = SaveManager.Instance.LoadGame(slotIndex);
 
         if (!success)
         {
-            Debug.LogError(
-                $"[SaveSelectManager] Slot {slotIndex} 불러오기 실패"
-            );
-
+            Debug.LogError("[SaveSelectManager] 세이브 파일 불러오기 실패");
             return;
         }
 
-        string sceneName =
-            SaveManager.Instance.CurrentData.sceneName;
+        string sceneName = SaveManager.Instance.CurrentData.sceneName;
 
-        Debug.Log(
-            $"[SaveSelectManager] 이어하기 - {sceneName}"
-        );
+        SaveLoadHandler.RequestLoad();
 
         SceneLoader.LoadScene(sceneName);
     }

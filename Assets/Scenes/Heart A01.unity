@@ -496,6 +496,10 @@ MonoBehaviour:
   cellPickupDelay: 0.45
   cellPopUpSpeed: 4
   cellPopSideSpeed: 2.5
+  actionStartDelay: 0
+  persistDeath: 1
+  persistentId: 
+  spawnedAtRuntime: 0
 --- !u!61 &53186668
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -1216,6 +1220,10 @@ MonoBehaviour:
   cellPickupDelay: 0.45
   cellPopUpSpeed: 4
   cellPopSideSpeed: 2.5
+  actionStartDelay: 0
+  persistDeath: 1
+  persistentId: 
+  spawnedAtRuntime: 0
 --- !u!61 &119077430
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -6242,6 +6250,123 @@ ParticleSystem:
         m_PostInfinity: 2
         m_RotationOrder: 4
     vectorLabel1_3: W
+--- !u!1 &189651910
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 189651912}
+  - component: {fileID: 189651911}
+  m_Layer: 0
+  m_Name: SaveLoadHandler
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &189651911
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 189651910}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 802d08720cc50ee4ca25508b90d0351b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SaveLoadHandler
+--- !u!4 &189651912
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 189651910}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 204062483}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1001 &204062482
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 5861319480879938389, guid: 845075c41c0f57c4f93218ea3ec3fde4, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 7.24614
+      objectReference: {fileID: 0}
+    - target: {fileID: 5861319480879938389, guid: 845075c41c0f57c4f93218ea3ec3fde4, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: -2.40681
+      objectReference: {fileID: 0}
+    - target: {fileID: 5861319480879938389, guid: 845075c41c0f57c4f93218ea3ec3fde4, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5861319480879938389, guid: 845075c41c0f57c4f93218ea3ec3fde4, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5861319480879938389, guid: 845075c41c0f57c4f93218ea3ec3fde4, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5861319480879938389, guid: 845075c41c0f57c4f93218ea3ec3fde4, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5861319480879938389, guid: 845075c41c0f57c4f93218ea3ec3fde4, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5861319480879938389, guid: 845075c41c0f57c4f93218ea3ec3fde4, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5861319480879938389, guid: 845075c41c0f57c4f93218ea3ec3fde4, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5861319480879938389, guid: 845075c41c0f57c4f93218ea3ec3fde4, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6214799625714117018, guid: 845075c41c0f57c4f93218ea3ec3fde4, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7239024884104265211, guid: 845075c41c0f57c4f93218ea3ec3fde4, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8461988826592280876, guid: 845075c41c0f57c4f93218ea3ec3fde4, type: 3}
+      propertyPath: m_Name
+      value: GameSessionRoot
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects:
+    - targetCorrespondingSourceObject: {fileID: 5861319480879938389, guid: 845075c41c0f57c4f93218ea3ec3fde4, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 189651912}
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 845075c41c0f57c4f93218ea3ec3fde4, type: 3}
+--- !u!4 &204062483 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 5861319480879938389, guid: 845075c41c0f57c4f93218ea3ec3fde4, type: 3}
+  m_PrefabInstance: {fileID: 204062482}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &252941969
 GameObject:
   m_ObjectHideFlags: 0
@@ -6493,6 +6618,10 @@ MonoBehaviour:
   cellPickupDelay: 0.45
   cellPopUpSpeed: 4
   cellPopSideSpeed: 2.5
+  actionStartDelay: 0
+  persistDeath: 1
+  persistentId: 
+  spawnedAtRuntime: 0
   engageRange: 8
   projectilePrefab: {fileID: 4789779386128304187, guid: 54d88cc04de8449498db2f6aff1d7dee, type: 3}
   firePoint: {fileID: 1633221628}
@@ -6900,6 +7029,10 @@ MonoBehaviour:
   cellPickupDelay: 0.45
   cellPopUpSpeed: 4
   cellPopSideSpeed: 2.5
+  actionStartDelay: 0
+  persistDeath: 1
+  persistentId: 
+  spawnedAtRuntime: 0
   dashWindup: 0.5
   dashSpeed: 13
   dashMaxDuration: 3.5
@@ -46909,6 +47042,10 @@ MonoBehaviour:
   cellPickupDelay: 0.45
   cellPopUpSpeed: 4
   cellPopSideSpeed: 2.5
+  actionStartDelay: 0
+  persistDeath: 1
+  persistentId: 
+  spawnedAtRuntime: 0
 --- !u!61 &547928896
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -53407,6 +53544,10 @@ MonoBehaviour:
   cellPickupDelay: 0.45
   cellPopUpSpeed: 4
   cellPopSideSpeed: 2.5
+  actionStartDelay: 0
+  persistDeath: 1
+  persistentId: 
+  spawnedAtRuntime: 0
   dashWindup: 0.5
   dashSpeed: 13
   dashMaxDuration: 3.5
@@ -58644,6 +58785,10 @@ MonoBehaviour:
   cellPickupDelay: 0.45
   cellPopUpSpeed: 4
   cellPopSideSpeed: 2.5
+  actionStartDelay: 0
+  persistDeath: 1
+  persistentId: 
+  spawnedAtRuntime: 0
 --- !u!61 &1012796814
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -58941,6 +59086,10 @@ MonoBehaviour:
   cellPickupDelay: 0.45
   cellPopUpSpeed: 4
   cellPopSideSpeed: 2.5
+  actionStartDelay: 0
+  persistDeath: 1
+  persistentId: 
+  spawnedAtRuntime: 0
   dashWindup: 0.5
   dashSpeed: 13
   dashMaxDuration: 3.5
@@ -59402,6 +59551,10 @@ MonoBehaviour:
   cellPickupDelay: 0.45
   cellPopUpSpeed: 4
   cellPopSideSpeed: 2.5
+  actionStartDelay: 0
+  persistDeath: 1
+  persistentId: 
+  spawnedAtRuntime: 0
 --- !u!61 &1162014134
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -114857,6 +115010,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SceneEntryPoint
   entryId: from_A00
+  arrivalStyle: 0
+  jumpInDepth: 2
+  jumpInSideOffset: 1
+  jumpInVelocity: 14
+  fallInHeight: 3
+  landingPause: 0.25
+  airArrivalMaxDuration: 3
   walkInOnArrival: 1
   walkInDistance: 2.5
   walkInDirection: 1
@@ -115137,11 +115297,18 @@ MonoBehaviour:
   cellPickupDelay: 0.45
   cellPopUpSpeed: 4
   cellPopSideSpeed: 2.5
+  actionStartDelay: 0
+  persistDeath: 1
+  persistentId: 
+  spawnedAtRuntime: 0
   chaseSpeed: 2.6
   diveAttackRange: 4
   diveSpeed: 14
   diveWindup: 0.5
   diveMaxDuration: 1
+  rotateOnDive: 1
+  diveRotationMaxAngle: 70
+  diveVisualRoot: {fileID: 0}
 --- !u!61 &1492353074
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -116411,6 +116578,10 @@ MonoBehaviour:
   cellPickupDelay: 0.45
   cellPopUpSpeed: 4
   cellPopSideSpeed: 2.5
+  actionStartDelay: 0
+  persistDeath: 1
+  persistentId: 
+  spawnedAtRuntime: 0
   dashWindup: 0.5
   dashSpeed: 13
   dashMaxDuration: 3.5
@@ -121774,6 +121945,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SceneEntryPoint
   entryId: from_A02
+  arrivalStyle: 0
+  jumpInDepth: 2
+  jumpInSideOffset: 1
+  jumpInVelocity: 14
+  fallInHeight: 3
+  landingPause: 0.25
+  airArrivalMaxDuration: 3
   walkInOnArrival: 1
   walkInDistance: 2.5
   walkInDirection: -1
@@ -121942,6 +122120,10 @@ MonoBehaviour:
   cellPickupDelay: 0.45
   cellPopUpSpeed: 4
   cellPopSideSpeed: 2.5
+  actionStartDelay: 0
+  persistDeath: 1
+  persistentId: 
+  spawnedAtRuntime: 0
   engageRange: 8
   projectilePrefab: {fileID: 4789779386128304187, guid: 54d88cc04de8449498db2f6aff1d7dee, type: 3}
   firePoint: {fileID: 1460484254}
@@ -127687,3 +127869,4 @@ SceneRoots:
   - {fileID: 1492353077}
   - {fileID: 262163406}
   - {fileID: 1960920765}
+  - {fileID: 204062482}

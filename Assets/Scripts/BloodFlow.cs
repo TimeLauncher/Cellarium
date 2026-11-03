@@ -4,6 +4,8 @@ using UnityEngine;
 // BoxCollider2D 범위에 닿은 PC는 구간 중심선으로 끌려 들어가 flowDirection 방향으로 흘러간다.
 // 꺾이는 경로는 구간을 여러 개 이어 붙여 만든다 — 겹친 곳에서는 나중에 들어간 구간이 이긴다.
 // 혈류 안에서는 좌우 이동이 막히고, 방향키는 바라보는 방향(=이탈 방향)만 정한다. 점프로 이탈.
+// passThroughWalls를 켜면 벽(타일) 속에 깔린 혈류가 된다 (A10~A11 Fix (1)) — 흐르는 동안 PC가 벽 레이어와
+// 충돌하지 않아 콜라이더와 무관하게 경로를 따라가고, 점프 이탈과 흐름 방향이 아닌 대시는 막힌다.
 [DefaultExecutionOrder(-50)] // PlayerController.FixedUpdate보다 먼저 접촉을 알려야 같은 스텝에 반영된다
 [RequireComponent(typeof(BoxCollider2D))]
 public class BloodFlow : MonoBehaviour
@@ -20,6 +22,13 @@ public class BloodFlow : MonoBehaviour
     [Min(0f)] public float exitSpeed = 10f;
     [Tooltip("이탈 직후 혈류에 다시 붙지 않는 시간(초)")]
     [Min(0f)] public float exitImmunity = 0.35f;
+
+    [Header("벽 속 혈류 (선택)")]
+    [Tooltip("켜면 벽 안에 깔린 혈류도 콜라이더를 무시하고 경로를 따라 흐른다. 흐르는 동안 점프 이탈 불가, 대시는 흐름 방향으로만.\n" +
+             "입구·출구 쪽 박스를 벽 바깥으로 반 칸쯤 내밀어야 PC가 벽에 막히기 전에 혈류에 닿는다")]
+    public bool passThroughWalls = false;
+    [Tooltip("벽 속 혈류에서 흐르는 동안 무시할 레이어 (지형)")]
+    public LayerMask wallLayers;
 
     [Header("방향 반전 (선택)")]
     [Tooltip("이 중 하나라도 켜져 있으면 흐름 방향이 반대가 된다. 비워두면 반전 없음")]
@@ -40,6 +49,12 @@ public class BloodFlow : MonoBehaviour
     {
         area = GetComponent<BoxCollider2D>();
         area.isTrigger = true;
+        if (wallLayers.value == 0) wallLayers = LayerMask.GetMask("Ground", "Wall");
+    }
+
+    void Reset()
+    {
+        wallLayers = LayerMask.GetMask("Ground", "Wall");
     }
 
     void FixedUpdate()
@@ -59,11 +74,13 @@ public class BloodFlow : MonoBehaviour
     }
 
     // 역류 금지: 흐름 반대 성분을 지운 방향. 남는 게 없으면 zero.
+    // 벽 속 혈류는 벽 쪽(옆) 성분도 지워 흐름 방향으로만 남긴다.
     public Vector2 ClampAgainstFlow(Vector2 wanted)
     {
         Vector2 dir = FlowDirection;
         float against = Vector2.Dot(wanted, dir);
-        if (against < 0f) wanted -= dir * against;
+        if (passThroughWalls) wanted = dir * Mathf.Max(0f, against);
+        else if (against < 0f) wanted -= dir * against;
         return wanted.sqrMagnitude < 0.01f ? Vector2.zero : wanted.normalized;
     }
 

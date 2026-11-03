@@ -166,6 +166,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ButtonSwitch
   detectMargin: 0.15
   latch: 1
+  toggle: 0
   normalSprite: {fileID: 2530564911472380330, guid: 2d3b9de9bd54d7044b2d3b2950e665ae, type: 3}
   pressedSprite: {fileID: -6033804811190297774, guid: 3db49c59ef11bd94f8891de35925278e, type: 3}
   pressedColor: {r: 1, g: 1, b: 1, a: 1}
@@ -862,7 +863,17 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CellChunk
   cellAmount: 50
+  isDarkCell: 0
   persistentId: 
+  pickupDelay: 0
+  popGravity: 14
+  maxPopDistanceX: 1.2
+  popBlockMask:
+    serializedVersion: 2
+    m_Bits: 0
+  attractStartSpeed: 4
+  attractAcceleration: 40
+  attractArriveDistance: 0.3
 --- !u!58 &78813007
 CircleCollider2D:
   m_ObjectHideFlags: 0
@@ -1107,7 +1118,29 @@ MonoBehaviour:
   attackActiveTime: 0.3
   consumableLifetime: 5
   showConsumeIndicator: 1
+  hitEffect:
+    prefab: {fileID: 0}
+    rotateToHitDirection: 0
+    scale: 0.9
+    lifetime: 0.3
+    fallbackColor: {r: 1, g: 0.85, b: 0.35, a: 1}
+    inheritSortingFromTarget: 1
+    sortingOrderOffset: 5
+    enabled: 1
+  hitFlashColor: {r: 1, g: 0.45, b: 0.45, a: 1}
+  hitFlashDuration: 0.12
+  cellDropTotal: 10
+  cellDropCount: 5
   cellChunkPrefab: {fileID: 0}
+  cellPickupDelay: 0.45
+  cellPopUpSpeed: 4
+  cellPopSideSpeed: 2.5
+  absorbCellsOnConsume: 1
+  cellAbsorbDelay: 0.2
+  actionStartDelay: 0
+  persistDeath: 1
+  persistentId: 
+  spawnedAtRuntime: 0
   engageRange: 8
   projectilePrefab: {fileID: 4789779386128304187, guid: 54d88cc04de8449498db2f6aff1d7dee, type: 3}
   firePoint: {fileID: 190459090}
@@ -1467,6 +1500,12 @@ MonoBehaviour:
   openSlideDistance: 5
   openSlideDuration: 0.6
   openSlideDir: {x: 0, y: 1}
+  focusCameraOnOpen: 0
+  cameraFocusTarget: {fileID: 0}
+  focusTravelTime: 0.8
+  focusHoldTime: 0.8
+  focusReturnTime: 0.8
+  focusLockInput: 1
   tintDoorByProgress: 0
   closedColor: {r: 1, g: 1, b: 1, a: 1}
   readyColor: {r: 0, g: 1, b: 1, a: 1}
@@ -2234,6 +2273,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ButtonSwitch
   detectMargin: 0.15
   latch: 1
+  toggle: 0
   normalSprite: {fileID: 2530564911472380330, guid: 2d3b9de9bd54d7044b2d3b2950e665ae, type: 3}
   pressedSprite: {fileID: -6033804811190297774, guid: 3db49c59ef11bd94f8891de35925278e, type: 3}
   pressedColor: {r: 1, g: 1, b: 1, a: 1}
@@ -3091,7 +3131,29 @@ MonoBehaviour:
   attackActiveTime: 0.3
   consumableLifetime: 5
   showConsumeIndicator: 1
+  hitEffect:
+    prefab: {fileID: 0}
+    rotateToHitDirection: 0
+    scale: 0.9
+    lifetime: 0.3
+    fallbackColor: {r: 1, g: 0.85, b: 0.35, a: 1}
+    inheritSortingFromTarget: 1
+    sortingOrderOffset: 5
+    enabled: 1
+  hitFlashColor: {r: 1, g: 0.45, b: 0.45, a: 1}
+  hitFlashDuration: 0.12
+  cellDropTotal: 10
+  cellDropCount: 5
   cellChunkPrefab: {fileID: 0}
+  cellPickupDelay: 0.45
+  cellPopUpSpeed: 4
+  cellPopSideSpeed: 2.5
+  absorbCellsOnConsume: 1
+  cellAbsorbDelay: 0.2
+  actionStartDelay: 0
+  persistDeath: 1
+  persistentId: 
+  spawnedAtRuntime: 0
   surfaceNormal: {x: 1, y: 0}
   stickRayDistance: 1
   surfaceSearchDistance: 3
@@ -3896,7 +3958,29 @@ MonoBehaviour:
   attackActiveTime: 0.3
   consumableLifetime: 5
   showConsumeIndicator: 1
+  hitEffect:
+    prefab: {fileID: 0}
+    rotateToHitDirection: 0
+    scale: 0.9
+    lifetime: 0.3
+    fallbackColor: {r: 1, g: 0.85, b: 0.35, a: 1}
+    inheritSortingFromTarget: 1
+    sortingOrderOffset: 5
+    enabled: 1
+  hitFlashColor: {r: 1, g: 0.45, b: 0.45, a: 1}
+  hitFlashDuration: 0.12
+  cellDropTotal: 10
+  cellDropCount: 5
   cellChunkPrefab: {fileID: 0}
+  cellPickupDelay: 0.45
+  cellPopUpSpeed: 4
+  cellPopSideSpeed: 2.5
+  absorbCellsOnConsume: 1
+  cellAbsorbDelay: 0.2
+  actionStartDelay: 0
+  persistDeath: 1
+  persistentId: 
+  spawnedAtRuntime: 0
   engageRange: 8
   projectilePrefab: {fileID: 4789779386128304187, guid: 54d88cc04de8449498db2f6aff1d7dee, type: 3}
   firePoint: {fileID: 858033775}
@@ -4605,23 +4689,35 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::EventTriggerZone
   steps:
   - type: 1
+    runWithNext: 0
     duration: 1
     dialogue: {fileID: 11400000, guid: ec65ed73b9e5410b98629f052c8af9b2, type: 2}
     actor: {fileID: 0}
     moveTarget: {fileID: 0}
     moveSpeed: 3
     arriveDistance: 0.3
+    followPlayer: 0
+    followOffsetX: 1.3
+    cameraTarget: {fileID: 0}
+    cameraTravelTime: 0.8
+    cameraReturnTime: 0.8
     target: {fileID: 0}
     active: 1
     sceneName: 
     entryId: 
   - type: 3
+    runWithNext: 0
     duration: 5
     dialogue: {fileID: 0}
     actor: {fileID: 0}
     moveTarget: {fileID: 770000051}
     moveSpeed: 3
     arriveDistance: 0.4
+    followPlayer: 0
+    followOffsetX: 1.3
+    cameraTarget: {fileID: 0}
+    cameraTravelTime: 0.8
+    cameraReturnTime: 0.8
     target: {fileID: 0}
     active: 1
     sceneName: 
@@ -5584,6 +5680,15 @@ MonoBehaviour:
   hintOffset: {x: 0, y: 1.5, z: 0}
   hintScale: 0.5
   interactKey: 101
+  leaveAfterTalk: 0
+  rewardCell: 100
+  rewardCellPrefab: {fileID: 0}
+  leaveDelay: 0.3
+  leaveFadeDuration: 0.8
+  blackoutOnLeave: 0
+  blackoutHold: 0.4
+  rewardPickupDelay: 1.2
+  persistentId: 
 --- !u!1 &924752043
 GameObject:
   m_ObjectHideFlags: 0
@@ -6010,7 +6115,7 @@ Transform:
   m_GameObject: {fileID: 1051709536}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 15.38, y: -5.79, z: 0}
+  m_LocalPosition: {x: 20.67, y: -3.08, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -6068,7 +6173,29 @@ MonoBehaviour:
   attackActiveTime: 0.3
   consumableLifetime: 5
   showConsumeIndicator: 1
+  hitEffect:
+    prefab: {fileID: 0}
+    rotateToHitDirection: 0
+    scale: 0.9
+    lifetime: 0.3
+    fallbackColor: {r: 1, g: 0.85, b: 0.35, a: 1}
+    inheritSortingFromTarget: 1
+    sortingOrderOffset: 5
+    enabled: 1
+  hitFlashColor: {r: 1, g: 0.45, b: 0.45, a: 1}
+  hitFlashDuration: 0.12
+  cellDropTotal: 10
+  cellDropCount: 5
   cellChunkPrefab: {fileID: 0}
+  cellPickupDelay: 0.45
+  cellPopUpSpeed: 4
+  cellPopSideSpeed: 2.5
+  absorbCellsOnConsume: 1
+  cellAbsorbDelay: 0.2
+  actionStartDelay: 0
+  persistDeath: 1
+  persistentId: 
+  spawnedAtRuntime: 0
 --- !u!1 &1060490050
 GameObject:
   m_ObjectHideFlags: 0
@@ -7508,7 +7635,29 @@ MonoBehaviour:
   attackActiveTime: 0.3
   consumableLifetime: 5
   showConsumeIndicator: 1
+  hitEffect:
+    prefab: {fileID: 0}
+    rotateToHitDirection: 0
+    scale: 0.9
+    lifetime: 0.3
+    fallbackColor: {r: 1, g: 0.85, b: 0.35, a: 1}
+    inheritSortingFromTarget: 1
+    sortingOrderOffset: 5
+    enabled: 1
+  hitFlashColor: {r: 1, g: 0.45, b: 0.45, a: 1}
+  hitFlashDuration: 0.12
+  cellDropTotal: 10
+  cellDropCount: 5
   cellChunkPrefab: {fileID: 0}
+  cellPickupDelay: 0.45
+  cellPopUpSpeed: 4
+  cellPopSideSpeed: 2.5
+  absorbCellsOnConsume: 1
+  cellAbsorbDelay: 0.2
+  actionStartDelay: 0
+  persistDeath: 1
+  persistentId: 
+  spawnedAtRuntime: 0
   dashWindup: 0.5
   dashSpeed: 13
   dashMaxDuration: 3.5
@@ -7658,7 +7807,7 @@ Transform:
   m_GameObject: {fileID: 1447688274}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 12.13, y: -5.44, z: 0}
+  m_LocalPosition: {x: 19.76, y: -5.38, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -7834,7 +7983,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ParallaxBackground
   targetCamera: {fileID: 519420032}
-  parallaxFactor: 0
+  parallaxFactorX: 0
+  parallaxFactorY: 0
+  parallaxYMigrated: 1
   followX: 1
   followY: 1
   centerOnCamera: 1
@@ -7911,7 +8062,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 2.581037, y: 2.581037, z: 1}
+  m_LocalScale: {x: 2.5831726, y: 2.5831726, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
@@ -8125,12 +8276,38 @@ MonoBehaviour:
   attackActiveTime: 0.3
   consumableLifetime: 5
   showConsumeIndicator: 1
+  hitEffect:
+    prefab: {fileID: 0}
+    rotateToHitDirection: 0
+    scale: 0.9
+    lifetime: 0.3
+    fallbackColor: {r: 1, g: 0.85, b: 0.35, a: 1}
+    inheritSortingFromTarget: 1
+    sortingOrderOffset: 5
+    enabled: 1
+  hitFlashColor: {r: 1, g: 0.45, b: 0.45, a: 1}
+  hitFlashDuration: 0.12
+  cellDropTotal: 10
+  cellDropCount: 5
   cellChunkPrefab: {fileID: 0}
+  cellPickupDelay: 0.45
+  cellPopUpSpeed: 4
+  cellPopSideSpeed: 2.5
+  absorbCellsOnConsume: 1
+  cellAbsorbDelay: 0.2
+  actionStartDelay: 0
+  persistDeath: 1
+  persistentId: 
+  spawnedAtRuntime: 0
   chaseSpeed: 2.6
   diveAttackRange: 4
   diveSpeed: 10
   diveWindup: 0.5
   diveMaxDuration: 1
+  rotateOnDive: 1
+  diveRotationMaxAngle: 70
+  diveVisualRoot: {fileID: 0}
+  faceDeadZone: 0.3
 --- !u!61 &1630602707
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -8315,6 +8492,8 @@ MonoBehaviour:
   jumpPower: 13.5
   jumpBuffer: 0.12
   maxJumps: 1
+  allowAirJump: 0
+  coyoteTime: 0.25
   fallMultiplier: 8
   lowJumpMultiplier: 5.5
   ascendMultiplier: 2
@@ -8333,10 +8512,19 @@ MonoBehaviour:
   dashKnockbackSpeed: 7
   dashKnockbackUpRatio: 0.6
   dashInvincibleTime: 0.4
+  dashKnockbackControlLock: 0.12
+  dashRecoverTime: 0.08
+  dashHitStopTime: 0.06
+  groundDashConsumesAirDash: 1
+  rotateOnDash: 1
+  dashRotationMaxAngle: 70
+  dashVisualRoot: {fileID: 0}
   dashMonsterKnockback: 8
   fissionDashSpeed: 20
   fissionDashDuration: 0.2
   fissionDashHoldDuration: 0.3
+  allowCrushEscape: 1
+  crushEscapeSpeed: 8
   groundCheck: {fileID: 0}
   groundCheckRadius: 0.18
   groundMask:
@@ -8373,6 +8561,9 @@ MonoBehaviour:
   fissionDashCost: 100
   deathMotionDuration: 3
   defaultRespawnPosition: {x: 0, y: 0, z: 0}
+  dropCellsOnDeath: 1
+  deathCellDropPercent: 100
+  deathCellChunkPrefab: {fileID: 0}
   returnStartSpeed: 6
   returnMaxSpeed: 22
   returnAcceleration: 45
@@ -8380,6 +8571,8 @@ MonoBehaviour:
   returnTimeout: 4
   returnTriggerName: ReturnReady
   shrinkWhileReturning: 0
+  returnShrinkStrength: 1
+  returnMinScale: 0.4
   isControlled: 1
   isClone: 0
   forceSortingOrder: 1
@@ -8387,6 +8580,15 @@ MonoBehaviour:
   uncontrolledAlpha: 0.5
   hitFlashColor: {r: 1, g: 0.3, b: 0.3, a: 1}
   invincibleBlinkInterval: 0.08
+  hitEffect:
+    prefab: {fileID: 0}
+    rotateToHitDirection: 0
+    scale: 1.1
+    lifetime: 0.32
+    fallbackColor: {r: 1, g: 0.35, b: 0.35, a: 1}
+    inheritSortingFromTarget: 1
+    sortingOrderOffset: 5
+    enabled: 1
   thrownTimer: 0
 --- !u!61 &1656173080
 BoxCollider2D:
@@ -9384,7 +9586,7 @@ GameObject:
   - component: {fileID: 1897398197}
   - component: {fileID: 1897398196}
   - component: {fileID: 1897398195}
-  - component: {fileID: 1897398194}
+  - component: {fileID: 1897398199}
   m_Layer: 3
   m_Name: MS_Germ_Spider
   m_TagString: Untagged
@@ -9392,78 +9594,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &1897398194
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1897398193}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 85c167bc5fece134bbdf04ec0a1abe9c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::SpiderGerm
-  maxHp: 100
-  moveSpeed: 3
-  consumeThreshold: 0.25
-  detectionRange: 6
-  detectionExpandMultiplier: 3
-  playerMask:
-    serializedVersion: 2
-    m_Bits: 128
-  blockSightByTerrain: 1
-  obstructionMask:
-    serializedVersion: 2
-    m_Bits: 0
-  avoidLedges: 1
-  ledgeCheckAhead: 0.3
-  ledgeCheckDepth: 1.2
-  patrolDistance: 3
-  patrolPauseDuration: 1
-  patrolDistanceVariance: 0
-  patrolPauseVariance: 0
-  maxLeashDistance: 8
-  postAttackPause: 0.5
-  turnPauseDuration: 0.5
-  knockbackResistance: 1
-  knockbackRecoverTime: 0.2
-  knockbackDuringAttack: 0
-  attackRange: 1.5
-  attackDamage: 10
-  attackCooldown: 1.5
-  knockbackForce: 5
-  knockbackUpRatio: 0.5
-  knockbackAlwaysUp: 1
-  stunDuration: 0.3
-  attackHitbox: {fileID: 754318926}
-  showHitbox: 0
-  attackFrontOnly: 1
-  attackWindup: 0.2
-  attackActiveTime: 0.3
-  consumableLifetime: 5
-  showConsumeIndicator: 1
-  cellChunkPrefab: {fileID: 0}
-  surfaceNormal: {x: 0, y: 1}
-  stickRayDistance: 1
-  surfaceSearchDistance: 3
-  surfaceOffset: 0.2
-  surfaceMask:
-    serializedVersion: 2
-    m_Bits: 64
-  slashRange: 2.5
-  slashCooldown: 3.5
-  slashDamage: 50
-  slashWindup: 1
-  slashActiveTime: 0.2
-  pounceMinRange: 3
-  pounceMaxRange: 6
-  pounceWindup: 1
-  pounceAirTime: 0.5
-  pounceCooldown: 6
-  pounceDamage: 100
-  pounceLandRadius: 1.5
-  pounceHeight: 2
 --- !u!61 &1897398195
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -9605,13 +9735,148 @@ Transform:
   m_GameObject: {fileID: 1897398193}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 28.27, y: -6.38, z: 0}
+  m_LocalPosition: {x: 7.68, y: -5.34, z: 0}
   m_LocalScale: {x: 2, y: 2, z: 2}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 754318927}
   m_Father: {fileID: 346769738}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1897398199
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1897398193}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f10b696b88ba1324f831fca1ab694014, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ErosionSpiderGerm
+  maxHp: 700
+  moveSpeed: 5
+  consumeThreshold: 0.25
+  detectionRange: 10
+  detectionExpandMultiplier: 3
+  playerMask:
+    serializedVersion: 2
+    m_Bits: 128
+  blockSightByTerrain: 1
+  obstructionMask:
+    serializedVersion: 2
+    m_Bits: 0
+  avoidLedges: 1
+  ledgeCheckAhead: 0.3
+  ledgeCheckDepth: 1.2
+  patrolDistance: 3
+  patrolPauseDuration: 1
+  patrolDistanceVariance: 0
+  patrolPauseVariance: 0
+  maxLeashDistance: 0
+  postAttackPause: 0.5
+  turnPauseDuration: 0.5
+  knockbackResistance: 0
+  knockbackRecoverTime: 0.2
+  knockbackDuringAttack: 0
+  attackRange: 1.5
+  attackDamage: 50
+  attackCooldown: 1.5
+  knockbackForce: 5
+  knockbackUpRatio: 0.5
+  knockbackAlwaysUp: 1
+  stunDuration: 0.3
+  attackHitbox: {fileID: 0}
+  showHitbox: 0
+  attackFrontOnly: 1
+  attackWindup: 0.2
+  attackActiveTime: 0.3
+  consumableLifetime: 5
+  showConsumeIndicator: 1
+  hitEffect:
+    prefab: {fileID: 0}
+    rotateToHitDirection: 0
+    scale: 0.9
+    lifetime: 0.3
+    fallbackColor: {r: 1, g: 0.85, b: 0.35, a: 1}
+    inheritSortingFromTarget: 1
+    sortingOrderOffset: 5
+    enabled: 1
+  hitFlashColor: {r: 1, g: 0.45, b: 0.45, a: 1}
+  hitFlashDuration: 0.12
+  cellDropTotal: 100
+  cellDropCount: 10
+  cellChunkPrefab: {fileID: 0}
+  cellPickupDelay: 0.45
+  cellPopUpSpeed: 4
+  cellPopSideSpeed: 2.5
+  absorbCellsOnConsume: 1
+  cellAbsorbDelay: 0.2
+  actionStartDelay: 0
+  persistDeath: 1
+  persistentId: 
+  spawnedAtRuntime: 0
+  surfaceNormal: {x: 0, y: 1}
+  stickRayDistance: 1
+  surfaceSearchDistance: 3
+  surfaceOffset: 0.2
+  surfaceMask:
+    serializedVersion: 2
+    m_Bits: 0
+  slashRange: 3.5
+  slashCooldown: 0
+  slashDamage: 50
+  slashWindup: 0.7
+  slashActiveTime: 0.2
+  pounceMinRange: 2
+  pounceMaxRange: 999
+  pounceWindup: 0.5
+  pounceAirTime: 0.8
+  pounceCooldown: 0
+  pounceDamage: 50
+  pounceLandRadius: 1.5
+  pounceHeight: 6
+  engageRange: 10
+  stayDefeated: 1
+  priorityStartsOnCooldown: 1
+  showAttackAreas: 1
+  slashWeight: 1
+  slashRecovery: 1
+  slashBoxSize: {x: 3, y: 3}
+  slashBoxOffset: {x: 2, y: 1}
+  pounceWeight: 1
+  pounceHeightMax: 8
+  pounceRecovery: 0.4
+  darkBurstWeight: 1
+  darkBurstWindup: 1
+  darkBurstRecovery: 1
+  darkBurstCooldown: 5
+  darkBurstRadius: 2.5
+  darkBurstDamage: 50
+  darkBurstProjectileCount: {x: 5, y: 6}
+  darkBurstRange: 12
+  darkBurstProjectileDamage: 50
+  darkBurstFlightTime: 1.1
+  darkBurstProjectilePrefab: {fileID: 0}
+  tentaclePriority: 2
+  tentacleTriggerRange: 5
+  tentacleWindup: 1.5
+  tentacleActiveTime: 0.85
+  tentacleRecovery: 1
+  tentacleCooldown: 8
+  tentacleReach: 6
+  tentacleHeight: 2
+  tentacleDamage: 100
+  wallMovePriority: 1
+  wallMoveCooldown: 15
+  wallPoints: []
+  wallMoveSpeed: 14
+  chainBurstWindup: 0.5
+  chainBurstRecovery: 0
+  chainPounceWindup: 0.5
+  chainPounceRecovery: 1
+  darkCellDropAmount: 1
+  darkCellChunkPrefab: {fileID: 0}
 --- !u!1 &1919946900
 GameObject:
   m_ObjectHideFlags: 0
@@ -10521,6 +10786,7 @@ MonoBehaviour:
   hintScale: 0.5
   hideHintAfterActivate: 0
   persistentId: 
+  respawnMonstersOnSave: 1
 --- !u!61 &2118739055
 BoxCollider2D:
   m_ObjectHideFlags: 0

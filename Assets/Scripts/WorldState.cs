@@ -131,11 +131,13 @@ public class WorldState : MonoBehaviour
     // ★ 반드시 SceneManager.LoadScene 이전에 불러야 한다.
     //   Unity는 새 씬 오브젝트의 Awake를 sceneLoaded 콜백보다 먼저 돌리므로,
     //   로드 후에 정리하면 문·코인이 이미 낡은 상태를 읽어버린다.
-    public void ApplyRespawnPolicy()
+    // keepPickups: 셀을 들고 부활하는 경우(사망 셀 덩어리, RespawnManager) 셀 덩어리 기록은 정책과 상관없이 그대로 둔다.
+    public void ApplyRespawnPolicy(bool keepPickups = false)
     {
         foreach (WorldCategory c in System.Enum.GetValues(typeof(WorldCategory)))
         {
-            switch (modes[c])
+            PersistMode mode = keepPickups && c == WorldCategory.Pickup ? PersistMode.AlwaysPersist : modes[c];
+            switch (mode)
             {
                 case PersistMode.ResetOnRespawn:
                     live[c].Clear();
@@ -150,6 +152,13 @@ public class WorldState : MonoBehaviour
                     break; // 손대지 않는다
             }
         }
+    }
+
+    // 한 카테고리의 기록만 지운다 (세이브포인트 상호작용 시 몬스터 리젠 — SavePoint).
+    // 체크포인트 스냅샷은 호출하는 쪽이 이어서 다시 뜨므로 여기선 live만 비운다.
+    public static void ClearCategory(WorldCategory category)
+    {
+        if (Instance != null) Instance.live[category].Clear();
     }
 
     // 타이틀로 나가거나 새 게임을 시작할 때

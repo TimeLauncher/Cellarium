@@ -51,7 +51,7 @@ public class SpiderGerm : MonsterBase
         AlignToSurface();
     }
 
-    void AlignToSurface()
+    protected void AlignToSurface()
     {
         float angle = Mathf.Atan2(surfaceNormal.y, surfaceNormal.x) * Mathf.Rad2Deg - 90f;
         transform.rotation = Quaternion.Euler(0f, 0f, angle);
@@ -135,7 +135,7 @@ public class SpiderGerm : MonsterBase
         rb.gravityScale = 0f;
 
         // 아직 면에 다 붙지 않았으면 접선 이동을 멈추고 붙는 것만 우선 (벽에서 떨어진 채 떠다니는 것 방지)
-        if (!isAttachedToSurface || isAttacking)
+        if (!isAttachedToSurface || isAttacking || HoldPosition)
         {
             rb.linearVelocity = Vector2.zero;
             return;
@@ -151,6 +151,9 @@ public class SpiderGerm : MonsterBase
             PatrolAlongSurface();
         }
     }
+
+    // true면 면에 붙어만 있고 기어 다니지 않는다 (침식 거미균의 전투 돌입 전 대기 등)
+    protected virtual bool HoldPosition => false;
 
     void UpdatePounceJump()
     {

@@ -21,6 +21,9 @@ public class RespawnManager : MonoBehaviour
     string defaultScene;
     Vector3 defaultPos;
 
+    int carriedCells = -1;
+
+
     bool pendingRespawn;
     bool respawnUsedDefault; // 이번 부활이 '기본 지점' 부활인지 (체크포인트 부활과 위치 적용이 다르다)
 
@@ -97,7 +100,10 @@ public class RespawnManager : MonoBehaviour
         defaultScene = scene;
         defaultPos = pos;
     }
-
+    public void CarryCellsThroughRespawn(int cells)
+    {
+        carriedCells = Mathf.Max(0, cells);
+    }
     // 사망 시 호출 — 체크포인트(없으면 기본 지점, 그것도 없으면 현재) 씬을 리로드.
     // 리로드로 모든 배치 오브젝트가 초기 상태로 돌아간다.
     public void Respawn()

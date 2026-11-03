@@ -2,6 +2,12 @@ using System;
 using System.Collections.Generic;
 
 [Serializable]
+public class WorldStateSaveEntry
+{
+    public WorldCategory category;
+    public List<string> ids = new List<string>();
+}
+
 public class SaveData
 {
     // =========================
@@ -50,6 +56,8 @@ public class SaveData
 
     // =========================
     // 월드 상태
+    public List<WorldStateSaveEntry> worldStates =
+        new List<WorldStateSaveEntry>();
     // =========================
 
     // 완료된 이벤트 ID
@@ -60,6 +68,10 @@ public class SaveData
 
     // 처치된 보스 ID
     public List<string> defeatedBosses = new List<string>();
+
+
+    
+
 
 
     // =========================

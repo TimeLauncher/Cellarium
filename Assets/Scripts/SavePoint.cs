@@ -98,7 +98,12 @@ public class SavePoint : MonoBehaviour
     {
         LastSavePosition = transform.position;
         HasSave = true;
-
+        // 활성화되면 이미지 교체 (한 번만, 이후 계속 활성 이미지 유지)
+        if (!IsActivated)
+        {
+            ApplyActivatedLook();
+            WorldState.Record(WorldCategory.SavePoint, id);
+        }
         // 기타 메모 '세이브 포인트 상호작용 후 몬스터 리젠(모든 씬의 몬스터가 전부 리젠)'.
         // 죽인 몬스터 기록(MonsterBase.persistDeath)을 전부 지운다 → 어느 씬이든 다시 들어가면 몬스터가 다시 있다.
         // ★ 반드시 SaveCheckpoint보다 먼저 — 체크포인트 스냅샷에 지운 상태가 찍혀야 죽어서 부활해도 리젠된 상태가 유지된다.
@@ -135,6 +140,12 @@ public class SavePoint : MonoBehaviour
                     PlayerManager.Instance.fissionUnlocked;
             }
 
+            if (WorldState.Instance != null)
+            {
+                data.worldStates =
+                    WorldState.Instance.ExportToSaveData();
+            }
+
             SaveManager.Instance.SaveGame();
 
             Debug.Log(
@@ -142,12 +153,7 @@ public class SavePoint : MonoBehaviour
             );
         }
 
-        // 활성화되면 이미지 교체 (한 번만, 이후 계속 활성 이미지 유지)
-        if (!IsActivated)
-        {
-            ApplyActivatedLook();
-            WorldState.Record(WorldCategory.SavePoint, id);
-        }
+       
 
         if (PlayerManager.Instance != null)
         {

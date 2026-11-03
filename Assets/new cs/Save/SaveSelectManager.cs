@@ -63,7 +63,12 @@ public class SaveSelectManager : MonoBehaviour
         }
 
         string sceneName = SaveManager.Instance.CurrentData.sceneName;
-
+        if (WorldState.Instance != null)
+        {
+            WorldState.Instance.ImportFromSaveData(
+                SaveManager.Instance.CurrentData.worldStates
+            );
+        }
         SaveLoadHandler.RequestLoad();
 
         SceneLoader.LoadScene(sceneName);

@@ -199,4 +199,52 @@ public class WorldState : MonoBehaviour
         }
         sb.Append(t.name).Append('[').Append(t.GetSiblingIndex()).Append(']');
     }
+
+    public List<WorldStateSaveEntry> ExportToSaveData()
+    {
+        List<WorldStateSaveEntry> result =
+            new List<WorldStateSaveEntry>();
+
+        foreach (WorldCategory category in
+                 System.Enum.GetValues(typeof(WorldCategory)))
+        {
+            WorldStateSaveEntry entry = new WorldStateSaveEntry();
+            entry.category = category;
+            entry.ids = new List<string>(live[category]);
+
+            result.Add(entry);
+        }
+
+        return result;
+    }
+
+    public void ImportFromSaveData(List<WorldStateSaveEntry> savedStates)
+    {
+        // 기존 월드 상태 초기화
+        ClearAll();
+
+        if (savedStates != null)
+        {
+            foreach (WorldStateSaveEntry entry in savedStates)
+            {
+                if (entry == null || entry.ids == null)
+                    continue;
+
+                if (!live.ContainsKey(entry.category))
+                    continue;
+
+                foreach (string id in entry.ids)
+                {
+                    if (!string.IsNullOrEmpty(id))
+                        live[entry.category].Add(id);
+                }
+            }
+        }
+
+        // 불러온 상태를 부활 기준 체크포인트로 설정
+        CaptureCheckpoint();
+
+        Debug.Log("[WorldState] 저장된 월드 상태 복원 완료");
+    }
+
 }

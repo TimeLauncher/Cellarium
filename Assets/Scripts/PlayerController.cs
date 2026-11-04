@@ -106,6 +106,9 @@ public class PlayerController : MonoBehaviour
     [Tooltip("Q를 이 시간만큼 누르고 있으면 (떼지 않아도) 그 순간 분열이 확정된다. 기획 권장 0.5~0.7.\n" +
              "분열 모션은 Q를 누르는 즉시 시작되고, 이 시간 전에 떼면 모션이 취소된다")]
     public float fissionHoldDuration = 0.6f;
+    [Tooltip("게이지 부족 등으로 분열할 수 없을 때 Q를 누르면 재생할 애니메이터 상태 이름 (분열 실패 모션).\n" +
+             "비워두거나 컨트롤러에 그 상태가 없으면 아무 모션도 나오지 않는다")]
+    public string fissionFailState = "";
     [Tooltip("분열체 크기 배율 (본체 대비)")]
     public float cloneScaleRatio = 0.75f;
     [Tooltip("분열체를 몸 밖에 생성할 때 두는 여유 간격. 0이면 콜라이더가 딱 맞닿은 채로 생성된다")]
@@ -200,6 +203,11 @@ private RuntimeAnimatorController cloneAnimatorController;
         lifetime = 0.32f,
         fallbackColor = new Color(1f, 0.35f, 0.35f, 1f),
     };
+
+    [Header("대시 이펙트")]
+    [Tooltip("대시(일반·분열) 중 잔상 + 시작 이펙트(프리팹 선택). DashEffect.cs")]
+    public DashEffect.Settings dashEffect = new DashEffect.Settings();
+    private float dashAfterimageTimer;
 
 
     [HideInInspector] public float thrownTimer = 0f;
@@ -364,11 +372,13 @@ private RuntimeAnimatorController cloneAnimatorController;
     public PlayerTraversal Traversal { get; } = new PlayerTraversal();
     public bool IsGrounded => isGrounded; // 상하단 진입 연출(SceneEntryPoint)이 착지 판정에 사용
     private Vector2 flowFacing; // 혈류 안에서 마지막으로 누른 방향키 = 점프 이탈 방향
+    private LayerMask defaultExcludeLayers; // 벽 속 혈류를 빠져나오면 되돌릴 원래 rb.excludeLayers
 
     void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
         rb.collisionDetectionMode = CollisionDetectionMode2D.Continuous;
+        defaultExcludeLayers = rb.excludeLayers;
 
         // 몸통 콜라이더(트리거가 아닌 것)만 골라낸다.
         // 씬에 따라 플레이어에 피격범위용 트리거 BoxCollider2D가 함께 붙어 있는데,
@@ -467,6 +477,7 @@ private RuntimeAnimatorController cloneAnimatorController;
         if (isFissionDashing)
         {
             fissionDashTimer -= Time.deltaTime;
+            TickDashAfterimage();
             if (fissionDashTimer <= 0f)
             {
                 isFissionDashing = false;
@@ -544,7 +555,8 @@ private RuntimeAnimatorController cloneAnimatorController;
             jumpBufferTimer = 0f;
             airDashLeft = maxAirDash;
 
-            if (Input.GetButtonDown("Jump") && !IsActionLocked())
+            // 벽 속 혈류는 사방이 벽이라 점프 이탈이 없다 — 끝까지 흘러가야 나온다
+            if (Input.GetButtonDown("Jump") && !IsActionLocked() && !flow.passThroughWalls)
                 ExitBloodFlow(flow);
         }
         else
@@ -590,7 +602,7 @@ private RuntimeAnimatorController cloneAnimatorController;
         //   이제 Q를 누르는 즉시 모션을 시작하고, 홀드가 끝나면 분열을 확정한다. 중간에 떼면 모션을 취소한다.
         //   클립의 이벤트는 '확정된 분열'에서만 분열체를 만든다 (SpawnFissionClone 참고).
         // ★ 같은 메모 '움직이면서 누르면 반응 없게': 이동 키를 누르고 있는 상태에서 Q를 누르면 아예 시작하지 않는다.
-        //   (게이지가 부족해도 차징 모션은 나오지만, 홀드가 끝나는 순간 시전은 되지 않고 모션이 취소된다 — 기획 메모)
+        //   (게이지가 부족하면 차징 모션 없이 무시한다 — 아래 CanFission. 10/6엔 모션만 나오고 시전이 안 됐다)
         if (fissionMotionTimer > 0f) fissionMotionTimer -= Time.deltaTime;
         if (fissionSpawnWaitTimer > 0f)
         {
@@ -605,8 +617,13 @@ private RuntimeAnimatorController cloneAnimatorController;
         isFissioning = isFissionCharging || fissionCommitted || fissionMotionTimer > 0f;
 
         bool canStartFission = !isClone && !isFissionDashing && FissionUnlocked && !IsActionLocked();
+        // A10~A11 Fix: 게이지가 없는데도 분열 모션이 나오던 문제 — 시전할 수 없으면 차징을 시작하지 않고,
+        // 분열 실패 모션(fissionFailState)이 지정돼 있을 때만 그걸 재생한다
         if (Input.GetKeyDown(KeyCode.Q) && canStartFission && Mathf.Abs(moveX) < 0.01f)
-            BeginFissionCharge();
+        {
+            if (CanFission()) BeginFissionCharge();
+            else PlayFissionFail();
+        }
 
         if (isFissionCharging)
         {
@@ -735,6 +752,13 @@ private RuntimeAnimatorController cloneAnimatorController;
         // 혈류 접촉 정리 — 대시 중에도 돌려야 Update의 CurrentFlow가 정확하다
         BloodFlow flow = Traversal.UpdateFlow();
 
+        // 벽 속 혈류(passThroughWalls)를 타는 동안만 지형 레이어와 충돌하지 않는다.
+        // 흐름이 속도를 통째로 정하고 중심선으로 당기므로 벽 안에서도 경로를 벗어나지 않는다.
+        LayerMask exclude = flow != null && flow.passThroughWalls
+            ? (LayerMask)(defaultExcludeLayers | flow.wallLayers)
+            : defaultExcludeLayers;
+        if (rb.excludeLayers != exclude) rb.excludeLayers = exclude;
+
         // 이동 발판·이동 타일 등에 몸이 끼면 가까운 바깥쪽으로 밀어내 빼준다 (CrushEscape.cs)
         if (allowCrushEscape)
             CrushEscape.Resolve(rb, bodyColliders, crushEscapeSpeed);
@@ -811,7 +835,8 @@ private RuntimeAnimatorController cloneAnimatorController;
         // 이 값이 크면(A01은 8) 위로 띄운 넉백이 정점을 찍자마자 바닥으로 처박혀 포물선이 안 보인다.
         if (knockbackTimer > 0f && knockbackKeepsArc)
         {
-            // 넉백 중엔 기본 중력만 적용 — 아무것도 더하지 않는다
+            // 넉백 중엔 기본 중력만 적용 — 아무것도 더하지 않는다 (거미줄 낙하 감속만은 받는다)
+            if (rb.linearVelocity.y < 0f && Traversal.SlowsFall) ApplySlowFall();
         }
         else
             ApplyAirGravity(Input.GetButton("Jump"));
@@ -864,12 +889,28 @@ private RuntimeAnimatorController cloneAnimatorController;
     //   비조종 상태는 '점프 키를 누르지 않은 것'으로 쳐서 lowJumpMultiplier가 상승을 빠르게 죽인다.
     void ApplyAirGravity(bool holdingJump)
     {
+        if (rb.linearVelocity.y < 0f && Traversal.SlowsFall)
+        {
+            ApplySlowFall();
+            return;
+        }
         if (rb.linearVelocity.y < 0f)
             rb.linearVelocity += Vector2.up * Physics2D.gravity.y * (fallMultiplier - 1f) * Time.fixedDeltaTime;
         else if (rb.linearVelocity.y > 0f && !holdingJump)
             rb.linearVelocity += Vector2.up * Physics2D.gravity.y * (lowJumpMultiplier - 1f) * Time.fixedDeltaTime;
         else if (rb.linearVelocity.y > 0f && ascendMultiplier > 1f)
             rb.linearVelocity += Vector2.up * Physics2D.gravity.y * (ascendMultiplier - 1f) * Time.fixedDeltaTime;
+    }
+
+    // 거미줄 등 낙하 감속 기믹 안에서 내려가는 중 (A10~A11 Fix (2)).
+    // fallMultiplier 가속은 빼고, 물리 엔진이 거는 기본 중력(gravityScale 1)도 FallMultiplier만 남기고 상쇄한 뒤
+    // 최대 낙하 속도로 자른다.
+    void ApplySlowFall()
+    {
+        Vector2 v = rb.linearVelocity;
+        v.y -= Physics2D.gravity.y * rb.gravityScale * (1f - Traversal.FallMultiplier) * Time.fixedDeltaTime;
+        v.y = Mathf.Max(v.y, -Traversal.MaxFallSpeed);
+        rb.linearVelocity = v;
     }
 
     // 몸통 콜라이더가 여러 개일 수 있으므로 머티리얼은 전부에 적용해야 한다
@@ -1369,6 +1410,15 @@ private RuntimeAnimatorController cloneAnimatorController;
         flowFacing = Vector2.zero;
     }
 
+    // 대시 중 매 프레임 — afterimageInterval마다 잔상 한 장
+    void TickDashAfterimage()
+    {
+        dashAfterimageTimer -= Time.deltaTime;
+        if (dashAfterimageTimer > 0f) return;
+        dashAfterimageTimer = dashEffect.afterimageInterval;
+        DashEffect.SpawnAfterimage(dashEffect, spr);
+    }
+
     void TryNormalDash()
     {
         if (dashRecoverTimer > 0f) return; // 대시 직후 후딜 — 대시만 막고 섭취는 그대로 받는다
@@ -1407,6 +1457,8 @@ private RuntimeAnimatorController cloneAnimatorController;
         if (HasAnimatorParameter("dashDirY")) animator.SetFloat("dashDirY", dashDir.y);
 
         ApplyDashRotation(dashDir);
+        DashEffect.PlayStart(dashEffect, transform.position, dashDir, spr);
+        dashAfterimageTimer = 0f;
 
         float originalGravity = rb.gravityScale;
         rb.gravityScale = 0f;
@@ -1423,6 +1475,7 @@ private RuntimeAnimatorController cloneAnimatorController;
         {
             rb.linearVelocity = vel;
             dashInvincibleTimer = Mathf.Max(dashInvincibleTimer, 0.05f); // 대시하는 동안은 접촉 데미지 면역
+            TickDashAfterimage();
 
             float castRadius = col != null ? col.bounds.extents.x : 0.3f;
             float castDist = vel.magnitude * Time.deltaTime;
@@ -1589,13 +1642,28 @@ private RuntimeAnimatorController cloneAnimatorController;
     // ── 분열 ──────────────────────────────────────────────────────
 
     // 분열 시작. 실제로 발동했으면 true (게이지 부족 등으로 막히면 false → 모션 잠금도 안 걸림)
-    bool Fission()
+    // 지금 분열을 시전할 수 있는가 (해금·게이지·최대 분열 수)
+    bool CanFission()
     {
         if (!FissionUnlocked) return false;
         if (playerPrefab == null) return false;
         if (currentFissionGauge < fissionCost) return false;
         // 최대 분열 횟수 도달 시 차단(튜토리얼 등 하드 캡). 게이지를 소모하기 전에 막아 낭비 방지
         if (PlayerManager.Instance != null && !PlayerManager.Instance.CanSpawnClone()) return false;
+        return true;
+    }
+
+    void PlayFissionFail()
+    {
+        if (string.IsNullOrEmpty(fissionFailState) || !HasAnimatorController || !animator.isActiveAndEnabled) return;
+        int fail = Animator.StringToHash(fissionFailState);
+        if (animator.HasState(0, fail))
+            animator.CrossFadeInFixedTime(fail, 0.05f, 0);
+    }
+
+    bool Fission()
+    {
+        if (!CanFission()) return false;
 
         currentFissionGauge -= fissionCost;
 
@@ -1741,6 +1809,8 @@ private RuntimeAnimatorController cloneAnimatorController;
         rb.linearVelocity = dashDir * fissionDashSpeed;
         isFissionDashing = true;
         fissionDashTimer = fissionDashDuration * Traversal.DashMultiplier;
+        DashEffect.PlayStart(dashEffect, transform.position, dashDir, spr);
+        dashAfterimageTimer = 0f;
 
         Debug.Log("분열 대시!");
     }

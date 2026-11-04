@@ -7782,8 +7782,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 78c4e6d1405929042a6ef82062fecad8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerController
-  moveSpeed: 5
-  jumpPower: 20
+  moveSpeed: 6
+  jumpPower: 18.5
   jumpBuffer: 0.12
   maxJumps: 1
   allowAirJump: 0
@@ -7797,7 +7797,7 @@ MonoBehaviour:
   slamPreDelay: 0.2
   slamPostDelay: 0.2
   dashSpeed: 25
-  dashDistance: 2
+  dashDistance: 2.5
   dashCooldown: 0.5
   dashExitPreserve: 0.35
   allowAirDash: 1

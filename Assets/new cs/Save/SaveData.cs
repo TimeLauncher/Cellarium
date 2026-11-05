@@ -8,6 +8,13 @@ public class WorldStateSaveEntry
     public List<string> ids = new List<string>();
 }
 
+[Serializable]
+public class MapFogSaveEntry
+{
+    public string sceneName;
+    public string fogData;
+}
+
 public class SaveData
 {
     // =========================
@@ -69,8 +76,11 @@ public class SaveData
     // 처치된 보스 ID
     public List<string> defeatedBosses = new List<string>();
 
+    public List<MapFogSaveEntry> mapFogData =
+        new List<MapFogSaveEntry>();
 
-    
+
+
 
 
 

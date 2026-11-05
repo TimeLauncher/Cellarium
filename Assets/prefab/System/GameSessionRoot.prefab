@@ -3103,6 +3103,7 @@ MonoBehaviour:
   dashInvincibleTime: 0.2
   dashKnockbackControlLock: 0.12
   dashRecoverTime: 0.08
+  dashHitStopTime: 0.06
   groundDashConsumesAirDash: 1
   rotateOnDash: 1
   dashRotationMaxAngle: 70
@@ -3121,6 +3122,7 @@ MonoBehaviour:
   playerPrefab: {fileID: 1407842007847686578}
   fissionMotionLock: 0.5
   fissionHoldDuration: 0.6
+  fissionFailState: 
   cloneScaleRatio: 0.75
   fissionSpawnMargin: 0.15
   cloneAnimatorController: {fileID: 9100000, guid: f50eddeee2fe6a440b8456713bee1ff6, type: 2}
@@ -3149,6 +3151,9 @@ MonoBehaviour:
   fissionDashCost: 100
   deathMotionDuration: 3
   defaultRespawnPosition: {x: 0, y: 0, z: 0}
+  dropCellsOnDeath: 1
+  deathCellDropPercent: 100
+  deathCellChunkPrefab: {fileID: 0}
   returnStartSpeed: 6
   returnMaxSpeed: 22
   returnAcceleration: 45
@@ -3174,6 +3179,16 @@ MonoBehaviour:
     inheritSortingFromTarget: 1
     sortingOrderOffset: 5
     enabled: 1
+  dashEffect:
+    enabled: 1
+    afterimages: 1
+    afterimageInterval: 0.03
+    afterimageLifetime: 0.2
+    afterimageColor: {r: 0.6, g: 0.9, b: 1, a: 0.55}
+    prefab: {fileID: 0}
+    rotateToDashDirection: 1
+    scale: 1
+    lifetime: 0.3
   thrownTimer: 0
 --- !u!61 &347496991155063940
 BoxCollider2D:
@@ -3275,6 +3290,11 @@ MonoBehaviour:
   damageSound: {fileID: 8300000, guid: f57c0181f1eea3941a3ac723e603d002, type: 3}
   eatSound: {fileID: 8300000, guid: 19a4767f4e4993f4eb371701e11a38f5, type: 3}
   jumpSound: {fileID: 8300000, guid: 3ce62d5e95e7c9246b083861ffddd9bd, type: 3}
+  moveSound: {fileID: 0}
+  footstepInterval: 0.3
+  footstepPitchVariance: 0.08
+  landingSound: {fileID: 0}
+  landingMinFallSpeed: 4
 --- !u!1 &1420012826621216080
 GameObject:
   m_ObjectHideFlags: 0
@@ -4472,6 +4492,7 @@ GameObject:
   - component: {fileID: 2636455313256703605}
   - component: {fileID: 1704650611190379377}
   - component: {fileID: 1310616332467640929}
+  - component: {fileID: 4015415805733100338}
   m_Layer: 5
   m_Name: MapPanel
   m_TagString: Untagged
@@ -4538,6 +4559,19 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!114 &4015415805733100338
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2740367670369319230}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 88b624468c3059540abecbf552879cb2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::MapFogSaveManager
+  mapContent: {fileID: 1123300135707976630}
 --- !u!1 &2747089615840740952
 GameObject:
   m_ObjectHideFlags: 0
@@ -9839,6 +9873,7 @@ MonoBehaviour:
   player: {fileID: 1035922943121302480}
   fillImage: {fileID: 4663426076238393454}
   offset: {x: 0, y: 0.7, z: 0}
+  showInGame: 0
 --- !u!1 &7265477440613746494
 GameObject:
   m_ObjectHideFlags: 0

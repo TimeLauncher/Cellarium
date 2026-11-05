@@ -24,23 +24,48 @@ public class LoadingManager : MonoBehaviour
         StartCoroutine(LoadAsync());
     }
 
+
     private void PrepareGameSession()
     {
-        if (GameSessionRoot.Instance != null)
-            return;
-
-        if (gameSessionPrefab == null)
+        if (GameSessionRoot.Instance == null)
         {
-            Debug.LogError(
-                "[LoadingManager] GameSessionRoot Prefab이 연결되지 않았습니다."
-            );
-            return;
+            if (gameSessionPrefab == null)
+            {
+                Debug.LogError("[LoadingManager] GameSessionRoot Prefab이 없습니다.");
+                return;
+            }
+
+            Instantiate(gameSessionPrefab);
         }
 
-        Instantiate(gameSessionPrefab);
+        // 이어하기로 불러온 지도 탐험 기록 복원
+        if (SaveManager.Instance == null ||
+            SaveManager.Instance.CurrentData == null)
+            return;
 
-        Debug.Log("[LoadingManager] GameSessionRoot 생성 완료");
+        // 새 게임에서는 저장된 포그 데이터가 없으므로 복원하지 않음
+        var fogData = SaveManager.Instance.CurrentData.mapFogData;
+
+        if (fogData == null || fogData.Count == 0)
+            return;
+
+        MapFogSaveManager fogManager =
+            FindFirstObjectByType<MapFogSaveManager>(
+                FindObjectsInactive.Include
+            );
+
+        if (fogManager != null)
+        {
+            fogManager.ImportAllFog(fogData);
+
+            Debug.Log("[LoadingManager] 지도 탐험 기록 복원 완료");
+        }
+        else
+        {
+            Debug.LogWarning("[LoadingManager] MapFogSaveManager를 찾지 못했습니다.");
+        }
     }
+
 
     private void CleanupGameObjects()
     {

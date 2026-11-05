@@ -146,6 +146,25 @@ public class SavePoint : MonoBehaviour
                     WorldState.Instance.ExportToSaveData();
             }
 
+            MapFogSaveManager fogManager =
+                MapFogSaveManager.Instance;
+
+            if (fogManager == null)
+            {
+                fogManager = FindFirstObjectByType<MapFogSaveManager>(
+                    FindObjectsInactive.Include
+                );
+            }
+
+            if (fogManager != null)
+            {
+                data.mapFogData = fogManager.ExportAllFog();
+            }
+            else
+            {
+                Debug.LogWarning("[SavePoint] MapFogSaveManager를 찾지 못했습니다.");
+            }
+
             SaveManager.Instance.SaveGame();
 
             Debug.Log(

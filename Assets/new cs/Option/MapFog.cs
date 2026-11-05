@@ -265,4 +265,79 @@ public class MapFog : MonoBehaviour
     {
         hasPreviousPosition = false;
     }
+
+    public string ExportFog()
+    {
+        InitializeFog();
+
+        if (fogTexture == null || pixels == null)
+            return null;
+
+        // 현재 포그 픽셀을 PNG로 변환
+        byte[] pngBytes = fogTexture.EncodeToPNG();
+
+        // JSON에 저장할 수 있도록 문자열 변환
+        return System.Convert.ToBase64String(pngBytes);
+    }
+
+    public void ImportFog(string fogData)
+    {
+        if (string.IsNullOrEmpty(fogData))
+            return;
+
+        InitializeFog();
+
+        if (fogTexture == null || pixels == null)
+            return;
+
+        try
+        {
+            byte[] pngBytes =
+                System.Convert.FromBase64String(fogData);
+
+            // 저장된 포그 이미지를 임시 텍스처로 읽기
+            Texture2D loadedTexture = new Texture2D(2, 2);
+
+            try
+            {
+                if (!loadedTexture.LoadImage(pngBytes))
+                {
+                    Debug.LogWarning("[MapFog] 포그 이미지 불러오기 실패");
+                    return;
+                }
+
+                // 지도 해상도가 달라졌다면 복원하지 않음
+                if (loadedTexture.width != textureWidth ||
+                    loadedTexture.height != textureHeight)
+                {
+                    Debug.LogWarning(
+                        "[MapFog] 저장된 포그와 현재 텍스처 크기가 다릅니다."
+                    );
+                    return;
+                }
+
+                // 픽셀 배열 복원
+                pixels = loadedTexture.GetPixels32();
+
+                // 실제 지도 포그에 반영
+                ApplyTexture();
+
+                // 이전 위치와 연결되어 잘못 공개되는 현상 방지
+                ResetTrackingPosition();
+
+                Debug.Log("[MapFog] 포그 복원 완료");
+            }
+            finally
+            {
+                Destroy(loadedTexture);
+            }
+        }
+        catch (System.Exception e)
+        {
+            Debug.LogError(
+                $"[MapFog] 포그 복원 중 오류 발생: {e.Message}"
+            );
+        }
+    }
+
 }

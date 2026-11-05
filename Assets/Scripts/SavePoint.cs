@@ -45,6 +45,7 @@ public class SavePoint : MonoBehaviour
     private SpriteRenderer spr;
     private WorldTooltip hint;
     private string id;
+    public string SavePointId => id;
 
     void Awake()
     {
@@ -97,7 +98,12 @@ public class SavePoint : MonoBehaviour
     {
         LastSavePosition = transform.position;
         HasSave = true;
-
+        // 활성화되면 이미지 교체 (한 번만, 이후 계속 활성 이미지 유지)
+        if (!IsActivated)
+        {
+            ApplyActivatedLook();
+            WorldState.Record(WorldCategory.SavePoint, id);
+        }
         // 기타 메모 '세이브 포인트 상호작용 후 몬스터 리젠(모든 씬의 몬스터가 전부 리젠)'.
         // 죽인 몬스터 기록(MonsterBase.persistDeath)을 전부 지운다 → 어느 씬이든 다시 들어가면 몬스터가 다시 있다.
         // ★ 반드시 SaveCheckpoint보다 먼저 — 체크포인트 스냅샷에 지운 상태가 찍혀야 죽어서 부활해도 리젠된 상태가 유지된다.
@@ -108,13 +114,46 @@ public class SavePoint : MonoBehaviour
         // 체크포인트 저장 — 사망 시 이 지점/이 시점의 진행상황으로 되돌아온다 (몬스터/버튼은 씬 리로드로 초기화)
         if (RespawnManager.Instance != null)
             RespawnManager.Instance.SaveCheckpoint(transform.position);
-
-        // 활성화되면 이미지 교체 (한 번만, 이후 계속 활성 이미지 유지)
-        if (!IsActivated)
+        // 실제 세이브 파일 저장
+        if (SaveManager.Instance != null &&
+    SaveManager.Instance.CurrentData != null)
         {
-            ApplyActivatedLook();
-            WorldState.Record(WorldCategory.SavePoint, id);
+            SaveData data = SaveManager.Instance.CurrentData;
+
+            // 저장 위치
+            data.sceneName = gameObject.scene.name;
+            data.savePointID = id;
+
+            // 플레이어 진행 데이터
+            if (PlayerManager.Instance != null)
+            {
+                data.cellCurrency =
+                    PlayerManager.Instance.cellCurrency;
+
+                data.darkCellCurrency =
+                    PlayerManager.Instance.darkCellCurrency;
+
+                data.maxFissionCount =
+                    PlayerManager.Instance.maxFissionCount;
+
+                data.fissionUnlocked =
+                    PlayerManager.Instance.fissionUnlocked;
+            }
+
+            if (WorldState.Instance != null)
+            {
+                data.worldStates =
+                    WorldState.Instance.ExportToSaveData();
+            }
+
+            SaveManager.Instance.SaveGame();
+
+            Debug.Log(
+                $"[SavePoint] 게임 저장 완료 - Scene: {data.sceneName}, Point: {data.savePointID}"
+            );
         }
+
+       
 
         if (PlayerManager.Instance != null)
         {

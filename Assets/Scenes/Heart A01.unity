@@ -496,6 +496,10 @@ MonoBehaviour:
   cellPickupDelay: 0.45
   cellPopUpSpeed: 4
   cellPopSideSpeed: 2.5
+  actionStartDelay: 0
+  persistDeath: 1
+  persistentId: 
+  spawnedAtRuntime: 0
 --- !u!61 &53186668
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -1216,6 +1220,10 @@ MonoBehaviour:
   cellPickupDelay: 0.45
   cellPopUpSpeed: 4
   cellPopSideSpeed: 2.5
+  actionStartDelay: 0
+  persistDeath: 1
+  persistentId: 
+  spawnedAtRuntime: 0
 --- !u!61 &119077430
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -6493,6 +6501,10 @@ MonoBehaviour:
   cellPickupDelay: 0.45
   cellPopUpSpeed: 4
   cellPopSideSpeed: 2.5
+  actionStartDelay: 0
+  persistDeath: 1
+  persistentId: 
+  spawnedAtRuntime: 0
   engageRange: 8
   projectilePrefab: {fileID: 4789779386128304187, guid: 54d88cc04de8449498db2f6aff1d7dee, type: 3}
   firePoint: {fileID: 1633221628}
@@ -6900,6 +6912,10 @@ MonoBehaviour:
   cellPickupDelay: 0.45
   cellPopUpSpeed: 4
   cellPopSideSpeed: 2.5
+  actionStartDelay: 0
+  persistDeath: 1
+  persistentId: 
+  spawnedAtRuntime: 0
   dashWindup: 0.5
   dashSpeed: 13
   dashMaxDuration: 3.5
@@ -12066,8 +12082,8 @@ MonoBehaviour:
   hintShowRange: 3
   hintOffset: {x: 0, y: 3, z: 0}
   hintScale: 0.5
-  hideHintAfterActivate: 0
-  persistentId: 
+  hideHintAfterActivate: 1
+  persistentId: A01_SavePoint_01
 --- !u!61 &395257693
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -46909,6 +46925,10 @@ MonoBehaviour:
   cellPickupDelay: 0.45
   cellPopUpSpeed: 4
   cellPopSideSpeed: 2.5
+  actionStartDelay: 0
+  persistDeath: 1
+  persistentId: 
+  spawnedAtRuntime: 0
 --- !u!61 &547928896
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -53407,6 +53427,10 @@ MonoBehaviour:
   cellPickupDelay: 0.45
   cellPopUpSpeed: 4
   cellPopSideSpeed: 2.5
+  actionStartDelay: 0
+  persistDeath: 1
+  persistentId: 
+  spawnedAtRuntime: 0
   dashWindup: 0.5
   dashSpeed: 13
   dashMaxDuration: 3.5
@@ -58644,6 +58668,10 @@ MonoBehaviour:
   cellPickupDelay: 0.45
   cellPopUpSpeed: 4
   cellPopSideSpeed: 2.5
+  actionStartDelay: 0
+  persistDeath: 1
+  persistentId: 
+  spawnedAtRuntime: 0
 --- !u!61 &1012796814
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -58941,6 +58969,10 @@ MonoBehaviour:
   cellPickupDelay: 0.45
   cellPopUpSpeed: 4
   cellPopSideSpeed: 2.5
+  actionStartDelay: 0
+  persistDeath: 1
+  persistentId: 
+  spawnedAtRuntime: 0
   dashWindup: 0.5
   dashSpeed: 13
   dashMaxDuration: 3.5
@@ -59402,6 +59434,10 @@ MonoBehaviour:
   cellPickupDelay: 0.45
   cellPopUpSpeed: 4
   cellPopSideSpeed: 2.5
+  actionStartDelay: 0
+  persistDeath: 1
+  persistentId: 
+  spawnedAtRuntime: 0
 --- !u!61 &1162014134
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -114857,6 +114893,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SceneEntryPoint
   entryId: from_A00
+  arrivalStyle: 0
+  jumpInDepth: 2
+  jumpInSideOffset: 1
+  jumpInVelocity: 14
+  fallInHeight: 3
+  landingPause: 0.25
+  airArrivalMaxDuration: 3
   walkInOnArrival: 1
   walkInDistance: 2.5
   walkInDirection: 1
@@ -115137,11 +115180,18 @@ MonoBehaviour:
   cellPickupDelay: 0.45
   cellPopUpSpeed: 4
   cellPopSideSpeed: 2.5
+  actionStartDelay: 0
+  persistDeath: 1
+  persistentId: 
+  spawnedAtRuntime: 0
   chaseSpeed: 2.6
   diveAttackRange: 4
   diveSpeed: 14
   diveWindup: 0.5
   diveMaxDuration: 1
+  rotateOnDive: 1
+  diveRotationMaxAngle: 70
+  diveVisualRoot: {fileID: 0}
 --- !u!61 &1492353074
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -116411,6 +116461,10 @@ MonoBehaviour:
   cellPickupDelay: 0.45
   cellPopUpSpeed: 4
   cellPopSideSpeed: 2.5
+  actionStartDelay: 0
+  persistDeath: 1
+  persistentId: 
+  spawnedAtRuntime: 0
   dashWindup: 0.5
   dashSpeed: 13
   dashMaxDuration: 3.5
@@ -121774,6 +121828,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SceneEntryPoint
   entryId: from_A02
+  arrivalStyle: 0
+  jumpInDepth: 2
+  jumpInSideOffset: 1
+  jumpInVelocity: 14
+  fallInHeight: 3
+  landingPause: 0.25
+  airArrivalMaxDuration: 3
   walkInOnArrival: 1
   walkInDistance: 2.5
   walkInDirection: -1
@@ -121942,6 +122003,10 @@ MonoBehaviour:
   cellPickupDelay: 0.45
   cellPopUpSpeed: 4
   cellPopSideSpeed: 2.5
+  actionStartDelay: 0
+  persistDeath: 1
+  persistentId: 
+  spawnedAtRuntime: 0
   engageRange: 8
   projectilePrefab: {fileID: 4789779386128304187, guid: 54d88cc04de8449498db2f6aff1d7dee, type: 3}
   firePoint: {fileID: 1460484254}

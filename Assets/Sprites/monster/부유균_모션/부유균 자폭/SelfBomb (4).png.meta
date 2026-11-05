@@ -116,12 +116,12 @@ TextureImporter:
       name: SelfBomb (4)_0
       rect:
         serializedVersion: 2
-        x: 38
-        y: 49
-        width: 924
-        height: 902
+        x: 0
+        y: 0
+        width: 1000
+        height: 1000
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -138,7 +138,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 
+    spriteID: ad80784df6b2f18469aac7fbc0bd2d28
     internalID: 0
     vertices: []
     indices: 

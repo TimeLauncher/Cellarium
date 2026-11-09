@@ -22,6 +22,9 @@ public enum WorldCategory
     DarkCell,   // 다크셀 잔재 (능력 해금)
     SavePoint,  // 세이브포인트 활성화 여부
     Event,      // 이미 본 연출/이벤트 트리거 (EventTriggerZone)
+    Destructible, // 파괴된 응고 조직 벽 / 둥지 (DestructibleObject)
+    Vision,     // 암시야가 해제된 시야 제한 영역 (VisionArea)
+    Monster,    // 이미 죽인 몬스터 (MonsterBase) — 씬을 다시 들어와도 리젠되지 않게
 }
 
 public enum PersistMode
@@ -47,6 +50,15 @@ public class WorldState : MonoBehaviour
         // 강제 연출은 한 번 봤으면 다시 안 보는 편이 낫다.
         // 세이브 전으로 되돌리고 싶으면 WorldStateSettings에서 RestoreToCheckpoint로 바꿀 것.
         { WorldCategory.Event,     PersistMode.AlwaysPersist },
+
+        // 기획서 A07~A09: 벽·둥지는 "파괴된 이후 재생성되지 않음". 벽이 없어지면 그 뒤 암시야도 같이 풀린 채로 남는다.
+        { WorldCategory.Destructible, PersistMode.AlwaysPersist },
+        { WorldCategory.Vision,       PersistMode.AlwaysPersist },
+
+        // Fix 문서 '씬 이동시 몬스터 리젠이 안 되도록 수정':
+        //   씬을 나갔다 들어오는 것만으로는 되살아나지 않고(= 기록이 남아 있다),
+        //   죽어서 부활할 때는 초기 상태로 되돌린다(= 맵을 다시 풀어야 하므로 몬스터도 다시 나온다).
+        { WorldCategory.Monster,   PersistMode.ResetOnRespawn },
     };
 
     readonly Dictionary<WorldCategory, HashSet<string>> live = NewTable();       // 지금 진행 중인 상태
@@ -119,11 +131,13 @@ public class WorldState : MonoBehaviour
     // ★ 반드시 SceneManager.LoadScene 이전에 불러야 한다.
     //   Unity는 새 씬 오브젝트의 Awake를 sceneLoaded 콜백보다 먼저 돌리므로,
     //   로드 후에 정리하면 문·코인이 이미 낡은 상태를 읽어버린다.
-    public void ApplyRespawnPolicy()
+    // keepPickups: 셀을 들고 부활하는 경우(사망 셀 덩어리, RespawnManager) 셀 덩어리 기록은 정책과 상관없이 그대로 둔다.
+    public void ApplyRespawnPolicy(bool keepPickups = false)
     {
         foreach (WorldCategory c in System.Enum.GetValues(typeof(WorldCategory)))
         {
-            switch (modes[c])
+            PersistMode mode = keepPickups && c == WorldCategory.Pickup ? PersistMode.AlwaysPersist : modes[c];
+            switch (mode)
             {
                 case PersistMode.ResetOnRespawn:
                     live[c].Clear();
@@ -138,6 +152,13 @@ public class WorldState : MonoBehaviour
                     break; // 손대지 않는다
             }
         }
+    }
+
+    // 한 카테고리의 기록만 지운다 (세이브포인트 상호작용 시 몬스터 리젠 — SavePoint).
+    // 체크포인트 스냅샷은 호출하는 쪽이 이어서 다시 뜨므로 여기선 live만 비운다.
+    public static void ClearCategory(WorldCategory category)
+    {
+        if (Instance != null) Instance.live[category].Clear();
     }
 
     // 타이틀로 나가거나 새 게임을 시작할 때

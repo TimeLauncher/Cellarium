@@ -210,11 +210,21 @@ public class FloaterGerm : MonsterBase
             Vector2 dir =
                 ((Vector2)(target.position - transform.position)).normalized;
 
-            rb.linearVelocity = dir * moveSpeed;
+            // 이동 방향이 좌우로 바뀌면 Turn Pause만큼 멈춘다 (전 몬스터 공통)
+            float dx = target.position.x - transform.position.x;
+            if (UpdateTurnPause(dx > 0.3f ? 1 : (dx < -0.3f ? -1 : 0)))
+            {
+                rb.linearVelocity = Vector2.zero;
+                FaceDirection(dx);
+                return;
+            }
+
+            rb.linearVelocity = dir * ChaseMoveSpeed;
             FaceDirection(dir.x);
             return;
         }
 
+        lastChaseDir = 0;
         rb.linearVelocity = Vector2.zero;
 
     }

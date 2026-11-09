@@ -37,7 +37,6 @@ public class DisplaySettings : MonoBehaviour
 
     private int screenModeIndex = 0;
 
-    private ColorAdjustments colorAdjustments;
 
 
     private void Start()
@@ -50,6 +49,12 @@ public class DisplaySettings : MonoBehaviour
         UpdateScreenModeText();
     }
 
+    private void OnDisable()
+    {
+        // 설정창을 닫을 때 디스크에 기록한다 (드래그 중엔 메모리에만 써서 끊김을 막는다)
+        GameSettings.Flush();
+    }
+
 
     // =========================
     // 해상도
@@ -57,6 +62,10 @@ public class DisplaySettings : MonoBehaviour
 
     private void InitializeResolutions()
     {
+        // 지난번에 고른 해상도(GameSettings에 저장돼 있다)를 현재 항목으로 잡는다.
+        // 저장된 적이 없으면 지금 화면 크기가 들어 있다.
+        Vector2Int saved = GameSettings.Resolution;
+
         Resolution[] allResolutions = Screen.resolutions;
 
         foreach (Resolution resolution in allResolutions)
@@ -74,8 +83,8 @@ public class DisplaySettings : MonoBehaviour
 
             resolutions.Add(resolution);
 
-            if (resolution.width == Screen.width &&
-                resolution.height == Screen.height)
+            if (resolution.width == saved.x &&
+                resolution.height == saved.y)
             {
                 resolutionIndex = resolutions.Count - 1;
             }
@@ -109,9 +118,11 @@ public class DisplaySettings : MonoBehaviour
 
     private void InitializeScreenMode()
     {
+        FullScreenMode savedMode = GameSettings.ScreenMode;
+
         for (int i = 0; i < screenModes.Length; i++)
         {
-            if (Screen.fullScreenMode == screenModes[i])
+            if (savedMode == screenModes[i])
             {
                 screenModeIndex = i;
                 break;
@@ -149,7 +160,9 @@ public class DisplaySettings : MonoBehaviour
         Resolution resolution = resolutions[resolutionIndex];
         FullScreenMode mode = screenModes[screenModeIndex];
 
-        Screen.SetResolution(
+        // Screen.SetResolution을 직접 부르지 않고 GameSettings를 거친다.
+        // 그래야 고른 값이 저장돼서 다음에 게임을 켤 때도 그대로 적용된다.
+        GameSettings.SetResolution(
             resolution.width,
             resolution.height,
             mode
@@ -166,30 +179,34 @@ public class DisplaySettings : MonoBehaviour
 
     private void InitializeBrightness()
     {
-        if (globalVolume != null &&
-            globalVolume.profile.TryGet(out colorAdjustments))
-        {
-            brightnessSlider.minValue = 0;
-            brightnessSlider.maxValue = 100;
-            brightnessSlider.wholeNumbers = true;
+        // 인스펙터에 연결된 Global Volume을 GameSettings에 알려준다 (씩을 훑지 않게)
+        GameSettings.SetBrightnessVolume(globalVolume);
 
-            brightnessSlider.value = 50;
+        if (brightnessSlider == null)
+            return;
 
-            brightnessSlider.onValueChanged.AddListener(SetBrightness);
+        // 예전엔 globalVolume이 있을 때만 슬라이더를 연결했는데,
+        // Global Volume은 Heart A00에만 있어서 다른 씩에선 밝기 조절이 아예 안 먹었다.
+        // 실제로 어떻게 적용할지(URP 후처리 / 검은 판)는 GameSettings가 씩마다 알아서 고른다.
+        brightnessSlider.minValue = 0;
+        brightnessSlider.maxValue = 100;
+        brightnessSlider.wholeNumbers = true;
 
-            SetBrightness(brightnessSlider.value);
-        }
+        // 지난번에 저장해둔 값으로 시작 (기본 50 = 원본 밝기)
+        brightnessSlider.SetValueWithoutNotify(
+            Mathf.Round(GameSettings.Brightness * 100f)
+        );
+
+        brightnessSlider.onValueChanged.AddListener(SetBrightness);
+
+        SetBrightness(brightnessSlider.value);
     }
 
     public void SetBrightness(float value)
     {
-        if (colorAdjustments == null)
-            return;
-
-        // 0~100 → -2~+2 Exposure
-        float exposure = Mathf.Lerp(-2f, 2f, value / 100f);
-
-        colorAdjustments.postExposure.value = exposure;
+        // 적용과 저장은 GameSettings가 맡는다.
+        // 0~100 → 0~1 (50 = 원본), GameSettings가 -2~+2 Exposure로 환산한다.
+        GameSettings.Brightness = value / 100f;
 
         if (brightnessText != null)
             brightnessText.text = $"{Mathf.RoundToInt(value)}%";

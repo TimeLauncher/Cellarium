@@ -252,7 +252,7 @@ public class PlayerDashEat : MonoBehaviour
     {
         if (!isDashing) return;
 
-        if (collision.gameObject.layer == LayerMask.NameToLayer("monster"))
+        if (collision.gameObject.layer == LayerMask.NameToLayer("Monster"))
         {
             StopDashOnHit();
         }

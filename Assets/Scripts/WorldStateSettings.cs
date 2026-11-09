@@ -23,6 +23,15 @@ public class WorldStateSettings : MonoBehaviour
     [Tooltip("이미 본 강제 연출(EventTriggerZone). 죽을 때마다 연출을 다시 보고 싶지 않으면 AlwaysPersist")]
     public PersistMode events = PersistMode.AlwaysPersist;
 
+    [Tooltip("파괴된 응고 조직 벽·둥지. 기획상 재생성되지 않으므로 AlwaysPersist")]
+    public PersistMode destructibles = PersistMode.AlwaysPersist;
+
+    [Tooltip("최초 입장/벽 파괴로 해제된 암시야(VisionArea)")]
+    public PersistMode visionAreas = PersistMode.AlwaysPersist;
+
+    [Tooltip("이미 죽인 몬스터. 씬을 오가는 것만으론 항상 리젠되지 않고, 이 값은 '죽어서 부활할 때' 되살릴지를 정한다")]
+    public PersistMode monsters = PersistMode.ResetOnRespawn;
+
     void Awake()
     {
         Apply();
@@ -38,6 +47,9 @@ public class WorldStateSettings : MonoBehaviour
         w.SetMode(WorldCategory.DarkCell, darkCells);
         w.SetMode(WorldCategory.SavePoint, savePoints);
         w.SetMode(WorldCategory.Event, events);
+        w.SetMode(WorldCategory.Destructible, destructibles);
+        w.SetMode(WorldCategory.Vision, visionAreas);
+        w.SetMode(WorldCategory.Monster, monsters);
     }
 
     // 플레이 중 인스펙터에서 바꾼 값을 바로 반영 (튜닝용)

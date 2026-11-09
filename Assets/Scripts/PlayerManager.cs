@@ -1,6 +1,7 @@
 using System.Collections.Generic;
-using UnityEngine;
 using Unity.Cinemachine;
+using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class PlayerManager : MonoBehaviour
 {
@@ -51,8 +52,8 @@ public class PlayerManager : MonoBehaviour
         if (Instance == null) Instance = this;
         else Destroy(gameObject);
 
-        int playerLayer = LayerMask.NameToLayer("player");
-        int monsterLayer = LayerMask.NameToLayer("monster");
+        int playerLayer = LayerMask.NameToLayer("Player");
+        int monsterLayer = LayerMask.NameToLayer("Monster");
 
         // 플레이어는 몬스터를 밀거나 타고 올라갈 수 없다 (접촉 데미지는 MonsterBase가 겹침 검사로 따로 처리)
         if (playerLayer >= 0 && monsterLayer >= 0)
@@ -252,9 +253,33 @@ public class PlayerManager : MonoBehaviour
 
         currentPlayer.isControlled = true;
 
+        // ★ A00이 아닌 씬에서 바로 Play하면 개발용 부트스트랩(DevPlayerBootstrap)이 씬 로드 '뒤에' 플레이어를 만든다.
+        //   그러면 OnSceneLoaded가 불리지 않아 카메라 참조가 비어 있어서, 분열체로 바꿔도 카메라가 본체에 남아 있었다
+        //   (A12~A13 그 외 메모 '분열체 전환 시 카메라가 본체에 고정'). 비어 있으면 여기서 찾는다.
+        if (cinemachineCamera == null)
+            cinemachineCamera = FindFirstObjectByType<CinemachineCamera>();
         if (cinemachineCamera != null)
             cinemachineCamera.Follow = currentPlayer.transform;
 
         Debug.Log($"{index + 1}번 캐릭터로 조종 전환!");
+    }
+    void OnEnable()
+    {
+        SceneManager.sceneLoaded += OnSceneLoaded;
+    }
+
+    void OnDisable()
+    {
+        SceneManager.sceneLoaded -= OnSceneLoaded;
+    }
+
+    void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+        cinemachineCamera = FindFirstObjectByType<CinemachineCamera>();
+
+        if (cinemachineCamera != null && currentPlayer != null)
+        {
+            cinemachineCamera.Follow = currentPlayer.transform;
+        }
     }
 }

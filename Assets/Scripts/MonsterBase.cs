@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 
 public class MonsterBase : MonoBehaviour, IConsumable
 {
@@ -8,12 +8,30 @@ public class MonsterBase : MonoBehaviour, IConsumable
     [Range(0f, 1f)]
     public float consumeThreshold = 0.25f; // HP 몇 % 이하면 섭취 가능
 
+    // 기획서 A12~A13 '전체 몬스터 공통': 순찰 속도와 추적 속도를 따로 조정 (비행균에 있던 기능을 전체로)
+    [Header("추적 속도 (순찰 속도와 분리)")]
+    [Tooltip("켜면 추적할 때 아래 Chase Speed로 움직인다. 끄면 순찰·추적 모두 Move Speed. " +
+             "비행균은 원래부터 Chase Speed로 추적하므로 이 체크와 상관없다")]
+    public bool separateChaseSpeed = false;
+    [Tooltip("추적 이동 속도 (Separate Chase Speed가 켜져 있을 때)")]
+    public float chaseSpeed = 3f;
+
     [Header("감지")]
     public float detectionRange = 6f;
     public float detectionExpandMultiplier = 3f; // 탐지 이후 탐지범위 배율
     public LayerMask playerMask;
     public bool blockSightByTerrain = true; // 지형에 가로막히면 감지 취소
     public LayerMask obstructionMask;       // 미사용 — 맵이 레이어로 안 나뉘어 있어 CastSurface로 판정
+
+    // 기획서 A12~A13: 순찰 중 PC를 발견하면 바로 달려들지 않고 'PC를 인지하는 시간' 동안 멈춘다
+    [Tooltip("순찰 중 PC를 처음 발견했을 때 이동·공격 없이 멈춰 있는 시간(초). 0이면 바로 행동")]
+    [Min(0f)] public float noticeDuration = 0f;
+    [Tooltip("인지하는 순간 걸 애니메이터 트리거 이름. 컨트롤러에 이 이름의 트리거가 있을 때만 건다")]
+    public string noticeTrigger = "Notice";
+    [Tooltip("인지하는 순간 재생할 소리 (선택)")]
+    public AudioClip noticeSound;
+    [Tooltip("PC가 감지 범위 밖으로 나가거나 지형에 가려져도 이 시간(초) 동안은 계속 쫓다가 순찰로 돌아간다. 0이면 즉시 복귀")]
+    [Min(0f)] public float chaseMemoryTime = 0f;
 
     [Header("낭떠러지 감지")]
     public bool avoidLedges = true;      // 지상형만 true. 비행/벽타기형은 Awake에서 끔
@@ -30,8 +48,11 @@ public class MonsterBase : MonoBehaviour, IConsumable
     public float maxLeashDistance = 8f; // 순찰 원점에서 이 거리(타일) 이상 벗어나면 추격을 포기하고 원점으로 복귀 (0 = 무제한)
 
     [Header("행동 간 딜레이")]
-    public float postAttackPause = 0.5f;   // 공격이 끝난 뒤 이만큼 정지 후 다시 이동 (공격 직후 홱 도는 느낌 완화)
-    public float turnPauseDuration = 0.5f; // 추적 중 PC가 반대편으로 넘어가 이동 방향이 급전환될 때 정지 시간
+    [Tooltip("공격 후딜레이(초). 공격이 하나뿐인 몬스터는 이 값이 그 공격의 후딜레이다. " +
+             "공격이 여러 개인 몬스터(거미균·침식 거미균)는 공격마다 따로 있는 Recovery 값을 쓰고 이 값은 쓰지 않는다")]
+    public float postAttackPause = 0.5f;
+    [Tooltip("추적 중 PC가 반대편으로 넘어가 이동 방향이 바뀔 때 멈추는 시간(초). 모든 몬스터 공통, 0이면 멈추지 않는다")]
+    public float turnPauseDuration = 0.5f;
 
     [Header("피격 넉백 (대시 등)")]
     public float knockbackResistance = 1f;    // 밀려나는 정도 배율 (0이면 아예 안 밀림)
@@ -51,7 +72,7 @@ public class MonsterBase : MonoBehaviour, IConsumable
 
     [Header("히트박스")]
     public Collider2D attackHitbox; // Inspector에서 자식 오브젝트의 Collider2D 연결
-    public bool showHitbox = true;  // 이펙트 에셋 나오기 전까지 공격 범위를 화면에 표시
+    public bool showHitbox = false; // 공격 범위를 화면에 표시 (개발용 — 기획 요청으로 기본값 끔)
     public bool attackFrontOnly = true; // 바라보는 앞쪽만 공격 판정(뒤통수 안 때림). 히트박스도 방향 따라 뒤집힘
 
     [Header("공격 임시 타이머 (애니메이션 붙기 전까지만 사용)")]
@@ -102,7 +123,28 @@ public class MonsterBase : MonoBehaviour, IConsumable
     [Tooltip("셀이 좌우로 흩어지는 속도")]
     public float cellPopSideSpeed = 2.5f;
 
+    [Tooltip("섭취하면 셀이 바닥에 흩어지지 않고 잠깐 튀어나왔다가 PC에게 빨려 들어가 자동으로 획득된다. " +
+             "끄면 예전처럼 바닥에 떨어져 직접 주워야 한다 (안 먹고 방치해 시체가 사라질 때는 항상 바닥에 떨어진다)")]
+    public bool absorbCellsOnConsume = true;
+    [Tooltip("튀어나온 셀이 PC 쪽으로 날아가기 시작할 때까지의 시간")]
+    [Min(0f)] public float cellAbsorbDelay = 0.2f;
+
+    [Header("소환 직후 (둥지에서 소환된 개체)")]
+    [Tooltip("소환된 직후 이 시간 동안은 공격 등 '행동'을 하지 않는다. 이동/추적은 그대로 한다. " +
+             "둥지(MonsterNest)가 소환할 때 자기 값으로 덮어쓴다")]
+    [Min(0f)] public float actionStartDelay = 0f;
+
+    [Header("사망 기록 (씬 이동 시 리젠 방지)")]
+    [Tooltip("한 번 죽으면 씬을 나갔다 다시 들어와도 되살아나지 않는다. " +
+             "죽어서 부활할 때 되살릴지는 WorldStateSettings의 Monsters 정책이 정한다(기본: 되살림)")]
+    public bool persistDeath = true;
+    [Tooltip("사망 기록용 식별자. 비우면 계층 경로로 자동 생성된다 (오브젝트를 옮기면 바뀌므로 확정되면 적어둘 것)")]
+    public string persistentId = "";
+    [HideInInspector] public bool spawnedAtRuntime; // 둥지에서 소환된 개체 — 배치된 몬스터가 아니라 기록하지 않는다
+
     protected float currentHp;
+    protected float actionStartTimer;
+    string deathId;
     protected float attackCooldownTimer;
     protected bool isAttacking;
     protected Rigidbody2D rb;
@@ -121,7 +163,11 @@ public class MonsterBase : MonoBehaviour, IConsumable
     protected bool returningHome;      // 추격 제한을 넘어 원점으로 복귀 중
     protected int lastChaseDir;        // 추적 중 마지막 이동 방향 (급전환 감지용)
     protected float turnPauseTimer;    // 이동 방향 급전환 시 잠깐 멈추는 타이머
-    protected int facingDir = 1;       // 바라보는 방향(+1 오른쪽 / -1 왼쪽). 히트박스 방향/앞쪽 판정에 사용
+    protected float noticeTimer;       // PC를 처음 발견하고 멈춰 있는 시간
+    private bool wasAware;             // 직전 프레임에 PC를 보고 있었는가 (발견 순간 잡기용)
+    private float lostSightTimer;      // PC를 놓친 뒤 흐른 시간 (chaseMemoryTime 동안은 계속 쫓는다)
+    private AudioSource noticeAudio;
+    protected int facingDir = 1;      // 바라보는 방향(+1 오른쪽 / -1 왼쪽). 히트박스 방향/앞쪽 판정에 사용
     private float hitboxBaseOffsetX;   // 히트박스 자식의 원래 로컬 x 오프셋 크기 (방향 따라 부호만 바꿔줌)
     private Color baseColor;
     private float hitFlashTimer;
@@ -147,6 +193,22 @@ public class MonsterBase : MonoBehaviour, IConsumable
     // 탐지 이후 이탈 전까지는 확장된 범위를 계속 사용 (기획서 몬스터 공통 사항)
     protected float EffectiveDetectionRange => hasDetectedPlayer ? detectionRange * detectionExpandMultiplier : detectionRange;
 
+    // 추적할 때 쓸 속도 (Separate Chase Speed가 꺼져 있으면 Move Speed)
+    protected float ChaseMoveSpeed => separateChaseSpeed ? chaseSpeed : moveSpeed;
+
+    // PC를 발견하고 인지하는 중 — 이동·공격을 하지 않는다
+    protected bool IsNoticing => noticeTimer > 0f;
+
+    // 추적 방향이 바뀌었으면 Turn Pause를 건다. 지금 멈춰 있어야 하면 true.
+    // dir: 이번 프레임 추적 방향 (+1/-1, 0이면 판단 안 함)
+    protected bool UpdateTurnPause(int dir)
+    {
+        if (dir != 0 && lastChaseDir != 0 && dir != lastChaseDir)
+            turnPauseTimer = turnPauseDuration;
+        if (dir != 0) lastChaseDir = dir;
+        return turnPauseTimer > 0f;
+    }
+
     protected virtual void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
@@ -154,6 +216,7 @@ public class MonsterBase : MonoBehaviour, IConsumable
         animator = GetComponent<Animator>();
         bodyCollider = GetComponent<Collider2D>();
         currentHp = maxHp;
+        actionStartTimer = actionStartDelay;
         patrolOrigin = transform.position;
         currentPatrolLegDistance = patrolDistance;
 
@@ -175,6 +238,16 @@ public class MonsterBase : MonoBehaviour, IConsumable
             gameObject.AddComponent<ConsumeIndicator>();
 
         if (spr != null) baseColor = spr.color; // 인스펙터에서 구분용으로 지정한 색 보존
+    }
+
+    // 씬을 다시 들어왔을 때, 이미 죽인 몬스터는 되살아나지 않는다 (Fix 문서 '씬 이동시 몬스터 리젠이 안 되도록 수정')
+    protected virtual void Start()
+    {
+        if (!persistDeath || spawnedAtRuntime) return;
+
+        deathId = WorldState.MakeId(this, persistentId);
+        if (WorldState.Has(WorldCategory.Monster, deathId))
+            Destroy(gameObject);
     }
 
     protected virtual void Update()
@@ -201,6 +274,7 @@ public class MonsterBase : MonoBehaviour, IConsumable
         CheckContactDamage();
         PollAttackHitbox();
         UpdateDetection();
+        UpdateNotice();
 
         if (attackCooldownTimer > 0f)
             attackCooldownTimer -= Time.deltaTime;
@@ -210,10 +284,43 @@ public class MonsterBase : MonoBehaviour, IConsumable
             knockbackTimer -= Time.deltaTime;
         if (turnPauseTimer > 0f)
             turnPauseTimer -= Time.deltaTime;
+        if (actionStartTimer > 0f)
+            actionStartTimer -= Time.deltaTime; // 소환 직후 행동 지연 (이동은 막지 않는다)
 
-        // 넉백/공격후 딜레이 중이거나 원점 복귀 중엔 새 공격을 걸지 않는다
-        if (knockbackTimer <= 0f && actionPauseTimer <= 0f && !returningHome)
+        // 넉백/공격후 딜레이/인지 중이거나 원점 복귀 중엔 새 공격을 걸지 않는다
+        if (knockbackTimer <= 0f && actionPauseTimer <= 0f && actionStartTimer <= 0f && !IsNoticing && !returningHome)
             UpdateBehavior();
+    }
+
+    // 순찰 중이던 몬스터가 PC를 처음 본 순간 noticeDuration만큼 멈춘다 (모션·소리 자리)
+    void UpdateNotice()
+    {
+        if (noticeTimer > 0f) noticeTimer -= Time.deltaTime;
+
+        bool aware = target != null;
+        if (aware && !wasAware && noticeDuration > 0f && !isAttacking && !returningHome)
+        {
+            noticeTimer = noticeDuration;
+            FaceDirection(target.position.x - transform.position.x);
+            if (HasAnimatorController && !string.IsNullOrEmpty(noticeTrigger))
+                foreach (var p in animator.parameters)
+                    if (p.name == noticeTrigger && p.type == AnimatorControllerParameterType.Trigger)
+                    {
+                        animator.SetTrigger(noticeTrigger);
+                        break;
+                    }
+            if (noticeSound != null)
+            {
+                if (noticeAudio == null)
+                {
+                    noticeAudio = gameObject.AddComponent<AudioSource>();
+                    noticeAudio.playOnAwake = false;
+                }
+                noticeAudio.PlayOneShot(noticeSound);
+            }
+        }
+        if (!aware) noticeTimer = 0f;
+        wasAware = aware;
     }
 
     protected virtual void FixedUpdate()
@@ -313,8 +420,8 @@ public class MonsterBase : MonoBehaviour, IConsumable
         consumer.RestoreFromConsume(100f, 100f);
 
         // ★ 셀은 죽자마자가 아니라 '섭취하고 나서' 나온다.
-        //   섭취 안 하고 방치해 consumableLifetime으로 사라지면 셀도 안 나온다(의도된 동작).
-        DropCells();
+        // 기타 메모 '몬스터 먹으면 셀 안 떨구고 자동으로 먹어지는 효과로': 바닥에 흩어지는 대신 섭취한 PC에게 빨려 들어간다.
+        DropCells(absorbCellsOnConsume && consumer != null ? consumer.transform : null);
     }
 
     protected virtual void UpdateDetection()
@@ -334,11 +441,18 @@ public class MonsterBase : MonoBehaviour, IConsumable
         {
             target = hit.transform;
             hasDetectedPlayer = true;
+            lostSightTimer = 0f;
+        }
+        else if (target != null && lostSightTimer < chaseMemoryTime)
+        {
+            // 놓쳤어도 chaseMemoryTime 동안은 계속 쫓는다
+            lostSightTimer += Time.deltaTime;
         }
         else
         {
             target = null;
             hasDetectedPlayer = false;
+            lostSightTimer = 0f;
         }
     }
 
@@ -388,6 +502,12 @@ public class MonsterBase : MonoBehaviour, IConsumable
     protected bool MovementSuppressed()
     {
         if (knockbackTimer > 0f) return true;
+        if (IsNoticing && !isAttacking)
+        {
+            // 중력 없는 비행형은 세로 속도도 지워야 제자리에 선다
+            if (rb != null) rb.linearVelocity = rb.gravityScale == 0f ? Vector2.zero : new Vector2(0f, rb.linearVelocity.y);
+            return true;
+        }
         if (actionPauseTimer > 0f)
         {
             if (rb != null) rb.linearVelocity = new Vector2(0f, rb.linearVelocity.y);
@@ -443,13 +563,11 @@ public class MonsterBase : MonoBehaviour, IConsumable
         int dir = dx > 0.02f ? 1 : (dx < -0.02f ? -1 : 0);
 
         // 추적 중 PC가 반대편으로 넘어가 이동 방향이 급전환되면 잠깐 멈췄다가 따라간다 (QA: 0.5초 내외)
-        if (dir != 0 && lastChaseDir != 0 && dir != lastChaseDir)
-            turnPauseTimer = turnPauseDuration;
-        if (dir != 0) lastChaseDir = dir;
+        bool turning = UpdateTurnPause(dir);
 
         FaceDirection(dx);
 
-        if (turnPauseTimer > 0f)
+        if (turning)
         {
             rb.linearVelocity = new Vector2(0f, rb.linearVelocity.y);
             return;
@@ -462,7 +580,7 @@ public class MonsterBase : MonoBehaviour, IConsumable
             return;
         }
 
-        rb.linearVelocity = new Vector2(Mathf.Sign(dx) * moveSpeed, rb.linearVelocity.y);
+        rb.linearVelocity = new Vector2(Mathf.Sign(dx) * ChaseMoveSpeed, rb.linearVelocity.y);
     }
 
     // 정해진 구간을 반복 이동 + 주기적으로 정지 (기획서 "기본 행동" 공통 패턴)
@@ -615,6 +733,9 @@ public class MonsterBase : MonoBehaviour, IConsumable
             //     ② 안 먹고 시체가 사라질 때 → OnConsumableTimeout()
             //     ③ 자폭형이 터졌을 때      → FloaterGerm.Detonate()
             //   즉 '죽는 것'이 아니라 '시체가 정리되는 것'이 조건이다.
+            if (persistDeath && !spawnedAtRuntime)
+                WorldState.Record(WorldCategory.Monster, deathId ?? WorldState.MakeId(this, persistentId));
+
             OnDeath();
         }
     }
@@ -631,7 +752,8 @@ public class MonsterBase : MonoBehaviour, IConsumable
     }
 
     // 셀 드랍. 몸통(피격) 콜라이더 범위 안에 무작위로 흩뿌린다.
-    protected virtual void DropCells()
+    // absorbTarget을 넣으면 떨어진 셀이 그 대상(섭취한 PC)에게 날아가 자동으로 획득된다
+    protected virtual void DropCells(Transform absorbTarget = null)
     {
         if (cellDropTotal <= 0 || cellDropCount <= 0) return;
 
@@ -652,35 +774,16 @@ public class MonsterBase : MonoBehaviour, IConsumable
                 Random.Range(area.min.y, area.max.y),
                 transform.position.z);
 
-            SpawnCellChunk(pos, amount);
+            SpawnCellChunk(pos, amount, absorbTarget);
         }
     }
 
-    void SpawnCellChunk(Vector3 position, int amount)
+    void SpawnCellChunk(Vector3 position, int amount, Transform absorbTarget)
     {
-        CellChunk chunk;
-
-        if (cellChunkPrefab == null)
-        {
-            // 몬스터의 정렬 레이어를 물려줘야 맵/배경 뒤에 숨지 않는다
-            chunk = CellChunk.SpawnRuntime(position, amount, spr);
-        }
-        else
-        {
-            // 드랍분은 '이미 먹음' 기록을 남기지 않는다 (CellChunk.NextIsRuntimeDrop 주석 참고)
-            CellChunk.NextIsRuntimeDrop = true;
-            GameObject go = Instantiate(cellChunkPrefab, position, Quaternion.identity);
-            CellChunk.NextIsRuntimeDrop = false; // 프리팹이 비활성이라 Awake가 안 돈 경우 대비
-
-            chunk = go.GetComponent<CellChunk>();
-            if (chunk == null)
-            {
-                Debug.LogWarning($"[{name}] Cell Chunk Prefab에 CellChunk 컴포넌트가 없습니다.", this);
-                return;
-            }
-            chunk.cellAmount = amount;
-        }
-
+        // 어떤 모습으로 나올지는 CellChunk.Spawn이 정한다
+        // (인스펙터 프리팹 → Resources/Effects/CellDrop → 런타임 임시 원 순).
+        // 몬스터의 정렬 레이어를 물려줘야 맵/배경 뒤에 숨지 않는다.
+        CellChunk chunk = CellChunk.Spawn(position, amount, cellChunkPrefab, spr);
         if (chunk == null) return;
 
         // 섭취 직후엔 플레이어가 몬스터 자리에 겹쳐 있어서 그냥 두면 생기는 즉시 흡수된다.
@@ -688,10 +791,23 @@ public class MonsterBase : MonoBehaviour, IConsumable
         chunk.pickupDelay = cellPickupDelay;
         chunk.Launch(new Vector2(Random.Range(-cellPopSideSpeed, cellPopSideSpeed),
                                  Random.Range(cellPopUpSpeed * 0.6f, cellPopUpSpeed)));
+
+        if (absorbTarget != null)
+            chunk.AttractTo(absorbTarget, cellAbsorbDelay);
     }
 
     // 사망(체력 0) 시점 훅 — 자폭 등 특수 사망 처리가 필요한 타입에서 override
     protected virtual void OnDeath() { }
+
+    // 둥지(MonsterNest)가 소환 직후 불러주는 설정.
+    // Awake는 Instantiate 안에서 이미 끝난 뒤라 타이머를 여기서 다시 건다.
+    public virtual void OnSpawnedFromNest(float actionDelay, bool dropCells)
+    {
+        spawnedAtRuntime = true;
+        actionStartDelay = Mathf.Max(0f, actionDelay);
+        actionStartTimer = actionStartDelay;
+        if (!dropCells) cellDropTotal = 0; // 소환된 몬스터는 셀을 떨구지 않는다 (무한 파밍 방지)
+    }
 
     protected virtual void OnDrawGizmosSelected()
     {

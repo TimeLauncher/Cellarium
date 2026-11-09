@@ -33,12 +33,15 @@ public class SavePoint : MonoBehaviour
     [Tooltip("안내 이미지 크기 (1이면 원본 크기)")]
     public float hintScale = 0.5f;
     [Tooltip("세이브를 찍은 뒤에는 안내를 감춘다")]
-    public bool hideHintAfterActivate = true;
+    public bool hideHintAfterActivate = false;
 
     [Tooltip("부활 후에도 '이미 활성화됨'을 기억할 때 쓰는 식별자. 비우면 계층 경로로 자동 생성된다")]
     public string persistentId = "";
 
-    private bool playerInRange;
+    [Tooltip("상호작용하면 모든 씬의 죽인 몬스터가 리젠된다 (지금 씬은 다시 들어올 때부터)")]
+    public bool respawnMonstersOnSave = true;
+
+    private Collider2D interactionCollider;
     private SpriteRenderer spr;
     private WorldTooltip hint;
     private string id;
@@ -46,6 +49,7 @@ public class SavePoint : MonoBehaviour
     void Awake()
     {
         Collider2D col = GetComponent<Collider2D>();
+        interactionCollider = col;
         if (col != null) col.isTrigger = true;
 
         spr = GetComponentInChildren<SpriteRenderer>();
@@ -82,7 +86,10 @@ public class SavePoint : MonoBehaviour
 
     void Update()
     {
-        if (!playerInRange || !Input.GetKeyDown(KeyCode.E)) return;
+        if (!Input.GetKeyDown(KeyCode.E) || PlayerManager.Instance == null ||
+            PlayerManager.Instance.allPlayers.Count == 0) return;
+        PlayerController main = PlayerManager.Instance.allPlayers[0];
+        if (main == null || !IsInRange(main) || !main.TryBeginSaveMotion()) return;
         Activate();
     }
 
@@ -90,6 +97,13 @@ public class SavePoint : MonoBehaviour
     {
         LastSavePosition = transform.position;
         HasSave = true;
+
+        // 기타 메모 '세이브 포인트 상호작용 후 몬스터 리젠(모든 씬의 몬스터가 전부 리젠)'.
+        // 죽인 몬스터 기록(MonsterBase.persistDeath)을 전부 지운다 → 어느 씬이든 다시 들어가면 몬스터가 다시 있다.
+        // ★ 반드시 SaveCheckpoint보다 먼저 — 체크포인트 스냅샷에 지운 상태가 찍혀야 죽어서 부활해도 리젠된 상태가 유지된다.
+        // 지금 서 있는 씬에서 이미 죽인 몬스터는 오브젝트가 없어져서 즉시 되살아나지는 않고, 씬을 다시 들어오면 나온다.
+        if (respawnMonstersOnSave)
+            WorldState.ClearCategory(WorldCategory.Monster);
 
         // 체크포인트 저장 — 사망 시 이 지점/이 시점의 진행상황으로 되돌아온다 (몬스터/버튼은 씬 리로드로 초기화)
         if (RespawnManager.Instance != null)
@@ -105,9 +119,11 @@ public class SavePoint : MonoBehaviour
         if (PlayerManager.Instance != null)
         {
             PlayerManager.Instance.RecallAllClones();
+
             if (PlayerManager.Instance.allPlayers.Count > 0)
             {
                 PlayerController main = PlayerManager.Instance.allPlayers[0];
+
                 main.RestoreFromConsume(main.maxHp, main.maxFissionGauge);
             }
         }
@@ -129,13 +145,13 @@ public class SavePoint : MonoBehaviour
             hint.gameObject.SetActive(false);
     }
 
-    void OnTriggerEnter2D(Collider2D other)
+    bool IsInRange(PlayerController player)
     {
-        if (other.GetComponent<PlayerController>() != null) playerInRange = true;
-    }
-
-    void OnTriggerExit2D(Collider2D other)
-    {
-        if (other.GetComponent<PlayerController>() != null) playerInRange = false;
+        // Check the main body directly: clone exits or multiple colliders must not
+        // clear another player's overlap, nor activate a distant save point.
+        foreach (Collider2D body in player.GetComponentsInChildren<Collider2D>())
+            if (body.enabled && !body.isTrigger && interactionCollider.Distance(body).isOverlapped)
+                return true;
+        return false;
     }
 }

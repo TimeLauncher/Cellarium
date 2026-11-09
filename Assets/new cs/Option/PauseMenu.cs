@@ -19,7 +19,8 @@ public class PauseMenu : MonoBehaviour
     [Header("지도")]
     [SerializeField] private GameObject mapPanel;
     [SerializeField] private MapController mapController;
-    private bool isMapOpen;
+    private GameObject gameplayUI;
+
     public static bool IsMapOpen { get; private set; }
     private static PauseMenu instance;
 
@@ -53,39 +54,65 @@ public class PauseMenu : MonoBehaviour
         {
             quitConfirmPanel.SetActive(false);
         }
+
+        if (settingsPanel != null)
+        {
+            settingsPanel.SetActive(false);
+        }
+
+        if (mapPanel != null)
+        {
+            mapPanel.SetActive(false);
+        }
+
+        FindGameplayUI();
     }
 
     private void Update()
     {
+        // =========================
+        // M : 지도
+        // =========================
         if (Input.GetKeyDown(KeyCode.M))
         {
-            Debug.Log("M키 입력됨");
+            // 설정창 / 종료창 / Pause 메뉴가 열려있으면
+            // M 입력 무시
+            if (IsPaused || isSettingsOpen || isQuitConfirmOpen)
+                return;
 
-            if (!IsPaused && !isSettingsOpen && !isQuitConfirmOpen)
-            {
-                ToggleMap();
-            }
-
+            ToggleMap();
             return;
         }
+
+        // =========================
+        // ESC
+        // =========================
         if (!Input.GetKeyDown(KeyCode.Escape))
             return;
 
-        // 종료 확인창 → ESC → 옵션 메뉴
+        // 1순위 : 지도가 열려 있으면
+        // ESC는 지도만 닫는다.
+        if (IsMapOpen)
+        {
+            CloseMap();
+            return;
+        }
+
+        // 2순위 : 종료 확인창
         if (isQuitConfirmOpen)
         {
             CloseQuitConfirm();
             return;
         }
 
-        // 설정창 → ESC → 옵션 메뉴
+        // 3순위 : 설정창
         if (isSettingsOpen)
         {
             CloseSettings();
             return;
         }
 
-        // 일반 게임 ↔ 옵션 메뉴
+        // 4순위 : 일반 게임 ↔ Pause 메뉴
         TogglePauseMenu();
     }
 
@@ -105,16 +132,17 @@ public class PauseMenu : MonoBehaviour
     {
         IsPaused = true;
 
-        optionPanel.SetActive(true);
+        if (optionPanel != null)
+            optionPanel.SetActive(true);
+
+        if (gameplayUI != null)
+            gameplayUI.SetActive(false);
 
         if (quitConfirmPanel != null)
-        {
             quitConfirmPanel.SetActive(false);
-        }
 
         isQuitConfirmOpen = false;
 
-        // 플레이어, 몬스터, 물리, 일반 투사체 정지
         Time.timeScale = 0f;
     }
 
@@ -124,18 +152,31 @@ public class PauseMenu : MonoBehaviour
         isSettingsOpen = false;
         isQuitConfirmOpen = false;
 
-        optionPanel.SetActive(false);
-        settingsPanel.SetActive(false);
-        quitConfirmPanel.SetActive(false);
+        if (optionPanel != null)
+            optionPanel.SetActive(false);
+
+        if (settingsPanel != null)
+            settingsPanel.SetActive(false);
+
+        if (quitConfirmPanel != null)
+            quitConfirmPanel.SetActive(false);
+
+        if (gameplayUI != null)
+            gameplayUI.SetActive(true);
 
         Time.timeScale = 1f;
     }
 
     public void OpenQuitConfirm()
     {
+        if (quitConfirmPanel == null)
+            return;
+
         isQuitConfirmOpen = true;
 
-        optionPanel.SetActive(false);
+        if (optionPanel != null)
+            optionPanel.SetActive(false);
+
         quitConfirmPanel.SetActive(true);
 
         if (quitConfirmSelector != null)
@@ -153,8 +194,11 @@ public class PauseMenu : MonoBehaviour
 
         isQuitConfirmOpen = false;
 
-        quitConfirmPanel.SetActive(false);
-        optionPanel.SetActive(true);
+        if (quitConfirmPanel != null)
+            quitConfirmPanel.SetActive(false);
+
+        if (optionPanel != null)
+            optionPanel.SetActive(true);
     }
 
     public void ConfirmQuit()
@@ -173,6 +217,11 @@ public class PauseMenu : MonoBehaviour
 
     private void OnDestroy()
     {
+        if (instance == this)
+        {
+            instance = null;
+        }
+
         Time.timeScale = 1f;
 
         IsPaused = false;
@@ -203,15 +252,20 @@ public class PauseMenu : MonoBehaviour
 
     public void OpenMap()
     {
-        if (IsPaused)
+        if (IsPaused || isSettingsOpen || isQuitConfirmOpen)
+            return;
+
+        // 지도 UI가 연결 안 된 씬(A01/A02의 옛 Canvas 등)에서 열면
+        // 화면은 그대로인데 timeScale만 0이 돼서 게임이 멈춘 것처럼 보인다.
+        if (mapPanel == null)
             return;
 
         IsMapOpen = true;
 
-        if (mapPanel != null)
-        {
-            mapPanel.SetActive(true);
-        }
+        mapPanel.SetActive(true);
+
+        if (gameplayUI != null)
+            gameplayUI.SetActive(false);
 
         Time.timeScale = 0f;
 
@@ -222,7 +276,11 @@ public class PauseMenu : MonoBehaviour
     {
         IsMapOpen = false;
 
-        mapPanel.SetActive(false);
+        if (mapPanel != null)
+            mapPanel.SetActive(false);
+
+        if (gameplayUI != null)
+            gameplayUI.SetActive(true);
 
         Time.timeScale = 1f;
     }
@@ -234,5 +292,40 @@ public class PauseMenu : MonoBehaviour
         {
             mapController.CenterOnPlayer();
         }
+    }
+    private void FindGameplayUI()
+    {
+        GameplayHUD hud =
+            FindFirstObjectByType<GameplayHUD>();
+
+        if (hud != null)
+        {
+            gameplayUI = hud.gameObject;
+        }
+        else
+        {
+            gameplayUI = null;
+
+            Debug.LogWarning(
+                "[UI] 현재 Scene에서 GameplayHUD를 찾을 수 없습니다."
+            );
+        }
+    }
+    private void OnEnable()
+    {
+        SceneManager.sceneLoaded += OnSceneLoaded;
+    }
+
+    private void OnDisable()
+    {
+        SceneManager.sceneLoaded -= OnSceneLoaded;
+    }
+
+    private void OnSceneLoaded(
+        Scene scene,
+        LoadSceneMode mode
+    )
+    {
+        FindGameplayUI();
     }
 }

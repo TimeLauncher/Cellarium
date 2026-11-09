@@ -50,6 +50,15 @@ public class SaveSelectManager : MonoBehaviour
         SceneLoader.LoadScene(sceneToLoad);
     }
 
+    private void Update()
+    {
+        // 세이브 선택 창에서 ESC를 누르면 메인 타이틀로 돌아간다
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            BackToTitle();
+        }
+    }
+
     public void BackToTitle()
     {
         SceneManager.LoadScene(titleSceneName);

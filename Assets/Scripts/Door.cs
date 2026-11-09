@@ -9,7 +9,8 @@ using UnityEngine.UI;
 public class Door : MonoBehaviour
 {
     [Header("열리는 조건 (스위치 여러 개면 전부 눌려야 함)")]
-    public ButtonSwitch[] requiredButtons;
+    [Tooltip("버튼뿐 아니라 파괴형 작동장치(신경 다발·신경 조직), 심장 결절 등 '켜지는 장치'는 전부 넣을 수 있다")]
+    public WorldActivator[] requiredButtons;
     public Text requiredCountText; // "활성화 수/필요 수" 표시 (선택)
     public bool isOpen;
     [Tooltip("켜면 모든 스위치를 '동시에' 밟아야 열린다(분열체 퍼즐). 스위치들의 Latch를 자동으로 꺼서 momentary로 만든다. 한 번 동시에 열리면 계속 열린 채 유지")]
@@ -60,6 +61,23 @@ public class Door : MonoBehaviour
     public float openSlideDuration = 0.6f;
     public Vector2 openSlideDir = Vector2.up;
 
+    [Header("개방 시 카메라 연출")]
+    // 버튼과 문이 멀리 떨어져 있으면 문이 열려도 화면에 안 보인다.
+    // (A02의 Button_Door (1)은 버튼과 문이 80유닛 넘게 떨어져 있다)
+    // 켜면 '버튼 누름 → 카메라가 문으로 이동 → 열리는 것 보여줌 → 다시 본체로' 순으로 돈다.
+    [Tooltip("문이 열릴 때 카메라가 문을 비춰준 뒤 다시 조종 중인 캐릭터로 돌아온다")]
+    public bool focusCameraOnOpen = false;
+    [Tooltip("비추고 싶은 지점. 비우면 문 자신을 비춘다 (문 위쪽을 보여주고 싶으면 빈 오브젝트를 놓고 연결)")]
+    public Transform cameraFocusTarget;
+    [Tooltip("카메라가 문까지 날아가는 시간")]
+    public float focusTravelTime = 0.8f;
+    [Tooltip("문이 다 열린 뒤 그대로 보여주는 시간")]
+    public float focusHoldTime = 0.8f;
+    [Tooltip("다시 본체로 돌아오는 시간")]
+    public float focusReturnTime = 0.8f;
+    [Tooltip("연출 동안 조작을 막는다. 동시에 밟는 퍼즐이면 켜두는 편이 안전하다")]
+    public bool focusLockInput = true;
+
     [Header("진행 색 표시 (실제 문 스프라이트가 있으면 보통 끔)")]
     public bool tintDoorByProgress = false;
     public Color closedColor = Color.white;
@@ -84,7 +102,7 @@ public class Door : MonoBehaviour
         // 동시 입력 모드: 스위치들을 momentary(래치 해제)로 강제 → 전부 '동시에' 밟혀야 열림 (분열체 퍼즐)
         if (requireSimultaneous && requiredButtons != null)
             foreach (var b in requiredButtons)
-                if (b != null) b.latch = false;
+                if (b is ButtonSwitch sw) sw.latch = false;
 
         // 표시등을 스위치 개수만큼 확보 (배열 크기만 잡아두고 비워둔 칸도 채워 생성)
         EnsureIndicators();
@@ -148,7 +166,7 @@ public class Door : MonoBehaviour
             SpriteRenderer ind = switchIndicators[i];
             if (ind == null) continue;
 
-            ButtonSwitch btn = (requiredButtons != null && i < requiredButtons.Length) ? requiredButtons[i] : null;
+            WorldActivator btn = (requiredButtons != null && i < requiredButtons.Length) ? requiredButtons[i] : null;
             bool on = btn != null && btn.IsActive;
 
             // 이 상태에서 쓸 이미지 고르기 (Door의 Indicator Images → 스위치별 → 문 공통 순)
@@ -173,7 +191,7 @@ public class Door : MonoBehaviour
                 // 이미지가 아예 없을 때만 색으로 대체 (기존 방식)
                 ind.enabled = true;
                 if (on)
-                    ind.color = (useButtonColorWhenOn && btn != null) ? btn.pressedColor : indicatorOnColor;
+                    ind.color = (useButtonColorWhenOn && btn is ButtonSwitch sw) ? sw.pressedColor : indicatorOnColor;
                 else
                     ind.color = indicatorOffColor;
             }
@@ -215,14 +233,14 @@ public class Door : MonoBehaviour
     Sprite IndOn(int i)
     {
         if (indicatorImages != null && i < indicatorImages.Length && indicatorImages[i].on != null) return indicatorImages[i].on;
-        ButtonSwitch btn = (requiredButtons != null && i < requiredButtons.Length) ? requiredButtons[i] : null;
+        ButtonSwitch btn = (requiredButtons != null && i < requiredButtons.Length) ? requiredButtons[i] as ButtonSwitch : null;
         if (btn != null && btn.indicatorOnSprite != null) return btn.indicatorOnSprite;
         return indicatorOnSprite;
     }
     Sprite IndOff(int i)
     {
         if (indicatorImages != null && i < indicatorImages.Length && indicatorImages[i].off != null) return indicatorImages[i].off;
-        ButtonSwitch btn = (requiredButtons != null && i < requiredButtons.Length) ? requiredButtons[i] : null;
+        ButtonSwitch btn = (requiredButtons != null && i < requiredButtons.Length) ? requiredButtons[i] as ButtonSwitch : null;
         if (btn != null && btn.indicatorOffSprite != null) return btn.indicatorOffSprite;
         return indicatorOffSprite;
     }
@@ -299,9 +317,36 @@ public class Door : MonoBehaviour
         WorldState.Record(WorldCategory.Door, persistId);
         Debug.Log($"[{name}] 문 개방!");
 
-        // 사라지지 않고 위로 슬라이드 (스프라이트가 있고 이동값이 유효할 때)
-        if (spr != null && openSlideDistance != 0f && openSlideDuration > 0f && openSlideDir.sqrMagnitude > 0.0001f)
+        // 카메라 연출을 켜두면 '카메라가 문에 도착한 뒤'에 열어야 열리는 게 보인다
+        if (focusCameraOnOpen)
+            StartCoroutine(OpenWithCamera());
+        else if (CanSlide)
             StartCoroutine(SlideOpen());
+    }
+
+    // 사라지지 않고 위로 슬라이드 (스프라이트가 있고 이동값이 유효할 때)
+    bool CanSlide => spr != null && openSlideDistance != 0f && openSlideDuration > 0f
+                     && openSlideDir.sqrMagnitude > 0.0001f;
+
+    // 버튼 누름 → 카메라가 문으로 → 문이 열리는 것 보여주기 → 다시 본체로
+    IEnumerator OpenWithCamera()
+    {
+        Transform target = cameraFocusTarget != null ? cameraFocusTarget : transform;
+        CameraFocus focus = CameraFocus.Begin(target, focusTravelTime, focusLockInput);
+
+        // 연출을 못 걸었으면(대상이 없거나) 그냥 평소대로 연다
+        if (focus == null)
+        {
+            if (CanSlide) yield return SlideOpen();
+            yield break;
+        }
+
+        yield return focus.WaitForArrive();
+
+        if (CanSlide) yield return SlideOpen();
+
+        yield return new WaitForSeconds(Mathf.Max(0f, focusHoldTime));
+        yield return focus.End(focusReturnTime);
     }
 
     IEnumerator SlideOpen()

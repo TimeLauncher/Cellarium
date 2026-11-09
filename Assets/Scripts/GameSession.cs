@@ -62,7 +62,8 @@ public class GameSession : MonoBehaviour
         ResetRun();
     }
 
-    static bool IsMenuScene(string sceneName)
+    // GameProgress도 이 목록을 봐야 해서 공개해둔다 — 메뉴 씬 판정 기준이 두 벌이 되면 반드시 어긋난다.
+    public static bool IsMenuScene(string sceneName)
     {
         foreach (string s in menuScenes)
             if (string.Equals(s, sceneName, System.StringComparison.OrdinalIgnoreCase)) return true;
@@ -84,6 +85,9 @@ public class GameSession : MonoBehaviour
 
         // 세이브포인트 위치 (static이라 씬 로드로는 안 지워진다)
         SavePoint.ClearSave();
+
+        // 화이트셀이 죽으면서 떨군 셀 덩어리 (static이라 씬 로드로는 안 지워진다)
+        DeathCellStash.Clear();
 
         // 포탈로 이동하다 메뉴로 나간 경우 남아 있을 수 있는 도착 지점 예약
         SceneEntryPoint.ClearEntry();

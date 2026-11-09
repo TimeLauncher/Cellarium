@@ -14,6 +14,8 @@ public class SmallSpiderGerm : MonsterBase
 
     [Header("교전")]
     public float engageRange = 8f;
+    [Tooltip("벽을 따라가는 축에서 PC와의 차이가 이 값(타일) 안이면 더 따라가지 않고 멈춘다. 0이면 예전처럼 정확히 따라간다")]
+    [Min(0f)] public float alignTolerance = 1f;
 
     [Header("원거리 공격")]
     public GameObject projectilePrefab;
@@ -100,7 +102,8 @@ public class SmallSpiderGerm : MonsterBase
         rb.gravityScale = 0f;
 
         // 아직 면에 다 붙지 않았으면 접선 이동을 멈추고 붙는 것만 우선 (벽에서 떨어진 채 떠다니는 것 방지)
-        if (!isAttachedToSurface || isAttacking)
+        // 넉백·공격 후딜·PC 인지 중에도 기어 다니지 않는다
+        if (!isAttachedToSurface || isAttacking || knockbackTimer > 0f || actionPauseTimer > 0f || IsNoticing)
         {
             rb.linearVelocity = Vector2.zero;
             return;
@@ -108,11 +111,26 @@ public class SmallSpiderGerm : MonsterBase
 
         if (target != null)
         {
-            float dirAlong = Mathf.Sign(Vector2.Dot(target.position - transform.position, Tangent));
-            rb.linearVelocity = Tangent * dirAlong * moveSpeed;
+            // 기획서 A12~A13 (2): PC 좌표를 너무 정직하게 따라오지 않도록,
+            // 벽을 따라가는 축에서 PC와의 차이가 alignTolerance 안이면 멈춘다 (양쪽 벽이면 PC Y 10 → 9~11에서 정지)
+            float along = Vector2.Dot(target.position - transform.position, Tangent);
+            if (Mathf.Abs(along) <= alignTolerance)
+            {
+                rb.linearVelocity = Vector2.zero;
+                return;
+            }
+
+            int dirAlong = along > 0f ? 1 : -1;
+            if (UpdateTurnPause(dirAlong))
+            {
+                rb.linearVelocity = Vector2.zero;
+                return;
+            }
+            rb.linearVelocity = Tangent * dirAlong * ChaseMoveSpeed;
         }
         else
         {
+            lastChaseDir = 0;
             PatrolAlongSurface();
         }
     }

@@ -7688,8 +7688,8 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!58 &1181797108
-CircleCollider2D:
+--- !u!61 &1181797108
+BoxCollider2D:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -7723,7 +7723,17 @@ CircleCollider2D:
   m_CompositeOperation: 0
   m_CompositeOrder: 0
   m_Offset: {x: 0, y: 0}
-  m_Radius: 0.6720926
+  m_SpriteTilingProperty:
+    border: {x: 0, y: 0, z: 0, w: 0}
+    pivot: {x: 0.5, y: 0.5}
+    oldSize: {x: 0, y: 0}
+    newSize: {x: 0, y: 0}
+    adaptiveTilingThreshold: 0
+    drawMode: 0
+    adaptiveTiling: 0
+  m_AutoTiling: 0
+  m_Size: {x: 1.3442, y: 1.3442}
+  m_EdgeRadius: 0
 --- !u!61 &1181797109
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -7803,8 +7813,8 @@ MonoBehaviour:
   allowAirDash: 1
   maxAirDash: 1
   dashAttackDamage: 50
-  dashKnockbackSpeed: 7
-  dashKnockbackUpRatio: 0.6
+  dashKnockbackSpeed: 18
+  dashKnockbackUpRatio: 1
   dashInvincibleTime: 0.2
   dashKnockbackControlLock: 0.12
   dashRecoverTime: 0.08

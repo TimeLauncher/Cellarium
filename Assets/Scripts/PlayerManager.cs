@@ -253,6 +253,11 @@ public class PlayerManager : MonoBehaviour
 
         currentPlayer.isControlled = true;
 
+        // ★ A00이 아닌 씬에서 바로 Play하면 개발용 부트스트랩(DevPlayerBootstrap)이 씬 로드 '뒤에' 플레이어를 만든다.
+        //   그러면 OnSceneLoaded가 불리지 않아 카메라 참조가 비어 있어서, 분열체로 바꿔도 카메라가 본체에 남아 있었다
+        //   (A12~A13 그 외 메모 '분열체 전환 시 카메라가 본체에 고정'). 비어 있으면 여기서 찾는다.
+        if (cinemachineCamera == null)
+            cinemachineCamera = FindFirstObjectByType<CinemachineCamera>();
         if (cinemachineCamera != null)
             cinemachineCamera.Follow = currentPlayer.transform;
 

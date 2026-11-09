@@ -28,6 +28,10 @@ public class PlayerSFX : MonoBehaviour
 
     private float footstepTimer;
 
+    // 발소리 전용 소스. PlayOneShot은 멈출 수가 없어서, 걷다 멈추거나 턱을 오르내려 다시 땅을 밟을 때마다
+    // 앞 발소리가 끝나기 전에 새 발소리가 겹쳐 쌓였다 (기획서 A12~A13 그 외 메모). 소스 하나로 Play/Stop 한다.
+    private AudioSource footstepSource;
+
     public void PlayDashSound()
     {
         if (audioSource != null && dashSound != null)
@@ -58,25 +62,55 @@ public class PlayerSFX : MonoBehaviour
             audioSource.PlayOneShot(jumpSound);
     }
 
-    // 걷기 클립의 Animation Event에서도 직접 부를 수 있다
+    // 걷기 클립의 Animation Event에서도 직접 부를 수 있다.
+    // 새 발소리는 이전 발소리를 끊고 시작한다 (겹쳐 쌓이지 않음)
     public void PlayMoveSound()
     {
         if (audioSource == null || moveSound == null) return;
 
-        // PlayOneShot은 AudioSource의 pitch를 따르므로 잠깐 바꿨다가 되돌린다
-        float basePitch = audioSource.pitch;
+        AudioSource src = GetFootstepSource();
+        src.clip = moveSound;
+        src.pitch = audioSource.pitch;
         if (footstepPitchVariance > 0f)
-            audioSource.pitch = basePitch * (1f + Random.Range(-footstepPitchVariance, footstepPitchVariance));
-        audioSource.PlayOneShot(moveSound);
-        audioSource.pitch = basePitch;
+            src.pitch *= 1f + Random.Range(-footstepPitchVariance, footstepPitchVariance);
+        src.Play();
+    }
+
+    // 걷기를 멈추거나 다른 행동(점프·대시 등)을 하면 즉시 발소리를 끊는다
+    public void StopMoveSound()
+    {
+        if (footstepSource != null && footstepSource.isPlaying) footstepSource.Stop();
+    }
+
+    // 원래 소스의 볼륨·믹서 출력·3D 설정을 그대로 따라가는 발소리 전용 소스
+    AudioSource GetFootstepSource()
+    {
+        if (footstepSource == null)
+        {
+            footstepSource = gameObject.AddComponent<AudioSource>();
+            footstepSource.playOnAwake = false;
+            footstepSource.loop = false;
+        }
+        footstepSource.outputAudioMixerGroup = audioSource.outputAudioMixerGroup;
+        footstepSource.volume = audioSource.volume;
+        footstepSource.spatialBlend = audioSource.spatialBlend;
+        footstepSource.priority = audioSource.priority;
+        footstepSource.mute = audioSource.mute;
+        return footstepSource;
     }
 
     // PlayerController가 매 프레임 호출 - 땅 위에서 걷는 동안 footstepInterval마다 발소리
     public void TickFootsteps(bool walking)
     {
-        if (!walking || footstepInterval <= 0f)
+        if (!walking)
         {
+            StopMoveSound();
             footstepTimer = 0f; // 다시 걷기 시작하면 첫 걸음 소리가 바로 나게
+            return;
+        }
+        if (footstepInterval <= 0f)
+        {
+            footstepTimer = 0f; // 애니메이션 이벤트로 재생하는 경우 — 멈출 때 끊는 것만 한다
             return;
         }
 

@@ -48,8 +48,8 @@ public class PlayerController : MonoBehaviour
     public bool allowAirDash = true;
     public int maxAirDash = 1;
     public float dashAttackDamage = 34f;
-    public float dashKnockbackSpeed = 7f;
-    public float dashKnockbackUpRatio = 0.6f; // 넉백에 섞는 위쪽 성분 비율 — 클수록 포물선이 높아짐
+    public float dashKnockbackSpeed = 18f;
+    public float dashKnockbackUpRatio = 1f; // 넉백에 섞는 위쪽 성분 비율 — 클수록 포물선이 높아짐
     public float dashInvincibleTime = 0.4f;   // 대시로 박은 뒤 튕겨나오는 동안 접촉 데미지 면역
 
     // Fix 문서 '대시 넉백으로 인한 이동 조작감 수정' — 튕겨나오는 동안 조작을 얼마나 막을지.
@@ -509,9 +509,11 @@ private RuntimeAnimatorController cloneAnimatorController;
             animator.SetBool("isDashing", isNormalDashing);
         }
 
-        // SFX001 걷기 — 걷기 모션('move')이 나오는 조건과 같게 맞춘다
+        // SFX001 걷기 — 걷기 모션('move')이 나오는 조건과 같게 맞춘다.
+        // 멈추거나 다른 행동(대시·분열·섭취·내려찍기·피격 등)을 하면 false가 되어 발소리가 즉시 끊긴다
         if (playerSFX != null)
-            playerSFX.TickFootsteps(isControlled && isGrounded && Mathf.Abs(moveX) > 0.01f && !isNormalDashing);
+            playerSFX.TickFootsteps(isControlled && isGrounded && Mathf.Abs(moveX) > 0.01f && !isNormalDashing
+                && !isFissionDashing && !isFissioning && !isFissionCharging && !isConsuming && !isSlamming && !isStunned && !isDead);
 
         // 조종 대상이 아니거나, 대화·연출로 조작이 잠겨 있으면 입력 처리를 통째로 건너뛴다.
         // 위쪽 애니메이터 갱신은 이미 끝났고 FixedUpdate의 중력도 계속 돌기 때문에,

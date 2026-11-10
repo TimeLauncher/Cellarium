@@ -7,7 +7,9 @@ using UnityEngine;
 //   벽·둥지는 움직이지 않고 체력 0이면 즉시 사라져야 하므로 체력·피격·셀 드랍만 따로 둔다.
 // ★ 레이어는 상관없다 — PlayerController의 대시가 레이어 마스크와 별개로 이 컴포넌트를 찾는다.
 //   (벽은 PC를 막아야 하는데 Monster 레이어는 PC와 충돌하지 않으므로, 지형 레이어에 두면 된다)
-public class DestructibleObject : MonoBehaviour
+// ★ WorldActivator를 상속한다 — 파괴형 작동장치(DestructibleActivator)·심장 결절(HeartNode)이
+//   버튼처럼 문·발판·낙하 혈전 등 '연결된 장치'를 켤 수 있게. 그냥 부서지는 벽·둥지는 IsActive를 쓰지 않는다.
+public class DestructibleObject : WorldActivator
 {
     [Header("체력")]
     [Min(1f)] public float maxHp = 100f;
@@ -37,7 +39,7 @@ public class DestructibleObject : MonoBehaviour
     public float cellPopSideSpeed = 2.5f;
 
     public float CurrentHp { get; private set; }
-    public bool IsDestroyed { get; private set; }
+    public bool IsDestroyed { get; protected set; }
 
     protected SpriteRenderer spr;
     Color baseColor = Color.white;

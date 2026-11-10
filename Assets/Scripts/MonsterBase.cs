@@ -8,12 +8,30 @@ public class MonsterBase : MonoBehaviour, IConsumable
     [Range(0f, 1f)]
     public float consumeThreshold = 0.25f; // HP 몇 % 이하면 섭취 가능
 
+    // 기획서 A12~A13 '전체 몬스터 공통': 순찰 속도와 추적 속도를 따로 조정 (비행균에 있던 기능을 전체로)
+    [Header("추적 속도 (순찰 속도와 분리)")]
+    [Tooltip("켜면 추적할 때 아래 Chase Speed로 움직인다. 끄면 순찰·추적 모두 Move Speed. " +
+             "비행균은 원래부터 Chase Speed로 추적하므로 이 체크와 상관없다")]
+    public bool separateChaseSpeed = false;
+    [Tooltip("추적 이동 속도 (Separate Chase Speed가 켜져 있을 때)")]
+    public float chaseSpeed = 3f;
+
     [Header("감지")]
     public float detectionRange = 6f;
     public float detectionExpandMultiplier = 3f; // 탐지 이후 탐지범위 배율
     public LayerMask playerMask;
     public bool blockSightByTerrain = true; // 지형에 가로막히면 감지 취소
     public LayerMask obstructionMask;       // 미사용 — 맵이 레이어로 안 나뉘어 있어 CastSurface로 판정
+
+    // 기획서 A12~A13: 순찰 중 PC를 발견하면 바로 달려들지 않고 'PC를 인지하는 시간' 동안 멈춘다
+    [Tooltip("순찰 중 PC를 처음 발견했을 때 이동·공격 없이 멈춰 있는 시간(초). 0이면 바로 행동")]
+    [Min(0f)] public float noticeDuration = 0f;
+    [Tooltip("인지하는 순간 걸 애니메이터 트리거 이름. 컨트롤러에 이 이름의 트리거가 있을 때만 건다")]
+    public string noticeTrigger = "Notice";
+    [Tooltip("인지하는 순간 재생할 소리 (선택)")]
+    public AudioClip noticeSound;
+    [Tooltip("PC가 감지 범위 밖으로 나가거나 지형에 가려져도 이 시간(초) 동안은 계속 쫓다가 순찰로 돌아간다. 0이면 즉시 복귀")]
+    [Min(0f)] public float chaseMemoryTime = 0f;
 
     [Header("낭떠러지 감지")]
     public bool avoidLedges = true;      // 지상형만 true. 비행/벽타기형은 Awake에서 끔
@@ -30,8 +48,11 @@ public class MonsterBase : MonoBehaviour, IConsumable
     public float maxLeashDistance = 8f; // 순찰 원점에서 이 거리(타일) 이상 벗어나면 추격을 포기하고 원점으로 복귀 (0 = 무제한)
 
     [Header("행동 간 딜레이")]
-    public float postAttackPause = 0.5f;   // 공격이 끝난 뒤 이만큼 정지 후 다시 이동 (공격 직후 홱 도는 느낌 완화)
-    public float turnPauseDuration = 0.5f; // 추적 중 PC가 반대편으로 넘어가 이동 방향이 급전환될 때 정지 시간
+    [Tooltip("공격 후딜레이(초). 공격이 하나뿐인 몬스터는 이 값이 그 공격의 후딜레이다. " +
+             "공격이 여러 개인 몬스터(거미균·침식 거미균)는 공격마다 따로 있는 Recovery 값을 쓰고 이 값은 쓰지 않는다")]
+    public float postAttackPause = 0.5f;
+    [Tooltip("추적 중 PC가 반대편으로 넘어가 이동 방향이 바뀔 때 멈추는 시간(초). 모든 몬스터 공통, 0이면 멈추지 않는다")]
+    public float turnPauseDuration = 0.5f;
 
     [Header("피격 넉백 (대시 등)")]
     public float knockbackResistance = 1f;    // 밀려나는 정도 배율 (0이면 아예 안 밀림)
@@ -142,7 +163,11 @@ public class MonsterBase : MonoBehaviour, IConsumable
     protected bool returningHome;      // 추격 제한을 넘어 원점으로 복귀 중
     protected int lastChaseDir;        // 추적 중 마지막 이동 방향 (급전환 감지용)
     protected float turnPauseTimer;    // 이동 방향 급전환 시 잠깐 멈추는 타이머
-    protected int facingDir = 1;       // 바라보는 방향(+1 오른쪽 / -1 왼쪽). 히트박스 방향/앞쪽 판정에 사용
+    protected float noticeTimer;       // PC를 처음 발견하고 멈춰 있는 시간
+    private bool wasAware;             // 직전 프레임에 PC를 보고 있었는가 (발견 순간 잡기용)
+    private float lostSightTimer;      // PC를 놓친 뒤 흐른 시간 (chaseMemoryTime 동안은 계속 쫓는다)
+    private AudioSource noticeAudio;
+    protected int facingDir = 1;      // 바라보는 방향(+1 오른쪽 / -1 왼쪽). 히트박스 방향/앞쪽 판정에 사용
     private float hitboxBaseOffsetX;   // 히트박스 자식의 원래 로컬 x 오프셋 크기 (방향 따라 부호만 바꿔줌)
     private Color baseColor;
     private float hitFlashTimer;
@@ -167,6 +192,22 @@ public class MonsterBase : MonoBehaviour, IConsumable
 
     // 탐지 이후 이탈 전까지는 확장된 범위를 계속 사용 (기획서 몬스터 공통 사항)
     protected float EffectiveDetectionRange => hasDetectedPlayer ? detectionRange * detectionExpandMultiplier : detectionRange;
+
+    // 추적할 때 쓸 속도 (Separate Chase Speed가 꺼져 있으면 Move Speed)
+    protected float ChaseMoveSpeed => separateChaseSpeed ? chaseSpeed : moveSpeed;
+
+    // PC를 발견하고 인지하는 중 — 이동·공격을 하지 않는다
+    protected bool IsNoticing => noticeTimer > 0f;
+
+    // 추적 방향이 바뀌었으면 Turn Pause를 건다. 지금 멈춰 있어야 하면 true.
+    // dir: 이번 프레임 추적 방향 (+1/-1, 0이면 판단 안 함)
+    protected bool UpdateTurnPause(int dir)
+    {
+        if (dir != 0 && lastChaseDir != 0 && dir != lastChaseDir)
+            turnPauseTimer = turnPauseDuration;
+        if (dir != 0) lastChaseDir = dir;
+        return turnPauseTimer > 0f;
+    }
 
     protected virtual void Awake()
     {
@@ -233,6 +274,7 @@ public class MonsterBase : MonoBehaviour, IConsumable
         CheckContactDamage();
         PollAttackHitbox();
         UpdateDetection();
+        UpdateNotice();
 
         if (attackCooldownTimer > 0f)
             attackCooldownTimer -= Time.deltaTime;
@@ -245,9 +287,40 @@ public class MonsterBase : MonoBehaviour, IConsumable
         if (actionStartTimer > 0f)
             actionStartTimer -= Time.deltaTime; // 소환 직후 행동 지연 (이동은 막지 않는다)
 
-        // 넉백/공격후 딜레이 중이거나 원점 복귀 중엔 새 공격을 걸지 않는다
-        if (knockbackTimer <= 0f && actionPauseTimer <= 0f && actionStartTimer <= 0f && !returningHome)
+        // 넉백/공격후 딜레이/인지 중이거나 원점 복귀 중엔 새 공격을 걸지 않는다
+        if (knockbackTimer <= 0f && actionPauseTimer <= 0f && actionStartTimer <= 0f && !IsNoticing && !returningHome)
             UpdateBehavior();
+    }
+
+    // 순찰 중이던 몬스터가 PC를 처음 본 순간 noticeDuration만큼 멈춘다 (모션·소리 자리)
+    void UpdateNotice()
+    {
+        if (noticeTimer > 0f) noticeTimer -= Time.deltaTime;
+
+        bool aware = target != null;
+        if (aware && !wasAware && noticeDuration > 0f && !isAttacking && !returningHome)
+        {
+            noticeTimer = noticeDuration;
+            FaceDirection(target.position.x - transform.position.x);
+            if (HasAnimatorController && !string.IsNullOrEmpty(noticeTrigger))
+                foreach (var p in animator.parameters)
+                    if (p.name == noticeTrigger && p.type == AnimatorControllerParameterType.Trigger)
+                    {
+                        animator.SetTrigger(noticeTrigger);
+                        break;
+                    }
+            if (noticeSound != null)
+            {
+                if (noticeAudio == null)
+                {
+                    noticeAudio = gameObject.AddComponent<AudioSource>();
+                    noticeAudio.playOnAwake = false;
+                }
+                noticeAudio.PlayOneShot(noticeSound);
+            }
+        }
+        if (!aware) noticeTimer = 0f;
+        wasAware = aware;
     }
 
     protected virtual void FixedUpdate()
@@ -368,11 +441,18 @@ public class MonsterBase : MonoBehaviour, IConsumable
         {
             target = hit.transform;
             hasDetectedPlayer = true;
+            lostSightTimer = 0f;
+        }
+        else if (target != null && lostSightTimer < chaseMemoryTime)
+        {
+            // 놓쳤어도 chaseMemoryTime 동안은 계속 쫓는다
+            lostSightTimer += Time.deltaTime;
         }
         else
         {
             target = null;
             hasDetectedPlayer = false;
+            lostSightTimer = 0f;
         }
     }
 
@@ -422,6 +502,12 @@ public class MonsterBase : MonoBehaviour, IConsumable
     protected bool MovementSuppressed()
     {
         if (knockbackTimer > 0f) return true;
+        if (IsNoticing && !isAttacking)
+        {
+            // 중력 없는 비행형은 세로 속도도 지워야 제자리에 선다
+            if (rb != null) rb.linearVelocity = rb.gravityScale == 0f ? Vector2.zero : new Vector2(0f, rb.linearVelocity.y);
+            return true;
+        }
         if (actionPauseTimer > 0f)
         {
             if (rb != null) rb.linearVelocity = new Vector2(0f, rb.linearVelocity.y);
@@ -477,13 +563,11 @@ public class MonsterBase : MonoBehaviour, IConsumable
         int dir = dx > 0.02f ? 1 : (dx < -0.02f ? -1 : 0);
 
         // 추적 중 PC가 반대편으로 넘어가 이동 방향이 급전환되면 잠깐 멈췄다가 따라간다 (QA: 0.5초 내외)
-        if (dir != 0 && lastChaseDir != 0 && dir != lastChaseDir)
-            turnPauseTimer = turnPauseDuration;
-        if (dir != 0) lastChaseDir = dir;
+        bool turning = UpdateTurnPause(dir);
 
         FaceDirection(dx);
 
-        if (turnPauseTimer > 0f)
+        if (turning)
         {
             rb.linearVelocity = new Vector2(0f, rb.linearVelocity.y);
             return;
@@ -496,7 +580,7 @@ public class MonsterBase : MonoBehaviour, IConsumable
             return;
         }
 
-        rb.linearVelocity = new Vector2(Mathf.Sign(dx) * moveSpeed, rb.linearVelocity.y);
+        rb.linearVelocity = new Vector2(Mathf.Sign(dx) * ChaseMoveSpeed, rb.linearVelocity.y);
     }
 
     // 정해진 구간을 반복 이동 + 주기적으로 정지 (기획서 "기본 행동" 공통 패턴)

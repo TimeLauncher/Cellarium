@@ -2,8 +2,8 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-// 침식 거미균 (준보스) — 기획서 Cellarium_A10~A11 (1).
-// 거미균(SpiderGerm)의 벽·천장 기어 다니기는 그대로 쓰고, 공격은 기획서의 '몬스터 행동 선택 규칙'으로 고른다.
+// 침식 거미균 (준보스) — 기획서 Cellarium_A10~A11 (1), A12~A13 (4).
+// 거미균(SpiderGerm)의 벽·천장 기어 다니기·베기·덮치기는 그대로 쓰고, 공격은 기획서의 '몬스터 행동 선택 규칙'으로 고른다.
 //   ① 쿨타임이 끝났고 조건이 맞는 '우선' 패턴이 있으면 그것부터 (우선 순위 숫자가 작을수록 먼저)
 //   ② 없으면 지금 거리 조건을 만족하는 '일반' 패턴 중 가중치 확률로 1개
 //   '연계' 패턴은 벽면 이동 뒤에 자동으로 이어진다 (벽면 이동 → 다크셀 분출 → 덮치기)
@@ -24,24 +24,12 @@ public class ErosionSpiderGerm : SpiderGerm
     [Tooltip("켜면 전투 시작 시 우선 패턴(촉수 뻗기·벽면 이동)이 쿨타임을 한 번 다 채운 뒤부터 나온다. " +
              "끄면 전투 시작하자마자 벽면 이동부터 한다")]
     public bool priorityStartsOnCooldown = true;
-    [Tooltip("공격 범위를 반투명 판으로 표시 (애니메이션·이펙트가 나오기 전 임시)")]
-    public bool showAttackAreas = true;
 
-    [Header("베기 (일반) — 사거리·준비시간·피해는 위 '베기 (근접)' 값 사용")]
+    [Header("베기 (일반) — 범위·준비시간·후딜레이·피해는 위 '베기 (근접)' 값 사용")]
     public float slashWeight = 1f;
-    [Tooltip("후딜레이")]
-    public float slashRecovery = 1f;
-    [Tooltip("공격 범위 (가로, 세로). 기획서: 전방 3x3")]
-    public Vector2 slashBoxSize = new Vector2(3f, 3f);
-    [Tooltip("범위 중심 위치 (앞쪽 거리, 위쪽 높이). 앞쪽은 바라보는 방향으로 자동 반전")]
-    public Vector2 slashBoxOffset = new Vector2(2f, 1f);
 
-    [Header("덮치기 (일반) — 최소 거리·준비시간·체공시간·피해·착지 반경은 위 '덮치기' 값 사용")]
+    [Header("덮치기 (일반) — 준비시간·체공시간·높이·피해·후딜레이는 위 '덮치기' 값 사용")]
     public float pounceWeight = 1f;
-    [Tooltip("점프 높이 최대값. 최소값은 위 Pounce Height. 기획서: 6~8타일")]
-    public float pounceHeightMax = 8f;
-    [Tooltip("후딜레이")]
-    public float pounceRecovery = 0.4f;
 
     [Header("다크셀 분출 (일반)")]
     public float darkBurstWeight = 1f;
@@ -57,10 +45,21 @@ public class ErosionSpiderGerm : SpiderGerm
     [Tooltip("투사체가 떨어지는 전방 거리. 기획서: 12타일 이내 랜덤")]
     public float darkBurstRange = 12f;
     public float darkBurstProjectileDamage = 50f;
-    [Tooltip("투사체 체공 시간 (클수록 높이 날아간다)")]
+    [Tooltip("투사체 체공 시간 (아래 '포물선 높이 랜덤'을 끈 경우에만 사용. 클수록 높이 날아간다)")]
     public float darkBurstFlightTime = 1.1f;
     [Tooltip("비우면 보라색 동그라미로 임시 생성")]
     public GameObject darkBurstProjectilePrefab;
+
+    // 기획서 A12~A13 (4): 투사체마다 포물선 높이와 떨어지는 속도가 다르게, 투사체끼리는 최소 간격을 두고 떨어지게
+    [Header("다크셀 분출 - 투사체 궤적")]
+    [Tooltip("켜면 투사체마다 아래 범위에서 포물선 높이·떨어지는 속도를 랜덤으로 뽑는다. 끄면 Flight Time 하나로 모두 같은 궤적")]
+    public bool darkBurstRandomArc = true;
+    [Tooltip("포물선 꼭대기 높이 (던지는 위치 기준, 최소~최대 타일)")]
+    public Vector2 darkBurstArcHeight = new Vector2(2f, 6f);
+    [Tooltip("떨어지는 속도 배율 = 중력 배율 (최소~최대). 클수록 빨리 떨어진다")]
+    public Vector2 darkBurstFallSpeed = new Vector2(0.7f, 1.4f);
+    [Tooltip("투사체가 떨어지는 지점끼리의 최소 거리(타일). PC가 피할 틈을 만든다. 0이면 제한 없음")]
+    [Min(0f)] public float darkBurstMinSpacing = 1.5f;
 
     [Header("촉수 뻗기 (우선)")]
     public int tentaclePriority = 2;
@@ -71,9 +70,14 @@ public class ErosionSpiderGerm : SpiderGerm
     public float tentacleActiveTime = 0.85f;
     public float tentacleRecovery = 1f;
     public float tentacleCooldown = 8f;
-    [Tooltip("몸 중심에서 앞뒤로 뻗는 거리. 기획서: 전후방 6타일")]
+    [Tooltip("몸 중심에서 '앞쪽'으로 뻗는 거리. 기획서: 전후방 6타일")]
     public float tentacleReach = 6f;
+    [Tooltip("몸 중심에서 '뒤쪽'으로 뻗는 거리")]
+    public float tentacleBackReach = 6f;
+    [Tooltip("범위 세로 크기")]
     public float tentacleHeight = 2f;
+    [Tooltip("범위를 옮기는 값 (앞쪽, 위쪽). 아래로 내리려면 Y를 음수로. 앞쪽은 바라보는 방향으로 자동 반전")]
+    public Vector2 tentacleBoxOffset = Vector2.zero;
     public float tentacleDamage = 100f;
 
     [Header("벽면 이동 (우선) → 다크셀 분출 → 덮치기 (연계)")]
@@ -81,11 +85,30 @@ public class ErosionSpiderGerm : SpiderGerm
     public float wallMoveCooldown = 15f;
     [Tooltip("이동할 벽면 지점들. 빈 오브젝트를 벽에 붙여 놓고 초록 화살표(Y축)가 벽 바깥을 보게 돌려둘 것. 비우면 이 패턴은 안 나온다")]
     public Transform[] wallPoints;
+    [Tooltip("벽을 타고 올라가는 속도")]
     public float wallMoveSpeed = 14f;
+    // 기획서 A12~A13 (4): 지점까지 직선으로 날아가지 않고 바닥 → 벽 순서로 걸어간다
+    [Tooltip("벽면 이동 때 바닥을 걸어서 벽 밑까지 가는 속도")]
+    public float wallMoveWalkSpeed = 9f;
     public float chainBurstWindup = 0.5f;
     public float chainBurstRecovery = 0f;
     public float chainPounceWindup = 0.5f;
     public float chainPounceRecovery = 1f;
+
+    // 기획서 A12~A13 (4): 체력이 일정량 깎일 때마다 주변 바닥에 회복 오브젝트를 떨군다
+    [Header("회복 오브젝트 드랍")]
+    [Tooltip("체력이 이만큼 깎일 때마다 회복 오브젝트를 떨군다 (기획서: 400~500). 0이면 안 떨군다")]
+    [Min(0f)] public float healDropEveryHpLost = 450f;
+    [Tooltip("한 번에 떨구는 개수")]
+    [Min(1)] public int healDropCount = 1;
+    [Tooltip("몸 중심에서 좌우로 이 거리 안의 바닥에 무작위로 떨어진다")]
+    [Min(0f)] public float healDropRadius = 6f;
+    [Tooltip("이 높이(타일)에서 떨어지기 시작한다")]
+    [Min(0f)] public float healDropFallHeight = 5f;
+    [Tooltip("섭취하면 회복되는 양 (임시 오브젝트일 때만. 프리팹이면 프리팹의 HealCell 값)")]
+    public float healDropAmount = 100f;
+    [Tooltip("회복 오브젝트 프리팹 (HealCell 컴포넌트 필요, Monster 레이어). 비우면 초록 동그라미로 임시 생성")]
+    public GameObject healDropPrefab;
 
     [Header("처치 보상 - 다크셀 조각")]
     [Tooltip("섭취하거나 시체가 사라질 때 셀과 함께 떨구는 다크셀 양. 0이면 안 떨군다")]
@@ -93,26 +116,15 @@ public class ErosionSpiderGerm : SpiderGerm
     [Tooltip("다크셀 조각 모습. 비우면 기본 셀 덩어리를 보라색으로 물들여 쓴다")]
     public GameObject darkCellChunkPrefab;
 
-    enum MoveMode { Crawl, Airborne }
-
     bool engaged;
-    MoveMode moveMode = MoveMode.Crawl;
-    Coroutine patternRoutine;
-    Vector2 lastTargetPos;
+    float nextHealDropAt;
 
-    float slashTimer;
-    float pounceTimerCd;
     float darkBurstTimer;
     float tentacleTimer;
     float wallMoveTimer;
 
-    SpriteRenderer telegraphArea;
-    SpriteRenderer secondaryArea;
-
-    // ★ 노랑은 쓰지 않는다 — 죽은 몬스터(섭취 가능)가 노랗게 변해서, 예고 판이 몸에 겹치면 '먹을 수 있는 상태'로 보인다
-    static readonly Color TelegraphColor = new Color(0.75f, 0.3f, 1f, 0.2f);
-    static readonly Color ActiveColor = new Color(1f, 0.25f, 0.15f, 0.55f);
     static readonly Color DarkCellTint = new Color(0.55f, 0.25f, 0.85f, 1f);
+    static readonly Color HealTint = new Color(0.35f, 1f, 0.45f, 1f);
 
     string BossKey => "boss:" + WorldState.MakeId(this, persistentId);
 
@@ -143,10 +155,11 @@ public class ErosionSpiderGerm : SpiderGerm
         }
 
         base.Awake();
+        nextHealDropAt = healDropEveryHpLost;
     }
 
     // 컴포넌트를 처음 붙였을 때 기획서 수치로 채운다 (이미 배치된 값은 건드리지 않음)
-    void Reset()
+    protected override void Reset()
     {
         maxHp = 700f;
         moveSpeed = 5f;
@@ -162,6 +175,7 @@ public class ErosionSpiderGerm : SpiderGerm
         slashActiveTime = 0.2f;
         slashDamage = 50f;
         slashCooldown = 0f;
+        slashRecovery = 1f;
 
         pounceMinRange = 2f;
         pounceMaxRange = 999f;
@@ -171,6 +185,8 @@ public class ErosionSpiderGerm : SpiderGerm
         pounceDamage = 50f;
         pounceLandRadius = 1.5f;
         pounceHeight = 6f;
+        pounceHeightMax = 8f;
+        pounceRecovery = 0.4f;
 
         int player = LayerMask.NameToLayer("Player");
         if (player >= 0) playerMask = 1 << player;
@@ -189,8 +205,6 @@ public class ErosionSpiderGerm : SpiderGerm
     {
         base.Update();
         float dt = Time.deltaTime;
-        if (slashTimer > 0f) slashTimer -= dt;
-        if (pounceTimerCd > 0f) pounceTimerCd -= dt;
         if (darkBurstTimer > 0f) darkBurstTimer -= dt;
         if (tentacleTimer > 0f) tentacleTimer -= dt;
         if (wallMoveTimer > 0f) wallMoveTimer -= dt;
@@ -237,7 +251,7 @@ public class ErosionSpiderGerm : SpiderGerm
         if (!engaged || isAttacking || patternRoutine != null || target == null) return;
 
         System.Func<IEnumerator> pick = ChoosePattern();
-        if (pick != null) patternRoutine = StartCoroutine(RunPattern(pick()));
+        if (pick != null) StartPattern(pick());
     }
 
     System.Func<IEnumerator> ChoosePattern()
@@ -293,82 +307,6 @@ public class ErosionSpiderGerm : SpiderGerm
         return false;
     }
 
-    IEnumerator RunPattern(IEnumerator body)
-    {
-        isAttacking = true;
-        yield return body;
-        isAttacking = false;
-        patternRoutine = null;
-    }
-
-    // ── 베기: 전방 3x3 ────────────────────────────────────────────
-
-    IEnumerator SlashPattern()
-    {
-        FaceTarget();
-        Trigger("Slash");
-
-        Vector2 center = LocalToWorld(new Vector2(slashBoxOffset.x * facingDir, slashBoxOffset.y));
-        float angle = transform.eulerAngles.z;
-        ShowBox(ref telegraphArea, center, slashBoxSize, angle, TelegraphColor);
-        yield return new WaitForSeconds(slashWindup);
-
-        ShowBox(ref telegraphArea, center, slashBoxSize, angle, ActiveColor);
-        float t = 0f;
-        bool hit = false;
-        while (t < Mathf.Max(slashActiveTime, 0.05f))
-        {
-            if (!hit) hit = HitBox(center, slashBoxSize, angle, slashDamage);
-            t += Time.deltaTime;
-            yield return null;
-        }
-        Hide(telegraphArea);
-
-        slashTimer = slashCooldown;
-        yield return new WaitForSeconds(slashRecovery);
-    }
-
-    // ── 덮치기: 준비 → 높이 점프 → 시전 순간 PC가 있던 자리로 내려찍기 ─────────
-
-    IEnumerator PouncePattern(float windup, float recovery, bool useCooldown)
-    {
-        FaceTarget();
-        Trigger("Pounce");
-
-        // 시전 순간의 PC 위치 (공중이면 그 아래 바닥)
-        Vector2 land = GroundBelow(TargetPos()) + Vector2.up * surfaceOffset;
-        ShowCircle(ref telegraphArea, land, pounceLandRadius, TelegraphColor);
-        yield return new WaitForSeconds(windup);
-
-        // 공중에선 몸을 똑바로 세운다
-        surfaceNormal = Vector2.up;
-        AlignToSurface();
-        moveMode = MoveMode.Airborne;
-        if (rb != null) { rb.linearVelocity = Vector2.zero; rb.gravityScale = 0f; }
-
-        Vector2 start = transform.position;
-        float height = Random.Range(pounceHeight, Mathf.Max(pounceHeight, pounceHeightMax));
-        float airTime = Mathf.Max(0.05f, pounceAirTime);
-        float t = 0f;
-        while (t < airTime)
-        {
-            t += Time.fixedDeltaTime;
-            float k = Mathf.Clamp01(t / airTime);
-            transform.position = Vector2.Lerp(start, land, k) + Vector2.up * (Mathf.Sin(k * Mathf.PI) * height);
-            yield return new WaitForFixedUpdate();
-        }
-        transform.position = land;
-        moveMode = MoveMode.Crawl;
-
-        ShowCircle(ref telegraphArea, land, pounceLandRadius, ActiveColor);
-        HitCircle(land, pounceLandRadius, pounceDamage);
-        yield return new WaitForSeconds(0.12f);
-        Hide(telegraphArea);
-
-        if (useCooldown) pounceTimerCd = pounceCooldown;
-        yield return new WaitForSeconds(recovery);
-    }
-
     // ── 다크셀 분출: 주변 즉시 피해 + 전방에 투사체 포물선 투척 ──────────────
 
     IEnumerator DarkBurstPattern(float windup, float recovery, bool useCooldown)
@@ -389,9 +327,8 @@ public class ErosionSpiderGerm : SpiderGerm
 
         int min = Mathf.Max(0, darkBurstProjectileCount.x);
         int count = Random.Range(min, Mathf.Max(min, darkBurstProjectileCount.y) + 1);
-        for (int i = 0; i < count; i++)
+        foreach (float x in PickLandingXs(center.x, dir, count))
         {
-            float x = center.x + dir * Random.Range(1f, Mathf.Max(1f, darkBurstRange));
             Vector2 landAt = GroundBelow(new Vector2(x, center.y));
             LaunchProjectile(center, landAt);
         }
@@ -401,6 +338,28 @@ public class ErosionSpiderGerm : SpiderGerm
 
         if (useCooldown) darkBurstTimer = darkBurstCooldown;
         yield return new WaitForSeconds(recovery);
+    }
+
+    // 떨어질 x 좌표들. 서로 darkBurstMinSpacing 이상 떨어지게 뽑고, 자리가 모자라면 간격을 포기하고 그냥 뽑는다
+    List<float> PickLandingXs(float fromX, float dir, int count)
+    {
+        var xs = new List<float>();
+        float range = Mathf.Max(1f, darkBurstRange);
+        for (int i = 0; i < count; i++)
+        {
+            float x = fromX + dir * Random.Range(1f, range);
+            for (int tries = 0; tries < 30 && darkBurstMinSpacing > 0f && TooClose(xs, x); tries++)
+                x = fromX + dir * Random.Range(1f, range);
+            xs.Add(x);
+        }
+        return xs;
+    }
+
+    bool TooClose(List<float> xs, float x)
+    {
+        foreach (float o in xs)
+            if (Mathf.Abs(o - x) < darkBurstMinSpacing) return true;
+        return false;
     }
 
     void LaunchProjectile(Vector2 from, Vector2 to)
@@ -429,24 +388,39 @@ public class ErosionSpiderGerm : SpiderGerm
         if (proj == null) proj = go.AddComponent<AcidProjectile>();
         var body = go.GetComponent<Rigidbody2D>();
 
-        // 정해진 시간 뒤 목표 지점에 떨어지는 포물선 속도: v = (Δ - ½gT²) / T
-        float T = Mathf.Max(0.2f, darkBurstFlightTime);
-        Vector2 g = Physics2D.gravity;
-        Vector2 v = ((to - from) - 0.5f * g * T * T) / T;
+        float gravityScale = 1f;
+        Vector2 v;
+        if (darkBurstRandomArc)
+        {
+            // 꼭대기 높이 h와 중력 배율을 뽑고, 그 포물선으로 목표 지점에 떨어지는 속도를 거꾸로 구한다
+            gravityScale = Mathf.Max(0.05f, Random.Range(darkBurstFallSpeed.x, Mathf.Max(darkBurstFallSpeed.x, darkBurstFallSpeed.y)));
+            float g = Mathf.Abs(Physics2D.gravity.y) * gravityScale;
+            float apex = Mathf.Max(from.y, to.y) + Mathf.Max(0.1f, Random.Range(darkBurstArcHeight.x, Mathf.Max(darkBurstArcHeight.x, darkBurstArcHeight.y)));
+            float vy = Mathf.Sqrt(2f * g * (apex - from.y));
+            float T = vy / g + Mathf.Sqrt(2f * (apex - to.y) / g); // 올라가는 시간 + 내려오는 시간
+            v = new Vector2((to.x - from.x) / T, vy);
+        }
+        else
+        {
+            // 정해진 시간 뒤 목표 지점에 떨어지는 포물선 속도: v = (Δ - ½gT²) / T
+            float T = Mathf.Max(0.2f, darkBurstFlightTime);
+            Vector2 g = Physics2D.gravity;
+            v = ((to - from) - 0.5f * g * T * T) / T;
+        }
 
         proj.Init(v, v.magnitude, darkBurstProjectileDamage);
-        body.gravityScale = 1f; // AcidProjectile은 직선 탄이라 중력을 꺼두므로 다시 켠다
+        body.gravityScale = gravityScale; // AcidProjectile은 직선 탄이라 중력을 꺼두므로 다시 켠다
         body.linearVelocity = v;
     }
 
-    // ── 촉수 뻗기: 준비 후 전후방 6타일을 일정 시간 공격 ─────────────────
+    // ── 촉수 뻗기: 준비 후 전후방을 일정 시간 공격 ─────────────────
 
     IEnumerator TentaclePattern()
     {
         Trigger("Tentacle");
 
-        Vector2 center = BodyCenter();
-        Vector2 size = new Vector2(tentacleReach * 2f, tentacleHeight);
+        Vector2 size;
+        Vector2 center = TentacleBox(out size);
         float angle = transform.eulerAngles.z;
         ShowBox(ref telegraphArea, center, size, angle, TelegraphColor);
         yield return new WaitForSeconds(tentacleWindup);
@@ -466,7 +440,20 @@ public class ErosionSpiderGerm : SpiderGerm
         yield return new WaitForSeconds(tentacleRecovery);
     }
 
+    // 촉수 범위 박스 (몸 기준: 앞 tentacleReach, 뒤 tentacleBackReach, 오프셋만큼 이동). 벽·천장에선 몸 방향을 따른다
+    Vector2 TentacleBox(out Vector2 size)
+    {
+        float front = Mathf.Max(0f, tentacleReach), back = Mathf.Max(0f, tentacleBackReach);
+        size = new Vector2(front + back, tentacleHeight);
+        Vector2 bodyLocal = (Vector2)transform.InverseTransformPoint(BodyCenter());
+        bodyLocal.Scale(transform.lossyScale); // InverseTransformPoint는 스케일로 나누므로 월드 거리로 되돌린다
+        float localX = bodyLocal.x + ((front - back) * 0.5f + tentacleBoxOffset.x) * facingDir;
+        float localY = bodyLocal.y + tentacleBoxOffset.y;
+        return LocalToWorld(new Vector2(localX, localY));
+    }
+
     // ── 벽면 이동 → 다크셀 분출 → 덮치기 ────────────────────────────
+    // 바닥 → 벽 순서로 걷는다: ① 벽·천장에 붙어 있으면 바닥으로 내려옴 ② 바닥을 걸어 벽 밑까지 ③ 벽을 타고 지점까지
 
     IEnumerator WallMovePattern()
     {
@@ -477,21 +464,42 @@ public class ErosionSpiderGerm : SpiderGerm
         moveMode = MoveMode.Airborne;
         if (rb != null) { rb.linearVelocity = Vector2.zero; rb.gravityScale = 0f; }
 
-        while (Vector2.Distance(transform.position, point.position) > 0.05f)
+        // ① 바닥이 아니면 바로 아래 바닥으로 내려온다
+        if (surfaceNormal.y < 0.7f)
         {
-            transform.position = Vector2.MoveTowards(transform.position, point.position, wallMoveSpeed * Time.fixedDeltaTime);
-            yield return new WaitForFixedUpdate();
+            Vector2 floor = GroundBelow(BodyCenter()) + Vector2.up * SurfaceGap;
+            surfaceNormal = Vector2.up;
+            AlignToSurface();
+            yield return MoveTo(floor, wallMoveSpeed);
         }
 
-        // 지점의 Y축(초록 화살표)을 벽 바깥 방향으로 본다
-        surfaceNormal = point.up;
+        // ② 벽 밑(지점 아래 바닥)까지 걸어간다
+        Vector2 wallOut = point.up;
+        Vector2 baseSpot = GroundBelow((Vector2)point.position + wallOut * SurfaceGap) + Vector2.up * SurfaceGap;
+        Vector2 walkTo = new Vector2(baseSpot.x, transform.position.y);
+        FaceDirection(walkTo.x - transform.position.x);
+        yield return MoveTo(walkTo, wallMoveWalkSpeed);
+
+        // ③ 지점의 Y축(초록 화살표)을 벽 바깥 방향으로 보고 벽을 타고 올라간다
+        surfaceNormal = wallOut;
         AlignToSurface();
+        yield return MoveTo(point.position, wallMoveSpeed);
         moveMode = MoveMode.Crawl;
 
         yield return DarkBurstPattern(chainBurstWindup, chainBurstRecovery, false);
         yield return PouncePattern(chainPounceWindup, chainPounceRecovery, false);
 
         wallMoveTimer = wallMoveCooldown;
+    }
+
+    IEnumerator MoveTo(Vector2 dest, float speed)
+    {
+        while (Vector2.Distance(transform.position, dest) > 0.05f)
+        {
+            transform.position = Vector2.MoveTowards(transform.position, dest, Mathf.Max(0.1f, speed) * Time.fixedDeltaTime);
+            yield return new WaitForFixedUpdate();
+        }
+        transform.position = dest;
     }
 
     // 지금 자리와 가장 가까운 지점은 빼고 무작위 (같은 벽에 다시 붙는 것 방지)
@@ -511,17 +519,50 @@ public class ErosionSpiderGerm : SpiderGerm
         return list[Random.Range(0, list.Count)];
     }
 
-    // ── 이동 ────────────────────────────────────────────────────
+    // ── 회복 오브젝트 드랍 ───────────────────────────────────────
 
-    protected override void UpdateMovement()
+    public override void TakeDamage(float amount, Vector2 hitDirection = default)
     {
-        // 점프·벽면 이동 중엔 패턴 코루틴이 위치를 직접 옮긴다
-        if (moveMode == MoveMode.Airborne)
+        base.TakeDamage(amount, hitDirection);
+        if (IsDead || healDropEveryHpLost <= 0f) return;
+
+        while (maxHp - currentHp >= nextHealDropAt)
         {
-            if (rb != null) rb.linearVelocity = Vector2.zero;
-            return;
+            nextHealDropAt += healDropEveryHpLost;
+            for (int i = 0; i < healDropCount; i++) DropHealObject();
         }
-        base.UpdateMovement();
+    }
+
+    void DropHealObject()
+    {
+        Vector2 c = BodyCenter();
+        Vector2 ground = GroundBelow(new Vector2(c.x + Random.Range(-healDropRadius, healDropRadius), c.y + 1f));
+        Vector2 landAt = ground + Vector2.up * 0.5f;
+        Vector2 startAt = landAt + Vector2.up * healDropFallHeight;
+
+        GameObject go;
+        if (healDropPrefab != null)
+        {
+            go = Instantiate(healDropPrefab, startAt, Quaternion.identity);
+        }
+        else
+        {
+            go = new GameObject("HealDrop");
+            go.transform.position = startAt;
+            go.transform.localScale = Vector3.one * 0.6f;
+            var sr = go.AddComponent<SpriteRenderer>();
+            sr.sprite = CircleSprite();
+            sr.color = HealTint;
+            if (spr != null) { sr.sortingLayerID = spr.sortingLayerID; sr.sortingOrder = spr.sortingOrder + 1; }
+            go.AddComponent<CircleCollider2D>().radius = 0.5f;
+            // 섭취 대상은 Monster 레이어에서 찾는다 (PlayerController.monsterMask)
+            int monster = LayerMask.NameToLayer("Monster");
+            if (monster >= 0) go.layer = monster;
+            go.AddComponent<HealCell>().healAmount = healDropAmount;
+        }
+
+        var heal = go.GetComponent<HealCell>();
+        if (heal != null) heal.DropTo(landAt);
     }
 
     // ── 사망 / 보상 ──────────────────────────────────────────────
@@ -529,18 +570,6 @@ public class ErosionSpiderGerm : SpiderGerm
     protected override void OnDeath()
     {
         base.OnDeath();
-        if (patternRoutine != null) StopCoroutine(patternRoutine);
-        patternRoutine = null;
-        isAttacking = false;
-        moveMode = MoveMode.Crawl;
-        Hide(telegraphArea);
-        Hide(secondaryArea);
-
-        // 벽·공중에서 죽으면 바닥으로 떨어뜨린다 (그래야 섭취할 수 있다)
-        surfaceNormal = Vector2.up;
-        AlignToSurface();
-        if (rb != null) rb.gravityScale = 1f;
-
         if (stayDefeated) WorldState.Record(WorldCategory.Event, BossKey);
     }
 
@@ -561,138 +590,6 @@ public class ErosionSpiderGerm : SpiderGerm
         if (absorbTarget != null) chunk.AttractTo(absorbTarget, cellAbsorbDelay);
     }
 
-    void OnDestroy()
-    {
-        if (telegraphArea != null) Destroy(telegraphArea.gameObject);
-        if (secondaryArea != null) Destroy(secondaryArea.gameObject);
-    }
-
-    // ── 공용 ────────────────────────────────────────────────────
-
-    void FaceTarget() => FaceDirection(TargetPos().x - transform.position.x);
-
-    Vector2 TargetPos() => target != null ? (Vector2)target.position : lastTargetPos;
-
-    Vector2 BodyCenter() => bodyCollider != null ? (Vector2)bodyCollider.bounds.center : (Vector2)transform.position;
-
-    // 몸 기준 좌표(앞=x, 위=y) → 월드. 벽·천장에 붙어 회전해 있어도 몸 방향을 따른다 (스케일은 무시)
-    Vector2 LocalToWorld(Vector2 local)
-        => (Vector2)transform.position + (Vector2)transform.right * local.x + (Vector2)transform.up * local.y;
-
-    Vector2 GroundBelow(Vector2 from)
-    {
-        if (CastSurface(from + Vector2.up * 0.5f, Vector2.down, 40f, out RaycastHit2D hit))
-            return hit.point;
-        return from;
-    }
-
-    bool HitBox(Vector2 center, Vector2 size, float angle, float damage)
-    {
-        foreach (var h in Physics2D.OverlapBoxAll(center, size, angle, playerMask))
-            if (TryDamage(h, damage)) return true;
-        return false;
-    }
-
-    bool HitCircle(Vector2 center, float radius, float damage)
-    {
-        foreach (var h in Physics2D.OverlapCircleAll(center, radius, playerMask))
-            if (TryDamage(h, damage)) return true;
-        return false;
-    }
-
-    bool TryDamage(Collider2D h, float damage)
-    {
-        PlayerController pc = h.GetComponent<PlayerController>();
-        if (pc == null) return false;
-        // 공격 판정 — 대시 접촉 무적으로는 못 막는다
-        pc.TakeDamage(damage, KnockbackVector(pc.transform.position), stunDuration, DamageSource.Attack);
-        return true;
-    }
-
-    void Trigger(string name)
-    {
-        if (!HasAnimatorController) return;
-        foreach (var p in animator.parameters)
-            if (p.name == name && p.type == AnimatorControllerParameterType.Trigger)
-            {
-                animator.SetTrigger(name);
-                return;
-            }
-    }
-
-    // ── 범위 표시 (임시) ─────────────────────────────────────────
-
-    void ShowBox(ref SpriteRenderer area, Vector2 center, Vector2 size, float angle, Color color)
-    {
-        if (!showAttackAreas) return;
-        area = EnsureArea(area);
-        area.sprite = SquareSprite();
-        area.transform.SetPositionAndRotation(center, Quaternion.Euler(0f, 0f, angle));
-        area.transform.localScale = new Vector3(size.x, size.y, 1f);
-        area.color = color;
-        area.gameObject.SetActive(true);
-    }
-
-    void ShowCircle(ref SpriteRenderer area, Vector2 center, float radius, Color color)
-    {
-        if (!showAttackAreas) return;
-        area = EnsureArea(area);
-        area.sprite = CircleSprite();
-        area.transform.SetPositionAndRotation(center, Quaternion.identity);
-        area.transform.localScale = Vector3.one * (radius * 2f);
-        area.color = color;
-        area.gameObject.SetActive(true);
-    }
-
-    static void Hide(SpriteRenderer area)
-    {
-        if (area != null) area.gameObject.SetActive(false);
-    }
-
-    SpriteRenderer EnsureArea(SpriteRenderer area)
-    {
-        if (area != null) return area;
-        var go = new GameObject(name + "_AttackArea");
-        var sr = go.AddComponent<SpriteRenderer>();
-        // 몸 뒤에 깐다 — 앞에 그리면 거미 몸이 판 색으로 물든다
-        if (spr != null) { sr.sortingLayerID = spr.sortingLayerID; sr.sortingOrder = spr.sortingOrder - 1; }
-        else sr.sortingOrder = 50;
-        return sr;
-    }
-
-    static Sprite squareSprite, circleSprite;
-
-    static Sprite SquareSprite()
-    {
-        if (squareSprite != null) return squareSprite;
-        var tex = new Texture2D(4, 4) { filterMode = FilterMode.Point };
-        var px = new Color[16];
-        for (int i = 0; i < px.Length; i++) px[i] = Color.white;
-        tex.SetPixels(px);
-        tex.Apply();
-        squareSprite = Sprite.Create(tex, new Rect(0, 0, 4, 4), new Vector2(0.5f, 0.5f), 4f); // 1x1 유닛
-        return squareSprite;
-    }
-
-    static Sprite CircleSprite()
-    {
-        if (circleSprite != null) return circleSprite;
-        const int n = 64;
-        var tex = new Texture2D(n, n) { filterMode = FilterMode.Bilinear };
-        var px = new Color[n * n];
-        float r = n * 0.5f;
-        for (int y = 0; y < n; y++)
-            for (int x = 0; x < n; x++)
-            {
-                float d = Vector2.Distance(new Vector2(x + 0.5f, y + 0.5f), new Vector2(r, r));
-                px[y * n + x] = new Color(1f, 1f, 1f, Mathf.Clamp01(r - d));
-            }
-        tex.SetPixels(px);
-        tex.Apply();
-        circleSprite = Sprite.Create(tex, new Rect(0, 0, n, n), new Vector2(0.5f, 0.5f), n); // 지름 1 유닛
-        return circleSprite;
-    }
-
     protected override void OnDrawGizmosSelected()
     {
         base.OnDrawGizmosSelected();
@@ -700,7 +597,13 @@ public class ErosionSpiderGerm : SpiderGerm
         Gizmos.DrawWireSphere(transform.position, engageRange);
         Gizmos.color = new Color(1f, 0.5f, 0f);
         Gizmos.DrawWireSphere(transform.position, tentacleTriggerRange);
-        Gizmos.DrawWireCube(transform.position, new Vector3(tentacleReach * 2f, tentacleHeight, 0f));
+
+        // 촉수 범위 (오른쪽을 볼 때 기준)
+        float front = Mathf.Max(0f, tentacleReach), back = Mathf.Max(0f, tentacleBackReach);
+        Vector3 c = transform.position + transform.right * ((front - back) * 0.5f + tentacleBoxOffset.x) + transform.up * tentacleBoxOffset.y;
+        Gizmos.matrix = Matrix4x4.TRS(c, transform.rotation, Vector3.one);
+        Gizmos.DrawWireCube(Vector3.zero, new Vector3(front + back, tentacleHeight, 0f));
+        Gizmos.matrix = Matrix4x4.identity;
 
         if (wallPoints == null) return;
         Gizmos.color = Color.magenta;

@@ -9,7 +9,8 @@ using UnityEngine.UI;
 public class Door : MonoBehaviour
 {
     [Header("열리는 조건 (스위치 여러 개면 전부 눌려야 함)")]
-    public ButtonSwitch[] requiredButtons;
+    [Tooltip("버튼뿐 아니라 파괴형 작동장치(신경 다발·신경 조직), 심장 결절 등 '켜지는 장치'는 전부 넣을 수 있다")]
+    public WorldActivator[] requiredButtons;
     public Text requiredCountText; // "활성화 수/필요 수" 표시 (선택)
     public bool isOpen;
     [Tooltip("켜면 모든 스위치를 '동시에' 밟아야 열린다(분열체 퍼즐). 스위치들의 Latch를 자동으로 꺼서 momentary로 만든다. 한 번 동시에 열리면 계속 열린 채 유지")]
@@ -101,7 +102,7 @@ public class Door : MonoBehaviour
         // 동시 입력 모드: 스위치들을 momentary(래치 해제)로 강제 → 전부 '동시에' 밟혀야 열림 (분열체 퍼즐)
         if (requireSimultaneous && requiredButtons != null)
             foreach (var b in requiredButtons)
-                if (b != null) b.latch = false;
+                if (b is ButtonSwitch sw) sw.latch = false;
 
         // 표시등을 스위치 개수만큼 확보 (배열 크기만 잡아두고 비워둔 칸도 채워 생성)
         EnsureIndicators();
@@ -165,7 +166,7 @@ public class Door : MonoBehaviour
             SpriteRenderer ind = switchIndicators[i];
             if (ind == null) continue;
 
-            ButtonSwitch btn = (requiredButtons != null && i < requiredButtons.Length) ? requiredButtons[i] : null;
+            WorldActivator btn = (requiredButtons != null && i < requiredButtons.Length) ? requiredButtons[i] : null;
             bool on = btn != null && btn.IsActive;
 
             // 이 상태에서 쓸 이미지 고르기 (Door의 Indicator Images → 스위치별 → 문 공통 순)
@@ -190,7 +191,7 @@ public class Door : MonoBehaviour
                 // 이미지가 아예 없을 때만 색으로 대체 (기존 방식)
                 ind.enabled = true;
                 if (on)
-                    ind.color = (useButtonColorWhenOn && btn != null) ? btn.pressedColor : indicatorOnColor;
+                    ind.color = (useButtonColorWhenOn && btn is ButtonSwitch sw) ? sw.pressedColor : indicatorOnColor;
                 else
                     ind.color = indicatorOffColor;
             }
@@ -232,14 +233,14 @@ public class Door : MonoBehaviour
     Sprite IndOn(int i)
     {
         if (indicatorImages != null && i < indicatorImages.Length && indicatorImages[i].on != null) return indicatorImages[i].on;
-        ButtonSwitch btn = (requiredButtons != null && i < requiredButtons.Length) ? requiredButtons[i] : null;
+        ButtonSwitch btn = (requiredButtons != null && i < requiredButtons.Length) ? requiredButtons[i] as ButtonSwitch : null;
         if (btn != null && btn.indicatorOnSprite != null) return btn.indicatorOnSprite;
         return indicatorOnSprite;
     }
     Sprite IndOff(int i)
     {
         if (indicatorImages != null && i < indicatorImages.Length && indicatorImages[i].off != null) return indicatorImages[i].off;
-        ButtonSwitch btn = (requiredButtons != null && i < requiredButtons.Length) ? requiredButtons[i] : null;
+        ButtonSwitch btn = (requiredButtons != null && i < requiredButtons.Length) ? requiredButtons[i] as ButtonSwitch : null;
         if (btn != null && btn.indicatorOffSprite != null) return btn.indicatorOffSprite;
         return indicatorOffSprite;
     }

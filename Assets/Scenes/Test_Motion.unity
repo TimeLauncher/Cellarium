@@ -233,6 +233,8 @@ MonoBehaviour:
   maxHp: 100
   moveSpeed: 3
   consumeThreshold: 0.25
+  separateChaseSpeed: 0
+  chaseSpeed: 3
   detectionRange: 6
   detectionExpandMultiplier: 3
   playerMask:
@@ -242,6 +244,10 @@ MonoBehaviour:
   obstructionMask:
     serializedVersion: 2
     m_Bits: 0
+  noticeDuration: 0
+  noticeTrigger: Notice
+  noticeSound: {fileID: 0}
+  chaseMemoryTime: 0
   avoidLedges: 1
   ledgeCheckAhead: 0.3
   ledgeCheckDepth: 1.2
@@ -300,6 +306,7 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 64
   engageRange: 8
+  alignTolerance: 1
   projectilePrefab: {fileID: 4789779386128304187, guid: 54d88cc04de8449498db2f6aff1d7dee, type: 3}
   firePoint: {fileID: 1354654035}
   projectileSpeed: 8
@@ -340,7 +347,7 @@ BoxCollider2D:
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
-  m_Offset: {x: 0, y: 0}
+  m_Offset: {x: 0.11434269, y: -0.17837477}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
@@ -350,7 +357,7 @@ BoxCollider2D:
     drawMode: 0
     adaptiveTiling: 0
   m_AutoTiling: 0
-  m_Size: {x: 1, y: 1}
+  m_Size: {x: 1.1006222, y: 1.3018675}
   m_EdgeRadius: 0
 --- !u!50 &123573325
 Rigidbody2D:
@@ -618,6 +625,8 @@ MonoBehaviour:
   maxHp: 100
   moveSpeed: 1.5
   consumeThreshold: 0.25
+  separateChaseSpeed: 0
+  chaseSpeed: 3
   detectionRange: 6
   detectionExpandMultiplier: 3
   playerMask:
@@ -627,6 +636,10 @@ MonoBehaviour:
   obstructionMask:
     serializedVersion: 2
     m_Bits: 0
+  noticeDuration: 0
+  noticeTrigger: Notice
+  noticeSound: {fileID: 0}
+  chaseMemoryTime: 0
   avoidLedges: 1
   ledgeCheckAhead: 0.3
   ledgeCheckDepth: 0.5
@@ -711,7 +724,7 @@ BoxCollider2D:
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
-  m_Offset: {x: 0.08485031, y: -0.00424242}
+  m_Offset: {x: 0.14016628, y: -0.036509037}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
@@ -721,7 +734,7 @@ BoxCollider2D:
     drawMode: 0
     adaptiveTiling: 0
   m_AutoTiling: 0
-  m_Size: {x: 0.8302994, y: 1.2800045}
+  m_Size: {x: 1.088438, y: 1.8792543}
   m_EdgeRadius: 0
 --- !u!50 &200546526
 Rigidbody2D:
@@ -1091,6 +1104,8 @@ MonoBehaviour:
   maxHp: 700
   moveSpeed: 5
   consumeThreshold: 0.25
+  separateChaseSpeed: 0
+  chaseSpeed: 3
   detectionRange: 10
   detectionExpandMultiplier: 3
   playerMask:
@@ -1100,6 +1115,10 @@ MonoBehaviour:
   obstructionMask:
     serializedVersion: 2
     m_Bits: 0
+  noticeDuration: 0
+  noticeTrigger: Notice
+  noticeSound: {fileID: 0}
+  chaseMemoryTime: 0
   avoidLedges: 1
   ledgeCheckAhead: 0.3
   ledgeCheckDepth: 1.2
@@ -1157,11 +1176,15 @@ MonoBehaviour:
   surfaceMask:
     serializedVersion: 2
     m_Bits: 0
+  fitBodyToSurface: 1
   slashRange: 3.5
   slashCooldown: 0
   slashDamage: 50
   slashWindup: 0.7
   slashActiveTime: 0.2
+  slashRecovery: 1
+  slashBoxSize: {x: 3, y: 3}
+  slashBoxOffset: {x: 2, y: 1}
   pounceMinRange: 2
   pounceMaxRange: 999
   pounceWindup: 0.5
@@ -1170,17 +1193,14 @@ MonoBehaviour:
   pounceDamage: 50
   pounceLandRadius: 1.5
   pounceHeight: 6
+  pounceHeightMax: 8
+  pounceRecovery: 0.4
+  showAttackAreas: 1
   engageRange: 10
   stayDefeated: 1
   priorityStartsOnCooldown: 1
-  showAttackAreas: 1
   slashWeight: 1
-  slashRecovery: 1
-  slashBoxSize: {x: 3, y: 3}
-  slashBoxOffset: {x: 2, y: 1}
   pounceWeight: 1
-  pounceHeightMax: 8
-  pounceRecovery: 0.4
   darkBurstWeight: 1
   darkBurstWindup: 1
   darkBurstRecovery: 1
@@ -1192,6 +1212,10 @@ MonoBehaviour:
   darkBurstProjectileDamage: 50
   darkBurstFlightTime: 1.1
   darkBurstProjectilePrefab: {fileID: 0}
+  darkBurstRandomArc: 1
+  darkBurstArcHeight: {x: 2, y: 6}
+  darkBurstFallSpeed: {x: 0.7, y: 1.4}
+  darkBurstMinSpacing: 1.5
   tentaclePriority: 2
   tentacleTriggerRange: 5
   tentacleWindup: 1.5
@@ -1199,16 +1223,25 @@ MonoBehaviour:
   tentacleRecovery: 1
   tentacleCooldown: 8
   tentacleReach: 6
+  tentacleBackReach: 6
   tentacleHeight: 2
+  tentacleBoxOffset: {x: 0, y: 0}
   tentacleDamage: 100
   wallMovePriority: 1
   wallMoveCooldown: 15
   wallPoints: []
   wallMoveSpeed: 14
+  wallMoveWalkSpeed: 9
   chainBurstWindup: 0.5
   chainBurstRecovery: 0
   chainPounceWindup: 0.5
   chainPounceRecovery: 1
+  healDropEveryHpLost: 450
+  healDropCount: 1
+  healDropRadius: 6
+  healDropFallHeight: 5
+  healDropAmount: 100
+  healDropPrefab: {fileID: 0}
   darkCellDropAmount: 1
   darkCellChunkPrefab: {fileID: 0}
 --- !u!61 &526758972
@@ -1245,7 +1278,7 @@ BoxCollider2D:
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
-  m_Offset: {x: 0, y: 0}
+  m_Offset: {x: -0.13568926, y: -0.06784487}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
@@ -1255,7 +1288,7 @@ BoxCollider2D:
     drawMode: 0
     adaptiveTiling: 0
   m_AutoTiling: 0
-  m_Size: {x: 1, y: 1}
+  m_Size: {x: 2.7326555, y: 1.6993246}
   m_EdgeRadius: 0
 --- !u!50 &526758973
 Rigidbody2D:
@@ -1519,84 +1552,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 180}
---- !u!1 &747359122
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 747359124}
-  - component: {fileID: 747359123}
-  m_Layer: 3
-  m_Name: GeneralHitbox
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!61 &747359123
-BoxCollider2D:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 747359122}
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Density: 1
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_ForceSendLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_ForceReceiveLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_ContactCaptureLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_CallbackLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_IsTrigger: 1
-  m_UsedByEffector: 0
-  m_CompositeOperation: 0
-  m_CompositeOrder: 0
-  m_Offset: {x: 0, y: 0}
-  m_SpriteTilingProperty:
-    border: {x: 0, y: 0, z: 0, w: 0}
-    pivot: {x: 0, y: 0}
-    oldSize: {x: 0, y: 0}
-    newSize: {x: 0, y: 0}
-    adaptiveTilingThreshold: 0
-    drawMode: 0
-    adaptiveTiling: 0
-  m_AutoTiling: 0
-  m_Size: {x: 1, y: 1}
-  m_EdgeRadius: 0
---- !u!4 &747359124
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 747359122}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1.2, y: 1.2, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 1531932424}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &792557959
 GameObject:
   m_ObjectHideFlags: 0
@@ -1655,6 +1610,8 @@ MonoBehaviour:
   maxHp: 150
   moveSpeed: 2
   consumeThreshold: 0.25
+  separateChaseSpeed: 0
+  chaseSpeed: 3
   detectionRange: 6
   detectionExpandMultiplier: 3
   playerMask:
@@ -1664,6 +1621,10 @@ MonoBehaviour:
   obstructionMask:
     serializedVersion: 2
     m_Bits: 0
+  noticeDuration: 0
+  noticeTrigger: Notice
+  noticeSound: {fileID: 0}
+  chaseMemoryTime: 0
   avoidLedges: 1
   ledgeCheckAhead: 0.3
   ledgeCheckDepth: 1.2
@@ -1756,7 +1717,7 @@ BoxCollider2D:
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
-  m_Offset: {x: -0.10582733, y: 0.075591326}
+  m_Offset: {x: 0.029960155, y: -0.010818958}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
@@ -1766,7 +1727,7 @@ BoxCollider2D:
     drawMode: 0
     adaptiveTiling: 0
   m_AutoTiling: 0
-  m_Size: {x: 1.4233093, y: 1.1511827}
+  m_Size: {x: 3.3243265, y: 2.3362303}
   m_EdgeRadius: 0
 --- !u!50 &792557963
 Rigidbody2D:
@@ -2314,6 +2275,8 @@ MonoBehaviour:
   maxHp: 100
   moveSpeed: 1
   consumeThreshold: 0.25
+  separateChaseSpeed: 0
+  chaseSpeed: 3
   detectionRange: 6
   detectionExpandMultiplier: 3
   playerMask:
@@ -2323,6 +2286,10 @@ MonoBehaviour:
   obstructionMask:
     serializedVersion: 2
     m_Bits: 0
+  noticeDuration: 0
+  noticeTrigger: Notice
+  noticeSound: {fileID: 0}
+  chaseMemoryTime: 0
   avoidLedges: 0
   ledgeCheckAhead: 0.3
   ledgeCheckDepth: 1.2
@@ -2419,7 +2386,7 @@ BoxCollider2D:
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
-  m_Offset: {x: 0, y: 0.25148273}
+  m_Offset: {x: -0.02656269, y: 0.1717968}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
@@ -2429,7 +2396,7 @@ BoxCollider2D:
     drawMode: 0
     adaptiveTiling: 0
   m_AutoTiling: 0
-  m_Size: {x: 0.95124817, y: 1.4217076}
+  m_Size: {x: 1.259367, y: 2.112318}
   m_EdgeRadius: 0
 --- !u!50 &967425416
 Rigidbody2D:
@@ -2810,6 +2777,8 @@ MonoBehaviour:
   maxHp: 100
   moveSpeed: 1
   consumeThreshold: 0.25
+  separateChaseSpeed: 0
+  chaseSpeed: 2.6
   detectionRange: 6
   detectionExpandMultiplier: 3
   playerMask:
@@ -2819,6 +2788,10 @@ MonoBehaviour:
   obstructionMask:
     serializedVersion: 2
     m_Bits: 0
+  noticeDuration: 0
+  noticeTrigger: Notice
+  noticeSound: {fileID: 0}
+  chaseMemoryTime: 0
   avoidLedges: 1
   ledgeCheckAhead: 0.3
   ledgeCheckDepth: 1.2
@@ -2869,7 +2842,12 @@ MonoBehaviour:
   persistDeath: 1
   persistentId: 
   spawnedAtRuntime: 0
-  chaseSpeed: 2.6
+  keepDistance: 1
+  keepDistanceRange: 3
+  wanderInBand: 1
+  wanderOuterRange: 6
+  wanderRetargetInterval: 1.2
+  wanderSpeed: 0
   diveAttackRange: 20
   diveSpeed: 18
   diveWindup: 0.5
@@ -2912,7 +2890,7 @@ BoxCollider2D:
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
-  m_Offset: {x: -0.19849396, y: 0}
+  m_Offset: {x: -0.18362236, y: -0.039657354}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
@@ -2922,7 +2900,7 @@ BoxCollider2D:
     drawMode: 0
     adaptiveTiling: 0
   m_AutoTiling: 0
-  m_Size: {x: 1.3969879, y: 0.77768993}
+  m_Size: {x: 1.4267311, y: 0.85700464}
   m_EdgeRadius: 0
 --- !u!50 &1175973168
 Rigidbody2D:
@@ -3331,6 +3309,8 @@ MonoBehaviour:
   maxHp: 200
   moveSpeed: 0.5
   consumeThreshold: 0.25
+  separateChaseSpeed: 0
+  chaseSpeed: 3
   detectionRange: 6
   detectionExpandMultiplier: 3
   playerMask:
@@ -3340,6 +3320,10 @@ MonoBehaviour:
   obstructionMask:
     serializedVersion: 2
     m_Bits: 64
+  noticeDuration: 0
+  noticeTrigger: Notice
+  noticeSound: {fileID: 0}
+  chaseMemoryTime: 0
   avoidLedges: 0
   ledgeCheckAhead: 0.3
   ledgeCheckDepth: 1.2
@@ -3441,7 +3425,7 @@ BoxCollider2D:
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
-  m_Offset: {x: 0.008493423, y: 0.4331882}
+  m_Offset: {x: -0.034612656, y: 0.5021577}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
@@ -3451,7 +3435,7 @@ BoxCollider2D:
     drawMode: 0
     adaptiveTiling: 0
   m_AutoTiling: 0
-  m_Size: {x: 1.866375, y: 2.342033}
+  m_Size: {x: 3.0216217, y: 3.7559156}
   m_EdgeRadius: 0
 --- !u!50 &1402979309
 Rigidbody2D:
@@ -3592,6 +3576,8 @@ MonoBehaviour:
   maxHp: 100
   moveSpeed: 3
   consumeThreshold: 0.25
+  separateChaseSpeed: 0
+  chaseSpeed: 3
   detectionRange: 6
   detectionExpandMultiplier: 3
   playerMask:
@@ -3601,6 +3587,10 @@ MonoBehaviour:
   obstructionMask:
     serializedVersion: 2
     m_Bits: 0
+  noticeDuration: 0
+  noticeTrigger: Notice
+  noticeSound: {fileID: 0}
+  chaseMemoryTime: 0
   avoidLedges: 1
   ledgeCheckAhead: 0.3
   ledgeCheckDepth: 1.2
@@ -3658,11 +3648,15 @@ MonoBehaviour:
   surfaceMask:
     serializedVersion: 2
     m_Bits: 64
+  fitBodyToSurface: 1
   slashRange: 2.5
   slashCooldown: 3.5
   slashDamage: 50
   slashWindup: 1
   slashActiveTime: 0.2
+  slashRecovery: 1
+  slashBoxSize: {x: 3, y: 3}
+  slashBoxOffset: {x: 2, y: 1}
   pounceMinRange: 3
   pounceMaxRange: 9
   pounceWindup: 1.5
@@ -3671,6 +3665,9 @@ MonoBehaviour:
   pounceDamage: 100
   pounceLandRadius: 1.5
   pounceHeight: 2
+  pounceHeightMax: 0
+  pounceRecovery: 0.4
+  showAttackAreas: 1
 --- !u!61 &1468386501
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -3705,7 +3702,7 @@ BoxCollider2D:
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
-  m_Offset: {x: 0, y: 0}
+  m_Offset: {x: -0.1379137, y: -0.22689068}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
@@ -3715,7 +3712,7 @@ BoxCollider2D:
     drawMode: 0
     adaptiveTiling: 0
   m_AutoTiling: 0
-  m_Size: {x: 1, y: 1}
+  m_Size: {x: 2.165596, y: 1.4715769}
   m_EdgeRadius: 0
 --- !u!50 &1468386502
 Rigidbody2D:
@@ -4115,279 +4112,6 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1 &1531932418
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1531932424}
-  - component: {fileID: 1531932423}
-  - component: {fileID: 1531932422}
-  - component: {fileID: 1531932421}
-  - component: {fileID: 1531932420}
-  - component: {fileID: 1531932419}
-  m_Layer: 3
-  m_Name: MS_Germ_Crush (1)
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!95 &1531932419
-Animator:
-  serializedVersion: 7
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1531932418}
-  m_Enabled: 1
-  m_Avatar: {fileID: 0}
-  m_Controller: {fileID: 9100000, guid: 392cfb93bb0a25340834220c9294712d, type: 2}
-  m_CullingMode: 0
-  m_UpdateMode: 0
-  m_ApplyRootMotion: 0
-  m_LinearVelocityBlending: 0
-  m_StabilizeFeet: 0
-  m_AnimatePhysics: 0
-  m_WarningMessage: 
-  m_HasTransformHierarchy: 1
-  m_AllowConstantClipSamplingOptimization: 1
-  m_KeepAnimatorStateOnDisable: 0
-  m_WriteDefaultValuesOnDisable: 0
---- !u!114 &1531932420
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1531932418}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ce53c700912c83e49b678abfdb3bc133, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::CrusherGerm
-  maxHp: 150
-  moveSpeed: 2
-  consumeThreshold: 0.25
-  detectionRange: 6
-  detectionExpandMultiplier: 3
-  playerMask:
-    serializedVersion: 2
-    m_Bits: 128
-  blockSightByTerrain: 1
-  obstructionMask:
-    serializedVersion: 2
-    m_Bits: 0
-  avoidLedges: 1
-  ledgeCheckAhead: 0.3
-  ledgeCheckDepth: 1.2
-  patrolDistance: 3
-  patrolPauseDuration: 2
-  patrolDistanceVariance: 1
-  patrolPauseVariance: 1
-  maxLeashDistance: 0
-  postAttackPause: 0.5
-  turnPauseDuration: 0.5
-  knockbackResistance: 0.3
-  knockbackRecoverTime: 0.1
-  knockbackDuringAttack: 0
-  attackRange: 1.5
-  attackDamage: 50
-  attackCooldown: 1.5
-  knockbackForce: 8
-  knockbackUpRatio: 0.5
-  knockbackAlwaysUp: 1
-  stunDuration: 0.3
-  attackHitbox: {fileID: 747359123}
-  showHitbox: 0
-  attackFrontOnly: 1
-  attackWindup: 0.2
-  attackActiveTime: 0.3
-  consumableLifetime: 5
-  showConsumeIndicator: 1
-  hitEffect:
-    prefab: {fileID: 0}
-    rotateToHitDirection: 0
-    scale: 0.9
-    lifetime: 0.3
-    fallbackColor: {r: 1, g: 0.85, b: 0.35, a: 1}
-    inheritSortingFromTarget: 1
-    sortingOrderOffset: 5
-    enabled: 1
-  hitFlashColor: {r: 1, g: 0.45, b: 0.45, a: 1}
-  hitFlashDuration: 0.12
-  cellDropTotal: 10
-  cellDropCount: 5
-  cellChunkPrefab: {fileID: 0}
-  cellPickupDelay: 0.45
-  cellPopUpSpeed: 4
-  cellPopSideSpeed: 2.5
-  absorbCellsOnConsume: 1
-  cellAbsorbDelay: 0.2
-  actionStartDelay: 0
-  persistDeath: 1
-  persistentId: 
-  spawnedAtRuntime: 0
-  dashWindup: 0.5
-  dashSpeed: 16
-  dashMaxDuration: 3.5
-  wallMask:
-    serializedVersion: 2
-    m_Bits: 64
-  wallKnockback: 0.5
-  wallStunDuration: 3.5
---- !u!61 &1531932421
-BoxCollider2D:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1531932418}
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Density: 1
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_ForceSendLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_ForceReceiveLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_ContactCaptureLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_CallbackLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_IsTrigger: 0
-  m_UsedByEffector: 0
-  m_CompositeOperation: 0
-  m_CompositeOrder: 0
-  m_Offset: {x: -0.10582733, y: 0.075591326}
-  m_SpriteTilingProperty:
-    border: {x: 0, y: 0, z: 0, w: 0}
-    pivot: {x: 0.5, y: 0.5}
-    oldSize: {x: 3.455, y: 2.415}
-    newSize: {x: 1, y: 1}
-    adaptiveTilingThreshold: 0.5
-    drawMode: 0
-    adaptiveTiling: 0
-  m_AutoTiling: 0
-  m_Size: {x: 1.4233093, y: 1.1511827}
-  m_EdgeRadius: 0
---- !u!50 &1531932422
-Rigidbody2D:
-  serializedVersion: 5
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1531932418}
-  m_BodyType: 0
-  m_Simulated: 1
-  m_UseFullKinematicContacts: 0
-  m_UseAutoMass: 0
-  m_Mass: 1
-  m_LinearDamping: 0
-  m_AngularDamping: 0.05
-  m_GravityScale: 1
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_Interpolate: 1
-  m_SleepingMode: 1
-  m_CollisionDetection: 1
-  m_Constraints: 4
---- !u!212 &1531932423
-SpriteRenderer:
-  serializedVersion: 2
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1531932418}
-  m_Enabled: 1
-  m_CastShadows: 0
-  m_ReceiveShadows: 0
-  m_DynamicOccludee: 1
-  m_StaticShadowCaster: 0
-  m_MotionVectors: 1
-  m_LightProbeUsage: 1
-  m_ReflectionProbeUsage: 1
-  m_RayTracingMode: 0
-  m_RayTraceProcedural: 0
-  m_RayTracingAccelStructBuildFlagsOverride: 0
-  m_RayTracingAccelStructBuildFlags: 1
-  m_SmallMeshCulling: 1
-  m_ForceMeshLod: -1
-  m_MeshLodSelectionBias: 0
-  m_RenderingLayerMask: 1
-  m_RendererPriority: 0
-  m_Materials:
-  - {fileID: 2100000, guid: a97c105638bdf8b4a8650670310a4cd3, type: 2}
-  m_StaticBatchInfo:
-    firstSubMesh: 0
-    subMeshCount: 0
-  m_StaticBatchRoot: {fileID: 0}
-  m_ProbeAnchor: {fileID: 0}
-  m_LightProbeVolumeOverride: {fileID: 0}
-  m_ScaleInLightmap: 1
-  m_ReceiveGI: 1
-  m_PreserveUVs: 0
-  m_IgnoreNormalsForChartDetection: 0
-  m_ImportantGI: 0
-  m_StitchLightmapSeams: 1
-  m_SelectedEditorRenderState: 0
-  m_MinimumChartSize: 4
-  m_AutoUVMaxDistance: 0.5
-  m_AutoUVMaxAngle: 89
-  m_LightmapParameters: {fileID: 0}
-  m_GlobalIlluminationMeshLod: 0
-  m_SortingLayerID: 1016758505
-  m_SortingLayer: 1
-  m_SortingOrder: 0
-  m_MaskInteraction: 0
-  m_Sprite: {fileID: -2635314297929405706, guid: c547d7b17422ed5418f389d37cad2ee2, type: 3}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_FlipX: 0
-  m_FlipY: 0
-  m_DrawMode: 0
-  m_Size: {x: 1, y: 1}
-  m_AdaptiveModeThreshold: 0.5
-  m_SpriteTileMode: 0
-  m_WasSpriteAssigned: 1
-  m_SpriteSortPoint: 0
---- !u!4 &1531932424
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1531932418}
-  serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 13.21, y: 13.68, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children:
-  - {fileID: 747359124}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1535943801
@@ -5787,7 +5511,6 @@ SceneRoots:
   - {fileID: 1175973170}
   - {fileID: 200546528}
   - {fileID: 792557965}
-  - {fileID: 1531932424}
   - {fileID: 967425418}
   - {fileID: 526758975}
   - {fileID: 123573327}
